@@ -490,14 +490,69 @@ async function handleSignOut() {
 
   return matchesSearch && matchesCategory;
 });
-  if (selectedProduct) {
+  if (selectedSeller) {
+  const sellerProducts = products.filter(
+    (p) => p.seller === selectedSeller
+  );
+
+  return (
+    <LinearGradient
+      colors={["#ffdde1", "#ee9ca7", "#a18cd1", "#fbc2eb"]}
+      style={styles.container}
+    >
+      <ScrollView>
+        <TouchableOpacity onPress={() => setSelectedSeller(null)}>
+          <Text style={styles.back}>← Back</Text>
+        </TouchableOpacity>
+
+        <View style={styles.detailCard}>
+          <Text style={styles.sectionTitle}>👤 {selectedSeller}</Text>
+
+          <Text style={styles.detailText}>
+            ⭐ Rating: {getSellerRating(selectedSeller)}/5
+          </Text>
+
+          <Text style={styles.detailText}>
+            📝 Reviews: {getSellerReviewCount(selectedSeller)}
+          </Text>
+
+          <Text style={styles.detailText}>
+            📦 Listings: {sellerProducts.length}
+          </Text>
+        </View>
+
+        <Text style={styles.sectionTitle}>Products by {selectedSeller}</Text>
+
+        {sellerProducts.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            onPress={() => {
+              setSelectedSeller(null);
+              setSelectedProduct(item);
+            }}
+          >
+            <View style={styles.card}>
+              {item.imageUri && (
+                <Image source={{ uri: item.imageUri }} style={styles.gridImage} />
+              )}
+
+              <Text style={styles.detailTitle}>{item.title}</Text>
+              <Text style={styles.productPrice}>€{item.price}</Text>
+              <Text style={styles.detailText}>{item.category}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </LinearGradient>
+  );
+}
+if (selectedProduct) {
     return (
       <LinearGradient colors={["#ffdde1", "#ee9ca7", "#a18cd1", "#fbc2eb"]} style={styles.container}>
         <ScrollView>
           <TouchableOpacity onPress={() => setSelectedProduct(null)}>
             <Text style={styles.back}>← Back</Text>
           </TouchableOpacity>
-
           <View style={styles.productDetailLayout}>
   {selectedProduct.imageUri && (
     <Image
@@ -512,10 +567,12 @@ async function handleSignOut() {
 <Text style={styles.productPrice}>€{selectedProduct.price}</Text>
 
 <View style={styles.detailInfoBox}>
+ <TouchableOpacity onPress={() => setSelectedSeller(selectedProduct.seller)}>
   <Text style={styles.detailText}>
     <Text style={styles.detailLabel}>Seller: </Text>
-    {selectedProduct.seller}
+    {selectedProduct.seller} 👤
   </Text>
+</TouchableOpacity>
 
   <Text style={styles.detailText}>
     <Text style={styles.detailLabel}>Category: </Text>
