@@ -5,7 +5,7 @@ A modern full-stack marketplace application built with React Native (Expo) and A
 
 ## Live Demo
 
-https://dist-1xf68xo6d-market-shop-s-projects.vercel.
+https://dist-1xf68xo6d-market-shop-s-projects.vercel.app
 
 
 ## Features
