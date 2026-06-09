@@ -509,6 +509,10 @@ async function handleSignOut() {
   <Text style={styles.detailText}>Category: {selectedProduct.category}</Text>
   <Text style={styles.detailText}>Condition: {selectedProduct.condition}</Text>
   <Text style={styles.detailText}>
+  Description: {selectedProduct.description || "No description provided"}
+</Text>
+
+<Text style={styles.detailText}>
   Rating: ⭐ {getSellerRating(selectedProduct.seller)}/5
 </Text>
   <Text style={styles.detailText}>Listings: 1</Text>
@@ -735,7 +739,11 @@ return (
         </View>
 
        
-       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 15 }}>
+       <ScrollView
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  style={{ marginBottom: 15, maxHeight: 50 }}
+>
   {categories.map((cat) => (
     <TouchableOpacity
       key={cat}
@@ -755,8 +763,13 @@ return (
       </Text>
     </TouchableOpacity>
   ))}
+<View style={styles.footer}>
+  <Text style={styles.footerLink}>About Us</Text>
+  <Text style={styles.footerLink}>Contact Us</Text>
+  <Text style={styles.footerLink}>Privacy Policy</Text>
+  <Text style={styles.footerLink}>Terms of Service</Text>
+</View>
 </ScrollView>
-
 {activeCategory === "Cart" && (
   <View style={styles.card}>
     <Text style={styles.sectionTitle}>Shopping Cart</Text>
@@ -875,7 +888,27 @@ return (
       </TouchableOpacity>
     </View>
   )}
-        />
+    />           
+
+<View style={styles.footer}>
+  <TouchableOpacity>
+    <Text style={styles.footerLink}>About Us</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity>
+    <Text style={styles.footerLink}>Contact Us</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity>
+    <Text style={styles.footerLink}>Privacy Policy</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity>
+    <Text style={styles.footerLink}>Terms of Service</Text>
+  </TouchableOpacity>
+</View>
+
+     
       </ScrollView>
     </LinearGradient>
   );
@@ -946,15 +979,16 @@ logoImage: {
   searchButton: { padding: 14, borderRadius: 14 },
 
   categoryPill: {
-    backgroundColor: "white",
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    borderRadius: 18,
-    marginRight: 10,
-  },
+  backgroundColor: "white",
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  borderRadius: 14,
+  marginRight: 6,
+  alignSelf: "flex-start",
+},
 
   categoryActive: { backgroundColor: "#7b2ff7" },
-  categoryText: { color: "#4527a0", fontWeight: "bold" },
+  categoryText: { color: "#4527a0", fontWeight: "bold", fontSize: 12 },
   categoryTextActive: { color: "#fff" },
 
   button: { padding: 16, borderRadius: 16, marginTop: 8 },
@@ -1090,5 +1124,15 @@ messageText: {
   color: "#fff",
   fontWeight: "bold",
 },
+footer: {
+  marginTop: 30,
+  paddingVertical: 20,
+  alignItems: "center",
+},
 
+footerLink: {
+  fontSize: 14,
+  color: "#666",
+  marginVertical: 4,
+},
 });
