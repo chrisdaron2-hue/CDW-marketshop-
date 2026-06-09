@@ -1,10 +1,12 @@
 # CDW Marketshop
+<img width="1693" height="929" alt="CDW Marketshop" src="https://github.com/user-attachments/assets/80ce24d0-e349-45b9-8bf3-8407d12baae8" />
 
 A modern full-stack marketplace application built with React Native (Expo) and AWS serverless services.
 
 ## Live Demo
 
-https://dist-p0ekfib99-market-shop-s-projects.vercel.app
+https://dist-1xf68xo6d-market-shop-s-projects.vercel.
+
 
 ## Features
 
