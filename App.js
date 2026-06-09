@@ -114,7 +114,30 @@ useEffect(() => {
   loadReviews();
   loadOrders();
 }, []);
+useEffect(() => {
+  if (typeof window === "undefined") return;
 
+  const savedFavorites = window.localStorage.getItem("favorites");
+  const savedCart = window.localStorage.getItem("cart");
+
+  if (savedFavorites) {
+    setFavorites(JSON.parse(savedFavorites));
+  }
+
+  if (savedCart) {
+    setCart(JSON.parse(savedCart));
+  }
+}, []);
+
+useEffect(() => {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem("favorites", JSON.stringify(favorites));
+}, [favorites]);
+
+useEffect(() => {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem("cart", JSON.stringify(cart));
+}, [cart]);
   async function loadProducts() {
     try {
       const response = await fetch(PRODUCTS_API_URL);
