@@ -498,23 +498,72 @@ async function handleSignOut() {
             <Text style={styles.back}>← Back</Text>
           </TouchableOpacity>
 
-          {selectedProduct.imageUri && (
-            <Image source={{ uri: selectedProduct.imageUri }} style={styles.detailImage} />
-          )}
+          <View style={styles.productDetailLayout}>
+  {selectedProduct.imageUri && (
+    <Image
+      source={{ uri: selectedProduct.imageUri }}
+      style={styles.detailImageDesktop}
+    />
+  )}
 
-<View style={styles.card}>
+  <View style={styles.productDetailContent}>
+    <View style={styles.detailCard}>
   <Text style={styles.detailTitle}>{selectedProduct.title}</Text>
-  <Text style={styles.productPrice}>€{selectedProduct.price}</Text>
-  <Text style={styles.detailText}>Seller: {selectedProduct.seller}</Text>
-  <Text style={styles.detailText}>Category: {selectedProduct.category}</Text>
-  <Text style={styles.detailText}>Condition: {selectedProduct.condition}</Text>
-  <Text style={styles.detailText}>
-  Description: {selectedProduct.description || "No description provided"}
-</Text>
+<Text style={styles.productPrice}>€{selectedProduct.price}</Text>
 
-<Text style={styles.detailText}>
-  Rating: ⭐ {getSellerRating(selectedProduct.seller)}/5
-</Text>
+<View style={styles.detailInfoBox}>
+  <Text style={styles.detailText}>
+    <Text style={styles.detailLabel}>Seller: </Text>
+    {selectedProduct.seller}
+  </Text>
+
+  <Text style={styles.detailText}>
+    <Text style={styles.detailLabel}>Category: </Text>
+    {selectedProduct.category}
+  </Text>
+
+  <Text style={styles.detailText}>
+    <Text style={styles.detailLabel}>Condition: </Text>
+    {selectedProduct.condition}
+  </Text>
+
+  <Text style={styles.detailText}>
+    <Text style={styles.detailLabel}>Description: </Text>
+    {selectedProduct.description || "No description provided"}
+  </Text>
+
+  <Text style={styles.detailText}>
+    <Text style={styles.detailLabel}>Rating: </Text>
+    ⭐ {getSellerRating(selectedProduct.seller)}/5
+  </Text>
+</View>
+
+<View style={styles.sellerCard}>
+  <Text style={styles.sectionTitle}>Seller Information</Text>
+
+  <Text style={styles.detailText}>
+    👤 {selectedProduct.seller}
+  </Text>
+
+  <Text style={styles.detailText}>
+    ⭐ Rating: {getSellerRating(selectedProduct.seller)}/5
+  </Text>
+
+  <Text style={styles.detailText}>
+    📝 Reviews: {getSellerReviewCount(selectedProduct.seller)}
+  </Text>
+
+  <Text style={styles.detailText}>
+    📦 Listings: {getSellerListingsCount(selectedProduct.seller)}
+  </Text>
+
+  <TouchableOpacity
+    style={styles.messageButton}
+    onPress={() => contactSeller(selectedProduct)}
+  >
+    <Text style={styles.messageText}>💬 Contact Seller</Text>
+  </TouchableOpacity>
+</View>
   <Text style={styles.detailText}>Listings: 1</Text>
 <Text style={styles.detailText}>
   Reviews: {
@@ -608,10 +657,16 @@ async function handleSignOut() {
       <Text style={styles.deleteButtonText}>Delete 🗑️</Text>
     </TouchableOpacity>
   )}
-</View>
+</View>   {/* closes detailCard */}
+</View>   {/* closes productDetailContent */}
+</View>   {/* closes productDetailLayout */}
+
 </ScrollView>
 </LinearGradient>
 );
+}
+
+
 function getSellerRating(sellerName) {
   const sellerReviews = reviews.filter(
     (review) => review.productTitle && products.find(
@@ -622,14 +677,13 @@ function getSellerRating(sellerName) {
   if (sellerReviews.length === 0) {
     return "5.0";
   }
-
   const average =
     sellerReviews.reduce((sum, review) => sum + (review.rating || 5), 0) /
     sellerReviews.length;
 
   return average.toFixed(1);
 }
-}
+
   const totalListings = products.length;
 const totalOrders = orders.length;
 const totalMessages = messages.length;
@@ -642,6 +696,17 @@ const averageRating =
         reviews.length
       ).toFixed(1)
     : "5.0";
+function getSellerReviewCount(sellerName) {
+  return reviews.filter((review) =>
+    products.find(
+      (p) => p.title === review.productTitle && p.seller === sellerName
+    )
+  ).length;
+}
+
+function getSellerListingsCount(sellerName) {
+  return products.filter((p) => p.seller === sellerName).length;
+}
 return (
     <LinearGradient colors={["#ffdde1", "#ee9ca7", "#a18cd1", "#fbc2eb"]} style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -728,7 +793,6 @@ return (
             </LinearGradient>
           </TouchableOpacity>
         </View>
-
         <View style={styles.searchRow}>
           <TextInput placeholder="Search products..." value={search} onChangeText={setSearch} style={styles.searchInput} />
           <TouchableOpacity onPress={() => setSearch(search.trim())}>
@@ -838,7 +902,7 @@ return (
   </View>
 )}
 {activeCategory.startsWith("Messages") && (
-  <View style={styles.card}>
+  <View style={styles.detailCard}>
     <Text style={styles.sectionTitle}>Messages</Text>
 
     {messages.length === 0 ? (
@@ -1015,7 +1079,15 @@ logoImage: {
     borderRadius: 14,
     marginBottom: 8,
   },
+productDetailLayout: {
+  width: "100%",
+  maxWidth: 1100,
+  alignSelf: "center",
+},
 
+productDetailContent: {
+  width: "100%",
+},
   productTitle: { fontSize: 15, fontWeight: "bold" },
 
   productPrice: {
@@ -1134,5 +1206,40 @@ footerLink: {
   fontSize: 14,
   color: "#666",
   marginVertical: 4,
+},
+detailCard: {
+  backgroundColor: "rgba(255,255,255,0.95)",
+  borderRadius: 24,
+  padding: 24,
+  marginBottom: 20,
+  maxWidth: 900,
+  alignSelf: "center",
+  width: "100%",
+},
+detailInfoBox: {
+  backgroundColor: "#f8f5ff",
+  borderRadius: 18,
+  padding: 16,
+  marginTop: 14,
+},
+detailLabel: {
+  fontWeight: "bold",
+  color: "#4527a0",
+},
+
+detailImageDesktop: {
+  width: "100%",
+  height: 500,
+  borderRadius: 24,
+  marginBottom: 20,
+  resizeMode: "contain",
+  backgroundColor: "#fff",
+},
+sellerCard: {
+  backgroundColor: "#fff",
+  borderRadius: 18,
+  padding: 18,
+  marginTop: 16,
+  marginBottom: 16,
 },
 });
