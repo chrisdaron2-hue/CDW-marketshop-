@@ -102,7 +102,7 @@ const orderCount = orders.length;
   "Favorites",
   "Cart",
   "My Listings",
-  "Orders",
+  
   `Messages (${messageCount})`,
 `Reviews (${reviewCount})`,
 `Orders (${orderCount})`,
@@ -419,6 +419,39 @@ function contactSeller(product) {
     `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
   );
 }
+async function sendMessage(product) {
+  if (!messageText.trim()) {
+    notify("Enter a message.");
+    return;
+  }
+
+  const newMessage = {
+    id: Date.now().toString(),
+    productId: product.id,
+    productTitle: product.title,
+    seller: product.seller,
+    buyer: currentUserEmail || "Guest",
+    text: messageText,
+    createdAt: new Date().toISOString(),
+  };
+
+  try {
+    await fetch(MESSAGES_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newMessage),
+    });
+
+    setMessages([...messages, newMessage]);
+    setMessageText("");
+    notify("Message sent.");
+  } catch (error) {
+    console.log("MESSAGE ERROR:", error);
+    notify("Failed to send message.");
+  }
+}
 async function submitReview(product) {
   if (!reviewText.trim()) {
     notify("Enter a review.");
@@ -433,7 +466,6 @@ async function submitReview(product) {
     text: reviewText,
     rating: 5,
   };
-
   try {
     await fetch(REVIEWS_API_URL, {
       method: "POST",
@@ -520,7 +552,7 @@ async function handleSignOut() {
 
   return (
     <LinearGradient
-      colors={["#ffdde1", "#ee9ca7", "#a18cd1", "#fbc2eb"]}
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
       style={styles.container}
     >
       <ScrollView>
@@ -547,23 +579,29 @@ async function handleSignOut() {
         <Text style={styles.sectionTitle}>Products by {selectedSeller}</Text>
 
         {sellerProducts.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            onPress={() => {
-              setSelectedSeller(null);
-              setSelectedProduct(item);
-            }}
-          >
-            <View style={styles.card}>
-              {item.imageUri && (
-                <Image source={{ uri: item.imageUri }} style={styles.gridImage} />
-              )}
+       <TouchableOpacity
+  key={item.id}
+  onPress={() => {
+    setSelectedSeller(null);
+    setSelectedProduct(item);
 
-              <Text style={styles.detailTitle}>{item.title}</Text>
-              <Text style={styles.productPrice}>€{item.price}</Text>
-              <Text style={styles.detailText}>{item.category}</Text>
-            </View>
-          </TouchableOpacity>
+    if (typeof window !== "undefined") {
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+      }, 50);
+    }
+  }}
+>
+  <View style={styles.card}>
+    {item.imageUri && (
+      <Image source={{ uri: item.imageUri }} style={styles.gridImage} />
+    )}
+
+    <Text style={styles.detailTitle}>{item.title}</Text>
+    <Text style={styles.productPrice}>€{item.price}</Text>
+    <Text style={styles.detailText}>{item.category}</Text>
+  </View>
+</TouchableOpacity>
         ))}
       </ScrollView>
     </LinearGradient>
@@ -571,8 +609,17 @@ async function handleSignOut() {
 }
 if (selectedProduct) {
     return (
-      <LinearGradient colors={["#ffdde1", "#ee9ca7", "#a18cd1", "#fbc2eb"]} style={styles.container}>
-        <ScrollView>
+      <LinearGradient
+  colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
+  style={styles.container}
+>
+        <ScrollView
+  ref={(ref) => {
+    if (ref) {
+      ref.scrollTo({ y: 0, animated: false });
+    }
+  }}
+>
           <TouchableOpacity onPress={() => setSelectedProduct(null)}>
             <Text style={styles.back}>← Back</Text>
           </TouchableOpacity>
@@ -641,22 +688,9 @@ if (selectedProduct) {
     style={styles.messageButton}
     onPress={() => contactSeller(selectedProduct)}
   >
-    <Text style={styles.messageText}>💬 Contact Seller</Text>
+   <Text style={styles.messageText}>💬 Contact Seller</Text>  
   </TouchableOpacity>
 </View>
-  <Text style={styles.detailText}>Listings: 1</Text>
-<Text style={styles.detailText}>
-  Reviews: {
-    reviews.filter(
-      (r) =>
-        products.find(
-          (p) =>
-            p.title === r.productTitle &&
-            p.seller === selectedProduct.seller
-        )
-    ).length
-  }
-</Text>
   <TouchableOpacity
     style={styles.favoriteButton}
     onPress={() => toggleFavorite(selectedProduct.id)}
@@ -718,7 +752,7 @@ if (selectedProduct) {
         style={styles.messageButton}
         onPress={() => contactSeller(selectedProduct)}
       >
-        <Text style={styles.messageText}>💬 Contact Seller</Text>
+       
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => buyProduct(selectedProduct)}>
@@ -972,7 +1006,7 @@ return (
       orders.map((order) => (
         <View key={order.id} style={styles.card}>
           <Text style={styles.detailTitle}>{order.title}</Text>
-          <Text style={styles.detailText}>€{order.price}</Text>
+          
           <Text style={styles.detailText}>
             Seller: {order.seller}
           </Text>
@@ -1006,15 +1040,44 @@ return (
   columnWrapperStyle={{ gap: 12 }}
   renderItem={({ item }) => (
     <View style={styles.gridCard}>
-      <TouchableOpacity onPress={() => setSelectedProduct(item)}>
-        {item.imageUri && (
-          <Image source={{ uri: item.imageUri }} style={styles.gridImage} />
-        )}
-        <Text numberOfLines={1} style={styles.productTitle}>{item.title}</Text>
-        <Text style={styles.productPrice}>€{item.price}</Text>
-        <Text numberOfLines={1} style={styles.meta}>{item.category}</Text>
-      </TouchableOpacity>
+ <TouchableOpacity
+  onPress={() => {
+    setSelectedProduct(item);
 
+    if (typeof window !== "undefined") {
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+      }, 50);
+    }
+  }}
+>
+  <Image
+    source={{
+      uri:
+        item.imageUri ||
+        "https://via.placeholder.com/400x250?text=CDW+Marketshop",
+    }}
+    style={styles.gridImage}
+  />
+
+  <Text numberOfLines={1} style={styles.productTitle}>
+    {item.title}
+  </Text>
+
+  <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+    <View style={styles.priceBadge}>
+      <Text style={styles.priceBadgeText}>€{item.price}</Text>
+    </View>
+
+    <View style={styles.newBadge}>
+      <Text style={styles.newBadgeText}>🆕 New</Text>
+    </View>
+  </View>
+
+  <Text numberOfLines={1} style={styles.meta}>
+    {item.category}
+  </Text>
+</TouchableOpacity>
       <TouchableOpacity style={styles.favoriteButton} onPress={() => toggleFavorite(item.id)}>
         <Text style={styles.favoriteText}>
           {favorites.includes(item.id) ? "❤️ Favorited" : "🤍 Favorite"}
@@ -1146,19 +1209,25 @@ logoImage: {
   },
 
   gridCard: {
-    flex: 1,
-    backgroundColor: "white",
-    borderRadius: 18,
-    padding: 10,
-    marginBottom: 12,
-  },
+  flex: 1,
+  backgroundColor: "rgba(255,255,255,0.96)",
+  borderRadius: 22,
+  padding: 12,
+  marginBottom: 14,
+  shadowColor: "#000",
+  shadowOpacity: 0.15,
+  shadowRadius: 10,
+  shadowOffset: { width: 0, height: 5 },
+  elevation: 4,
+},
 
   gridImage: {
-    width: "100%",
-    height: 120,
-    borderRadius: 14,
-    marginBottom: 8,
-  },
+  width: "100%",
+  height: 150,
+  borderRadius: 18,
+  marginBottom: 10,
+  resizeMode: "cover",
+},
 productDetailLayout: {
   width: "100%",
   maxWidth: 1100,
@@ -1206,10 +1275,16 @@ productDetailContent: {
   },
 
   back: {
-    fontSize: 18,
-    marginBottom: 20,
-    color: "#4527a0",
-  },
+  fontSize: 20,
+  marginBottom: 20,
+  color: "#ffffff",
+  fontWeight: "bold",
+  backgroundColor: "rgba(255,255,255,0.15)",
+  paddingHorizontal: 12,
+  paddingVertical: 8,
+  borderRadius: 12,
+  alignSelf: "flex-start",
+},
 
   deleteButton: {
     marginTop: 14,
@@ -1231,7 +1306,20 @@ productDetailContent: {
     color: "#fff",
     fontWeight: "bold",
   },
+newBadge: {
+  backgroundColor: "#ff4081",
+  paddingHorizontal: 10,
+  paddingVertical: 5,
+  borderRadius: 12,
+  alignSelf: "flex-start",
+  marginBottom: 8,
+},
 
+newBadgeText: {
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: 12,
+},
   favoriteButton: {
     marginTop: 8,
     backgroundColor: "#fff0f6",
@@ -1306,10 +1394,21 @@ detailLabel: {
   fontWeight: "bold",
   color: "#4527a0",
 },
-
+priceBadge: {
+  backgroundColor: "#7b2ff7",
+  paddingVertical: 6,
+  paddingHorizontal: 10,
+  borderRadius: 12,
+  alignSelf: "flex-start",
+  marginTop: 6,
+},
+priceBadgeText: {
+  color: "#fff",
+  fontWeight: "bold",
+},
 detailImageDesktop: {
   width: "100%",
-  height: 500,
+  height: 300,
   borderRadius: 24,
   marginBottom: 20,
   resizeMode: "contain",
