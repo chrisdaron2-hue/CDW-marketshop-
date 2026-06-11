@@ -87,7 +87,7 @@ export default function App() {
 const [orders, setOrders] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [cart, setCart] = useState([]);
-
+const [editingProduct, setEditingProduct] = useState(null);
   const [currentUserEmail, setCurrentUserEmail] = useState("");
 const messageCount = messages.length;
 const reviewCount = reviews.length;
@@ -519,6 +519,22 @@ async function loadOrders() {
     console.log("LOAD ORDERS ERROR:", error);
   }
 }
+async function saveEditedProduct() {
+  try {
+    const updatedProducts = products.map((product) =>
+      product.id === editingProduct.id ? editingProduct : product
+    );
+
+    setProducts(updatedProducts);
+    setSelectedProduct(editingProduct);
+    setEditingProduct(null);
+
+    notify("Product updated successfully.");
+  } catch (error) {
+    console.log("EDIT ERROR:", error);
+    notify("Failed to update product.");
+  }
+}
 async function handleSignOut() {
   setCurrentUserEmail("");
   setSelectedProduct(null);
@@ -542,14 +558,81 @@ async function handleSignOut() {
       cart.find((cartItem) => cartItem.id === item.id)) ||
     (activeCategory === "My Listings" &&
       item.ownerEmail === currentUserEmail);
-
   return matchesSearch && matchesCategory;
 });
-  if (selectedSeller) {
+  if (editingProduct) {
+  return (
+    <LinearGradient
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
+      style={styles.container}
+    >
+      <ScrollView>
+        <TouchableOpacity onPress={() => setEditingProduct(null)}>
+          <Text style={styles.back}>← Back</Text>
+        </TouchableOpacity>
+
+        <View style={styles.detailCard}>
+          <Text style={styles.sectionTitle}>✏️ Edit Product</Text>
+<TextInput
+  style={styles.input}
+  value={editingProduct.title || ""}
+  placeholder="Product title"
+  onChangeText={(text) =>
+    setEditingProduct({ ...editingProduct, title: text })
+  }
+/>
+
+<TextInput
+  style={styles.input}
+  value={editingProduct.price || ""}
+  placeholder="Price"
+  onChangeText={(text) =>
+    setEditingProduct({ ...editingProduct, price: text })
+  }
+/>
+
+<TextInput
+  style={styles.input}
+  value={editingProduct.category || ""}
+  placeholder="Category"
+  onChangeText={(text) =>
+    setEditingProduct({ ...editingProduct, category: text })
+  }
+/>
+
+<TextInput
+  style={styles.input}
+  value={editingProduct.condition || ""}
+  placeholder="Condition"
+  onChangeText={(text) =>
+    setEditingProduct({ ...editingProduct, condition: text })
+  }
+/>
+
+<TextInput
+  style={styles.input}
+  value={editingProduct.description || ""}
+  placeholder="Description"
+  multiline
+  onChangeText={(text) =>
+    setEditingProduct({ ...editingProduct, description: text })
+  }
+/>
+          <TouchableOpacity
+  style={styles.messageButton}
+  onPress={() => saveEditedProduct()}
+>
+  <Text style={styles.messageText}>Save Changes</Text>
+</TouchableOpacity>
+        </View>
+      </ScrollView>
+    </LinearGradient>
+  );
+}
+if (selectedSeller) {
   const sellerProducts = products.filter(
     (p) => p.seller === selectedSeller
   );
-
   return (
     <LinearGradient
       colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
@@ -608,28 +691,26 @@ async function handleSignOut() {
   );
 }
 if (selectedProduct) {
-    return (
-      <LinearGradient
-  colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
-  style={styles.container}
->
-        <ScrollView
-  ref={(ref) => {
-    if (ref) {
-      ref.scrollTo({ y: 0, animated: false });
-    }
-  }}
->
-          <TouchableOpacity onPress={() => setSelectedProduct(null)}>
-            <Text style={styles.back}>← Back</Text>
-          </TouchableOpacity>
+  return (
+    <LinearGradient
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
+      style={styles.container}
+    >
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <TouchableOpacity onPress={() => setSelectedProduct(null)}>
+          <Text style={styles.back}>← Back</Text>
+        </TouchableOpacity>
           <View style={styles.productDetailLayout}>
-  {selectedProduct.imageUri && (
-    <Image
-      source={{ uri: selectedProduct.imageUri }}
-      style={styles.detailImageDesktop}
-    />
-  )}
+  {selectedProduct.imageUri && selectedProduct.imageUri.startsWith("http") ? (
+  <Image
+    source={{ uri: selectedProduct.imageUri }}
+    style={styles.detailImageDesktop}
+  />
+) : (
+  <View style={styles.placeholderDetailImage}>
+    <Text style={styles.placeholderText}>CDW Marketshop</Text>
+  </View>
+)}
 
   <View style={styles.productDetailContent}>
     <View style={styles.detailCard}>
@@ -762,15 +843,22 @@ if (selectedProduct) {
       </TouchableOpacity>
     </>
   )}
+<TouchableOpacity
+  style={styles.messageButton}
+  onPress={() => setEditingProduct(selectedProduct)}
+>
+  <Text style={styles.messageText}>✏️ Edit Product</Text>
+</TouchableOpacity>
 
-  {selectedProduct.ownerEmail === currentUserEmail && (
-    <TouchableOpacity
-      style={styles.deleteButton}
-      onPress={() => deleteProduct(selectedProduct.id)}
-    >
-      <Text style={styles.deleteButtonText}>Delete 🗑️</Text>
-    </TouchableOpacity>
-  )}
+{selectedProduct.ownerEmail === currentUserEmail && (
+  <TouchableOpacity
+    style={styles.deleteButton}
+    onPress={() => deleteProduct(selectedProduct.id)}
+  >
+    <Text style={styles.deleteButtonText}>Delete 🗑️</Text>
+  </TouchableOpacity>
+)}
+ 
 </View>   {/* closes detailCard */}
 </View>   {/* closes productDetailContent */}
 </View>   {/* closes productDetailLayout */}
@@ -1039,64 +1127,90 @@ return (
   numColumns={2}
   columnWrapperStyle={{ gap: 12 }}
   renderItem={({ item }) => (
-    <View style={styles.gridCard}>
- <TouchableOpacity
-  onPress={() => {
-    setSelectedProduct(item);
+  <TouchableOpacity
+    style={styles.gridCard}
+    onPress={() => {
+      setSelectedProduct(item);
 
-    if (typeof window !== "undefined") {
-      setTimeout(() => {
+      if (typeof window !== "undefined") {
         window.scrollTo(0, 0);
-      }, 50);
-    }
-  }}
->
-  <Image
-    source={{
-      uri:
-        item.imageUri ||
-        "https://via.placeholder.com/400x250?text=CDW+Marketshop",
+      }
     }}
-    style={styles.gridImage}
-  />
+  >
+    {item.imageUri && item.imageUri.startsWith("http") ? (
+      <Image
+        source={{ uri: item.imageUri }}
+        style={styles.gridImage}
+      />
+    ) : (
+      <View style={styles.placeholderImage}>
+        <Text style={styles.placeholderText}>CDW Marketshop</Text>
+      </View>
+    )}
 
-  <Text numberOfLines={1} style={styles.productTitle}>
-    {item.title}
-  </Text>
+    <Text numberOfLines={1} style={styles.productTitle}>
+      {item.title}
+    </Text>
 
-  <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-    <View style={styles.priceBadge}>
-      <Text style={styles.priceBadgeText}>€{item.price}</Text>
+    <Text style={styles.meta}>
+      👤 {item.seller}
+    </Text>
+
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+        marginTop: 6,
+      }}
+    >
+      <View style={styles.priceBadge}>
+        <Text style={styles.priceBadgeText}>€{item.price}</Text>
+      </View>
+
+      <View style={styles.newBadge}>
+        <Text style={styles.newBadgeText}>🆕 New</Text>
+      </View>
     </View>
 
-    <View style={styles.newBadge}>
-      <Text style={styles.newBadgeText}>🆕 New</Text>
-    </View>
-  </View>
+    <Text numberOfLines={1} style={styles.meta}>
+      {item.category}
+    </Text>
 
-  <Text numberOfLines={1} style={styles.meta}>
-    {item.category}
-  </Text>
-</TouchableOpacity>
-      <TouchableOpacity style={styles.favoriteButton} onPress={() => toggleFavorite(item.id)}>
-        <Text style={styles.favoriteText}>
-          {favorites.includes(item.id) ? "❤️ Favorited" : "🤍 Favorite"}
-        </Text>
-      </TouchableOpacity>
+    <TouchableOpacity
+      style={styles.favoriteButton}
+      onPress={() => toggleFavorite(item.id)}
+    >
+      <Text style={styles.favoriteText}>
+        {favorites.includes(item.id)
+          ? "❤️ Favorited"
+          : "🤍 Favorite"}
+      </Text>
+    </TouchableOpacity>
 
-      <TouchableOpacity style={styles.cartButton} onPress={() => addToCart(item)}>
-        <Text style={styles.cartText}>🛒 Add to Cart</Text>
-      </TouchableOpacity>
+    <TouchableOpacity
+      style={styles.cartButton}
+      onPress={() => addToCart(item)}
+    >
+      <Text style={styles.cartText}>🛒 Add to Cart</Text>
+    </TouchableOpacity>
 
-      {item.sold && <Text style={styles.sold}>SOLD</Text>}
+    {item.sold && (
+      <Text style={styles.sold}>SOLD</Text>
+    )}
 
-      <TouchableOpacity style={styles.deleteButtonSmall} onPress={() => deleteProduct(item.id)}>
-        <Text style={styles.deleteButtonText}>Delete</Text>
-      </TouchableOpacity>
-    </View>
-  )}
-    />           
+    <TouchableOpacity
+      style={styles.deleteButtonSmall}
+      onPress={() => deleteProduct(item.id)}
+    >
+      <Text style={styles.deleteButtonText}>Delete 🗑️</Text>
+    </TouchableOpacity>
+  </TouchableOpacity>
+)}
+              
 
+ 
+    /> 
 <View style={styles.footer}>
   <TouchableOpacity>
     <Text style={styles.footerLink}>About Us</Text>
@@ -1220,13 +1334,36 @@ logoImage: {
   shadowOffset: { width: 0, height: 5 },
   elevation: 4,
 },
-
+placeholderImage: {
+  width: "100%",
+  height: 150,
+  borderRadius: 18,
+  marginBottom: 10,
+  backgroundColor: "#1a0033",
+  alignItems: "center",
+  justifyContent: "center",
+},
+placeholderDetailImage: {
+  width: "100%",
+  height: 300,
+  borderRadius: 24,
+  marginBottom: 20,
+  backgroundColor: "#1a0033",
+  alignItems: "center",
+  justifyContent: "center",
+},
+placeholderText: {
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: 16,
+},
   gridImage: {
   width: "100%",
   height: 150,
   borderRadius: 18,
   marginBottom: 10,
-  resizeMode: "cover",
+  resizeMode: "contain",
+  backgroundColor: "#1a0033",
 },
 productDetailLayout: {
   width: "100%",
