@@ -82,7 +82,7 @@ const VERIFIED_SELLERS = [
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
   const [imageUri, setImageUri] = useState(null);
-
+const [showMessages, setShowMessages] = useState(false);
   const [products, setProducts] = useState(sampleProducts);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -635,6 +635,42 @@ async function handleSignOut() {
     </LinearGradient>
   );
 }
+if (showMessages) {
+  return (
+    <LinearGradient
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
+      style={styles.container}
+    >
+      <ScrollView>
+        <TouchableOpacity onPress={() => setShowMessages(false)}>
+          <Text style={styles.back}>← Back</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.sectionTitle}>💬 Messages</Text>
+
+        {messages.length === 0 ? (
+          <Text style={styles.detailText}>No messages yet.</Text>
+        ) : (
+          messages.map((msg, index) => (
+            <View key={index} style={styles.card}>
+              <Text style={styles.detailTitle}>
+                {msg.sender || "Buyer"}
+              </Text>
+
+              <Text style={styles.detailText}>
+                {msg.text}
+              </Text>
+
+              <Text style={styles.meta}>
+                Product: {msg.productTitle}
+              </Text>
+            </View>
+          ))
+        )}
+      </ScrollView>
+    </LinearGradient>
+  );
+}
 if (selectedSeller) {
   const sellerProducts = products.filter(
     (p) => p.seller === selectedSeller
@@ -664,7 +700,6 @@ if (selectedSeller) {
             📦 Listings: {sellerProducts.length}
           </Text>
         </View>
-
         <Text style={styles.sectionTitle}>Products by {selectedSeller}</Text>
 
         {sellerProducts.map((item) => (
@@ -1025,7 +1060,14 @@ return (
   {categories.map((cat) => (
     <TouchableOpacity
       key={cat}
-      onPress={() => setActiveCategory(cat)}
+    onPress={() => {
+  if (cat.includes("Messages")) {
+    setShowMessages(true);
+  } else {
+    setShowMessages(false);
+    setActiveCategory(cat);
+  }
+}}
       style={[
         styles.categoryPill,
         activeCategory === cat && styles.categoryActive,
@@ -1119,10 +1161,21 @@ return (
   <View style={styles.detailCard}>
     <Text style={styles.sectionTitle}>Messages</Text>
 
-    {messages.length === 0 ? (
-      <Text style={styles.detailText}>No messages yet.</Text>
-    ) : (
-      messages.map((msg) => (
+    messages.map((msg, index) => (
+  <View key={index} style={styles.card}>
+    <Text style={styles.detailTitle}>
+      {msg.sender || "Buyer"}
+    </Text>
+
+    <Text style={styles.detailText}>
+      {msg.text}
+    </Text>
+
+    <Text style={styles.meta}>
+      Product: {msg.productTitle}
+    </Text>
+  </View>
+))
         <View key={msg.id} style={styles.card}>
           <Text style={styles.detailText}>Product: {msg.productTitle}</Text>
           <Text style={styles.detailText}>From: {msg.buyer || "Guest"}</Text>
