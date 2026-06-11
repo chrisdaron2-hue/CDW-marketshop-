@@ -63,7 +63,13 @@ export default function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+const VERIFIED_SELLERS = [
+  "David",
+  "Daron",
+  "Lizzy",
+  "Elizabeth",
+  "Admin",
+];
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
 
@@ -721,7 +727,8 @@ if (selectedProduct) {
  <TouchableOpacity onPress={() => setSelectedSeller(selectedProduct.seller)}>
   <Text style={styles.detailText}>
     <Text style={styles.detailLabel}>Seller: </Text>
-    {selectedProduct.seller} 👤
+    👤 {selectedProduct.seller}
+{VERIFIED_SELLERS.includes(selectedProduct.seller) ? " ✅ Verified" : ""}
   </Text>
 </TouchableOpacity>
 
@@ -833,7 +840,12 @@ if (selectedProduct) {
         style={styles.messageButton}
         onPress={() => contactSeller(selectedProduct)}
       >
-       
+      <TouchableOpacity
+  style={styles.messageButton}
+  onPress={pickImage}
+>
+  <Text style={styles.messageText}>📷 Change Image</Text>
+</TouchableOpacity> 
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => buyProduct(selectedProduct)}>
@@ -1153,8 +1165,9 @@ return (
     </Text>
 
     <Text style={styles.meta}>
-      👤 {item.seller}
-    </Text>
+  👤 {item.seller}
+  {VERIFIED_SELLERS.includes(item.seller) ? " ✅" : ""}
+</Text>
 
     <View
       style={{
@@ -1208,14 +1221,23 @@ return (
   </TouchableOpacity>
 )}
               
-
+ />
  
-    /> 
+    
 <View style={styles.footer}>
   <TouchableOpacity>
     <Text style={styles.footerLink}>About Us</Text>
   </TouchableOpacity>
-
+{editingProduct?.imageUri ? (
+  <Image
+    source={{ uri: editingProduct.imageUri }}
+    style={styles.detailImageDesktop}
+  />
+) : (
+  <View style={styles.placeholderDetailImage}>
+    <Text style={styles.placeholderText}>CDW Marketshop</Text>
+  </View>
+)}
   <TouchableOpacity>
     <Text style={styles.footerLink}>Contact Us</Text>
   </TouchableOpacity>
