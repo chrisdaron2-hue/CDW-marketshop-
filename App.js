@@ -57,6 +57,26 @@ const sampleProducts = [
   { id: "sample-18", title: "Dining Chairs", price: "95", seller: "Grace", category: "Home", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1519947486511-46149fa0a254?w=500", sold: false },
   { id: "sample-19", title: "Kindle Paperwhite", price: "70", seller: "Nina", category: "Books", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=500", sold: false },
   { id: "sample-20", title: "Running Shoes", price: "55", seller: "Mike", category: "Sports", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
+{ id: "sample-1", title: "iPhone 13", price: "450", seller: "Lizzy", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=500", sold: false },
+  { id: "sample-2", title: "Nike Sneakers", price: "60", seller: "Ama", category: "Fashion", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
+  { id: "sample-3", title: "MacBook Air", price: "700", seller: "Chris", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500", sold: false },
+  { id: "sample-4", title: "Samsung TV", price: "250", seller: "David", category: "Electronics", condition: "Used - Fair", imageUri: "https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=500", sold: false },
+  { id: "sample-5", title: "Gaming Chair", price: "90", seller: "Maya", category: "Gaming", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=500", sold: false },
+  { id: "sample-6", title: "Apple Watch", price: "180", seller: "Sarah", category: "Electronics", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=500", sold: false },
+  { id: "sample-7", title: "PS5 Controller", price: "45", seller: "Kwame", category: "Gaming", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=500", sold: false },
+  { id: "sample-8", title: "Canon Camera", price: "320", seller: "Ella", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500", sold: false },
+  { id: "sample-9", title: "Leather Jacket", price: "75", seller: "Nana", category: "Fashion", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1520975954732-35dd22299614?w=500", sold: false },
+  { id: "sample-10", title: "Study Desk", price: "110", seller: "Grace", category: "Home", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=500", sold: false },
+  { id: "sample-11", title: "AirPods Pro", price: "120", seller: "Linda", category: "Electronics", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=500", sold: false },
+  { id: "sample-12", title: "Coffee Table", price: "85", seller: "James", category: "Home", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?w=500", sold: false },
+  { id: "sample-13", title: "Mountain Bike", price: "230", seller: "Kelvin", category: "Sports", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=500", sold: false },
+  { id: "sample-14", title: "PlayStation 5", price: "480", seller: "Ben", category: "Gaming", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500", sold: false },
+  { id: "sample-15", title: "Sofa", price: "300", seller: "Hannah", category: "Home", condition: "Used - Fair", imageUri: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500", sold: false },
+  { id: "sample-16", title: "Dell Monitor", price: "140", seller: "Tom", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1527443154391-507e9dc6c5cc?w=500", sold: false },
+  { id: "sample-17", title: "Backpack", price: "35", seller: "Ella", category: "Fashion", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500", sold: false },
+  { id: "sample-18", title: "Dining Chairs", price: "95", seller: "Grace", category: "Home", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1519947486511-46149fa0a254?w=500", sold: false },
+  { id: "sample-19", title: "Kindle Paperwhite", price: "70", seller: "Nina", category: "Books", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=500", sold: false },
+  { id: "sample-20", title: "Running Shoes", price: "55", seller: "Mike", category: "Sports", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
 ];
 
 export default function App() {
@@ -87,7 +107,8 @@ const [showMessages, setShowMessages] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   const [selectedSeller, setSelectedSeller] = useState(null);
-
+const [replyText, setReplyText] = useState("");
+const [selectedMessage, setSelectedMessage] = useState(null);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 const [orders, setOrders] = useState([]);
@@ -649,24 +670,81 @@ if (showMessages) {
         <Text style={styles.sectionTitle}>💬 Messages</Text>
 
         {messages.length === 0 ? (
-          <Text style={styles.detailText}>No messages yet.</Text>
-        ) : (
-          messages.map((msg, index) => (
-            <View key={index} style={styles.card}>
-              <Text style={styles.detailTitle}>
-                {msg.sender || "Buyer"}
-              </Text>
+  <Text style={styles.detailText}>No messages yet.</Text>
+) : (
+  messages.map((msg, index) => (
+    <View key={index} style={styles.card}>
+      <Text style={styles.detailTitle}>
+        👤 {msg.buyer || msg.sender || "Buyer"}
+      </Text>
 
-              <Text style={styles.detailText}>
-                {msg.text}
-              </Text>
+      <Text style={styles.detailText}>
+        💬 {msg.text}
+      </Text>
 
-              <Text style={styles.meta}>
-                Product: {msg.productTitle}
-              </Text>
-            </View>
-          ))
-        )}
+      <Text style={styles.meta}>
+        📦 {msg.productTitle}
+      </Text>
+
+      <Text style={styles.meta}>
+        🕒 {msg.createdAt
+          ? new Date(msg.createdAt).toLocaleString()
+          : "Just now"}
+      </Text>
+
+      <TouchableOpacity
+        style={styles.messageButton}
+        onPress={() => setSelectedMessage(msg)}
+      >
+        <Text style={styles.messageText}>Reply</Text>
+      </TouchableOpacity>
+    </View>
+  ))
+)}
+
+{selectedMessage && (
+  <View style={styles.card}>
+    <Text style={styles.detailTitle}>
+      Reply to {selectedMessage.sender || "Buyer"}
+    </Text>
+
+    <TextInput
+      style={styles.input}
+      placeholder="Type your reply..."
+      value={replyText}
+      onChangeText={setReplyText}
+    />
+
+    <TouchableOpacity
+      style={styles.messageButton}
+      onPress={() => {
+  if (!replyText.trim()) {
+    notify("Type a reply.");
+    return;
+  }
+
+  const replyMessage = {
+    id: Date.now().toString(),
+    productId: selectedMessage.productId,
+    productTitle: selectedMessage.productTitle,
+    seller: selectedMessage.seller,
+    buyer: selectedMessage.buyer || "Buyer",
+    sender: "Seller",
+    text: replyText,
+    createdAt: new Date().toISOString(),
+  };
+
+  setMessages([...messages, replyMessage]);
+  setReplyText("");
+  setSelectedMessage(null);
+  notify("Reply sent!");
+}}
+    >
+      <Text style={styles.messageText}>Send Reply</Text>
+    </TouchableOpacity>
+  </View>
+)}
+            
       </ScrollView>
     </LinearGradient>
   );
