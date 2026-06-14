@@ -656,6 +656,17 @@ async function handleSignOut() {
     </LinearGradient>
   );
 }
+const groupedMessages = messages.reduce((groups, message) => {
+  const key = message.productTitle || "Unknown Product";
+
+  if (!groups[key]) {
+    groups[key] = [];
+  }
+
+  groups[key].push(message);
+
+  return groups;
+}, {});
 if (showMessages) {
   return (
     <LinearGradient
@@ -668,41 +679,39 @@ if (showMessages) {
         </TouchableOpacity>
 
         <Text style={styles.sectionTitle}>💬 Messages</Text>
-
         {messages.length === 0 ? (
   <Text style={styles.detailText}>No messages yet.</Text>
 ) : (
-  messages.map((msg, index) => (
-    <View key={index} style={styles.card}>
-      <Text style={styles.detailTitle}>
-        👤 {msg.buyer || msg.sender || "Buyer"}
-      </Text>
+  Object.entries(groupedMessages).map(([productTitle, productMessages]) => (
+    <View key={productTitle} style={styles.card}>
+      <Text style={styles.sectionTitle}>📦 {productTitle}</Text>
 
-      <Text style={styles.detailText}>
-        💬 {msg.text}
-      </Text>
+      {productMessages.map((msg, index) => (
+        <View key={index} style={{ marginBottom: 12 }}>
+          <Text style={styles.detailTitle}>
+            👤 {msg.buyer || msg.sender || "User"}
+          </Text>
 
-      <Text style={styles.meta}>
-        📦 {msg.productTitle}
-      </Text>
+          <Text style={styles.detailText}>💬 {msg.text}</Text>
 
-      <Text style={styles.meta}>
-        🕒 {msg.createdAt
-          ? new Date(msg.createdAt).toLocaleString()
-          : "Just now"}
-      </Text>
+          <Text style={styles.meta}>
+            🕒 {msg.createdAt
+              ? new Date(msg.createdAt).toLocaleString()
+              : "Just now"}
+          </Text>
 
-      <TouchableOpacity
-        style={styles.messageButton}
-        onPress={() => setSelectedMessage(msg)}
-      >
-        <Text style={styles.messageText}>Reply</Text>
-      </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.messageButton}
+            onPress={() => setSelectedMessage(msg)}
+          >
+            <Text style={styles.messageText}>Reply</Text>
+          </TouchableOpacity>
+        </View>
+      ))}
     </View>
   ))
 )}
-
-{selectedMessage && (
+  {selectedMessage && (
   <View style={styles.card}>
     <Text style={styles.detailTitle}>
       Reply to {selectedMessage.sender || "Buyer"}
@@ -1260,7 +1269,7 @@ return (
           <Text style={styles.detailText}>{msg.text}</Text>
         </View>
       ))
-    )}
+    
   </View>
 )}
 <FlatList
