@@ -322,6 +322,7 @@ const newProduct = {
   category,
   condition,
   imageUri: uploadedImageUrl,
+  images: uploadedImageUrl ? [uploadedImageUrl] : [],
   sold: false,
   rating: 5,
   ownerEmail: currentUserEmail,
