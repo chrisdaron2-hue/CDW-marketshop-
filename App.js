@@ -102,10 +102,11 @@ const VERIFIED_SELLERS = [
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
   const [imageUri, setImageUri] = useState(null);
+const [imageUri2, setImageUri2] = useState(null);
+const [imageUri3, setImageUri3] = useState(null);
 const [showMessages, setShowMessages] = useState(false);
   const [products, setProducts] = useState(sampleProducts);
   const [selectedProduct, setSelectedProduct] = useState(null);
-
   const [selectedSeller, setSelectedSeller] = useState(null);
 const [replyText, setReplyText] = useState("");
 const [selectedMessage, setSelectedMessage] = useState(null);
