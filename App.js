@@ -242,15 +242,38 @@ useEffect(() => {
   }
 
   async function pickImage() {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      quality: 0.7,
-    });
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ["images"],
+    quality: 0.7,
+  });
 
-    if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
-    }
+  if (!result.canceled) {
+    setImageUri(result.assets[0].uri);
   }
+}
+
+async function pickImage2() {
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ["images"],
+    quality: 0.7,
+  });
+
+  if (!result.canceled) {
+    setImageUri2(result.assets[0].uri);
+  }
+}
+
+async function pickImage3() {
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ["images"],
+    quality: 0.7,
+  });
+
+  if (!result.canceled) {
+    setImageUri3(result.assets[0].uri);
+  }
+}
+   
 async function uploadImageToS3(localImageUri) {
   if (!localImageUri) {
     return null;
