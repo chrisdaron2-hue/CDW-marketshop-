@@ -1136,7 +1136,27 @@ return (
               <Text style={styles.buttonText}>Choose Product Photo</Text>
             </LinearGradient>
           </TouchableOpacity>
+<TouchableOpacity onPress={pickImage2}>
+  <LinearGradient
+    colors={["#7b2ff7", "#f107a3"]}
+    style={styles.button}
+  >
+    <Text style={styles.buttonText}>
+      📸 Choose Product Photo 2
+    </Text>
+  </LinearGradient>
+</TouchableOpacity>
 
+<TouchableOpacity onPress={pickImage3}>
+  <LinearGradient
+    colors={["#7b2ff7", "#f107a3"]}
+    style={styles.button}
+  >
+    <Text style={styles.buttonText}>
+      📸 Choose Product Photo 3
+    </Text>
+  </LinearGradient>
+</TouchableOpacity>
           {imageUri && <Image source={{ uri: imageUri }} style={styles.previewImage} />}
 
           <TouchableOpacity onPress={addProduct}>
