@@ -324,55 +324,88 @@ if (!uploadResponse.ok || !uploadData.imageUrl) {
   return uploadData.imageUrl;
 }
   async function addProduct() {
-    if (!title || !price || !seller || !category || !condition) {
-  notify("Fill all product fields.");
-  return;
-}
-let uploadedImageUrl = imageUri;
+  if (!title || !price || !seller || !category || !condition) {
+    notify("Fill all product fields.");
+    return;
+  }
 
+let uploadedImageUrl = null;
+let uploadedImageUrl2 = null;
+let uploadedImageUrl3 = null;
+ console.log("IMAGE URI 1:", imageUri);
+console.log("IMAGE URI 2:", imageUri2);
+console.log("IMAGE URI 3:", imageUri3); 
 try {
-  uploadedImageUrl = await uploadImageToS3(imageUri);
+  if (imageUri) {
+    uploadedImageUrl = await uploadImageToS3(imageUri);
+  }
+
+  if (imageUri2) {
+    uploadedImageUrl2 = await uploadImageToS3(imageUri2);
+  }
+
+  if (imageUri3) {
+    uploadedImageUrl3 = await uploadImageToS3(imageUri3);
+  }
 } catch (error) {
   console.log("IMAGE UPLOAD ERROR:", error);
   notify("Image upload failed.");
   return;
 }
+  
+const productImages = [
+    uploadedImageUrl,
+    uploadedImageUrl2,
+    uploadedImageUrl3,
+  ].filter(Boolean);
+    
+  
 
-const newProduct = {
-  id: Date.now().toString(),
-  title,
-  price,
-  seller,
-  category,
-  condition,
-  imageUri: uploadedImageUrl,
-  images: uploadedImageUrl ? [uploadedImageUrl] : [],
-  sold: false,
-  rating: 5,
-  ownerEmail: currentUserEmail,
-};
-    try {
-      await fetch(PRODUCTS_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newProduct),
-      });
+  
+console.log("PRODUCT IMAGES:", productImages);
+  const newProduct = {
+    id: Date.now().toString(),
+    title,
+    price,
+    seller,
+    category,
+    condition,
+    imageUri: productImages[0] || null,
+    images: productImages,
+    sold: false,
+    rating: 5,
+    ownerEmail: currentUserEmail,
+  };
 
-      setProducts([newProduct, ...products]);
-      setTitle("");
-      setPrice("");
-      setSeller("");
-      setCategory("");
-      setCondition("");
-      setImageUri(null);
+  try {
+    await fetch(PRODUCTS_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newProduct),
+    });
 
-      notify("Product posted.");
-    } catch (error) {
-      notify("Could not save product.");
-    }
-  }async function deleteProduct(productId) {
+    setProducts([newProduct, ...products]);
+    setTitle("");
+    setPrice("");
+    setSeller("");
+    setCategory("");
+    setCondition("");
+    setImageUri(null);
+    setImageUri2(null);
+    setImageUri3(null);
+
+    notify("Product posted.");
+  } catch (error) {
+  console.log("SAVE PRODUCT ERROR:", error);
+  console.log("PRODUCT:", newProduct);
+  notify("Could not save product.");
+}
+
+  }
+
+async function deleteProduct(productId) {
   setProducts((prev) => prev.filter((p) => p.id !== productId));
 
   if (selectedProduct?.id === productId) {
@@ -1146,7 +1179,12 @@ return (
     </Text>
   </LinearGradient>
 </TouchableOpacity>
-
+{imageUri2 && (
+  <Image
+    source={{ uri: imageUri2 }}
+    style={styles.previewImage}
+  />
+)}
 <TouchableOpacity onPress={pickImage3}>
   <LinearGradient
     colors={["#7b2ff7", "#f107a3"]}
@@ -1157,7 +1195,12 @@ return (
     </Text>
   </LinearGradient>
 </TouchableOpacity>
-          {imageUri && <Image source={{ uri: imageUri }} style={styles.previewImage} />}
+          {imageUri3 && (
+  <Image
+    source={{ uri: imageUri3 }}
+    style={styles.previewImage}
+  />
+)}
 
           <TouchableOpacity onPress={addProduct}>
             <LinearGradient colors={["#7b2ff7", "#f107a3"]} style={styles.button}>
