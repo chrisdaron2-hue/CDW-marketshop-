@@ -90,12 +90,12 @@ const VERIFIED_SELLERS = [
   "Elizabeth",
   "Admin",
 ];
-  const [messages, setMessages] = useState([]);
+ const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
 
   const [reviewText, setReviewText] = useState("");
   const [reviews, setReviews] = useState([]);
-
+const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [seller, setSeller] = useState("");
@@ -119,7 +119,7 @@ const [editingProduct, setEditingProduct] = useState(null);
   const [currentUserEmail, setCurrentUserEmail] = useState("");
 const messageCount = messages.length;
 const reviewCount = reviews.length;
-const orderCount = orders.length;
+const orderCount = orders.length; 
   const categories = [
   "All",
   "Electronics",
@@ -879,16 +879,52 @@ if (selectedProduct) {
         </TouchableOpacity>
           <View style={styles.productDetailLayout}>
   {selectedProduct.imageUri && selectedProduct.imageUri.startsWith("http") ? (
-  <Image
-    source={{ uri: selectedProduct.imageUri }}
-    style={styles.detailImageDesktop}
-  />
+  <View>
+    <Image
+      source={{
+        uri:
+          selectedProduct.images?.[selectedImageIndex] ||
+          selectedProduct.imageUri,
+      }}
+      style={styles.detailImageDesktop}
+    />
+
+    {selectedProduct.images?.length > 0 && (
+  <ScrollView
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    style={{ marginTop: 10, marginBottom: 20 }}
+  >
+    {selectedProduct.images.map((img, index) => (
+      <TouchableOpacity
+        key={index}
+        activeOpacity={0.7}
+        onPress={() => {
+          console.log("Thumbnail clicked:", index);
+          setSelectedImageIndex(index);
+        }}
+      >
+        <Image
+          source={{ uri: img }}
+          style={{
+            width: 70,
+            height: 70,
+            borderRadius: 12,
+            marginRight: 10,
+            borderWidth: 2,
+            borderColor: "#fff",
+          }}
+        />
+      </TouchableOpacity>
+    ))}
+  </ScrollView>
+)}
+  </View>
 ) : (
   <View style={styles.placeholderDetailImage}>
     <Text style={styles.placeholderText}>CDW Marketshop</Text>
   </View>
 )}
-
   <View style={styles.productDetailContent}>
     <View style={styles.detailCard}>
   <Text style={styles.detailTitle}>{selectedProduct.title}</Text>
@@ -1165,26 +1201,25 @@ return (
           <TextInput placeholder="Condition e.g. Used - Good" style={styles.input} value={condition} onChangeText={setCondition} />
 
           <TouchableOpacity onPress={pickImage}>
-            <LinearGradient colors={["#ff8a00", "#ff3d8b"]} style={styles.button}>
-              <Text style={styles.buttonText}>Choose Product Photo</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-<TouchableOpacity onPress={pickImage2}>
-  <LinearGradient
-    colors={["#7b2ff7", "#f107a3"]}
-    style={styles.button}
-  >
-    <Text style={styles.buttonText}>
-      📸 Choose Product Photo 2
-    </Text>
+  <LinearGradient colors={["#ff8a00", "#ff3d8b"]} style={styles.button}>
+    <Text style={styles.buttonText}>Choose Product Photo</Text>
   </LinearGradient>
 </TouchableOpacity>
-{imageUri2 && (
-  <Image
-    source={{ uri: imageUri2 }}
-    style={styles.previewImage}
-  />
+
+{imageUri && (
+  <Image source={{ uri: imageUri }} style={styles.previewImage} />
 )}
+
+<TouchableOpacity onPress={pickImage2}>
+  <LinearGradient colors={["#7b2ff7", "#f107a3"]} style={styles.button}>
+    <Text style={styles.buttonText}>📸 Choose Product Photo 2</Text>
+  </LinearGradient>
+</TouchableOpacity>
+
+{imageUri2 && (
+  <Image source={{ uri: imageUri2 }} style={styles.previewImage} />
+)}
+
 <TouchableOpacity onPress={pickImage3}>
   <LinearGradient
     colors={["#7b2ff7", "#f107a3"]}
@@ -1195,18 +1230,22 @@ return (
     </Text>
   </LinearGradient>
 </TouchableOpacity>
-          {imageUri3 && (
+
+{imageUri3 && (
   <Image
     source={{ uri: imageUri3 }}
     style={styles.previewImage}
   />
 )}
 
-          <TouchableOpacity onPress={addProduct}>
-            <LinearGradient colors={["#7b2ff7", "#f107a3"]} style={styles.button}>
-              <Text style={styles.buttonText}>Publish Product</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+<TouchableOpacity onPress={addProduct}>
+  <LinearGradient
+    colors={["#7b2ff7", "#f107a3"]}
+    style={styles.button}
+  >
+    <Text style={styles.buttonText}>Publish Product</Text>
+  </LinearGradient>
+</TouchableOpacity>
         </View>
         <View style={styles.searchRow}>
           <TextInput placeholder="Search products..." value={search} onChangeText={setSearch} style={styles.searchInput} />
@@ -1216,7 +1255,6 @@ return (
             </LinearGradient>
           </TouchableOpacity>
         </View>
-
        
        <ScrollView
   horizontal
