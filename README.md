@@ -1,9 +1,18 @@
 
-# CDW Marketshop
+
 <img width="1693" height="929" alt="CDW Marketshop" src="https://github.com/user-attachments/assets/80ce24d0-e349-45b9-8bf3-8407d12baae8" />
 
 
 # CDW MarketShop
+![Marketplace](https://img.shields.io/badge/Project-CDW_MarketShop-purple)
+![Cloud Engineer](https://img.shields.io/badge/Role-Cloud_Engineer-blueviolet)
+![React Native](https://img.shields.io/badge/React_Native-Expo-blue)
+![AWS](https://img.shields.io/badge/AWS-Serverless-orange)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
+![Vercel](https://img.shields.io/badge/Deploy-Vercel-black)
+---
+![Marketplace](https://img.shields.io/badge/Project-CDW_MarketShop-purple)
+![Cloud Engineer](https://img.shields.io/badge/Role-Cloud_Engineer-blueviolet)
 
 A modern cloud-native marketplace application built with **React Native (Expo)** and **AWS Serverless Services**.
 
@@ -15,7 +24,7 @@ This project was built to demonstrate practical skills in **Cloud Engineering**,
 
 ## 🌐 Live Demo
 
-**Application:** https://dist-3e7fe0ewv-market-shop-s-projects.vercel.app
+🌐 **Live Demo:** [CDW MarketShop](https://dist-3e7fe0ewv-market-shop-s-projects.vercel.app)
 
 ---
 
