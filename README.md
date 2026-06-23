@@ -164,11 +164,13 @@ This project was built to demonstrate practical skills in **Cloud Engineering**,
 📦 Product details page
 ---
 <img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 26 58" src="https://github.com/user-attachments/assets/35e5baf6-2050-4248-b0f0-4be2da24c2c5" />
-
+💬 Messages page
+---
 <img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 27 27" src="https://github.com/user-attachments/assets/22a96ff3-7b99-489d-b9e0-f0bb2816751c" />
-
+🛒 Shopping cart
+---
 <img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 27 40" src="https://github.com/user-attachments/assets/0d184444-7a66-4466-b37d-770e31178379" />
-
+🛒 Shopping cart
 ---
 
 ## 💻 Run Locally
