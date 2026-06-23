@@ -8,11 +8,8 @@
 ![Cloud Engineer](https://img.shields.io/badge/Role-Cloud_Engineer-blueviolet)
 
 ![React Native](https://img.shields.io/badge/React_Native-Expo-blue)
-
 ![AWS](https://img.shields.io/badge/AWS-Serverless-orange)
-
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
-
 ![Vercel](https://img.shields.io/badge/Deploy-Vercel-black)
 ---
 
