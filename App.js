@@ -854,7 +854,11 @@ if (selectedSeller) {
 >
   <View style={styles.card}>
     {item.imageUri && (
-      <Image source={{ uri: item.imageUri }} style={styles.gridImage} />
+      <Image
+  source={{ uri: item.imageUri }}
+  style={styles.gridImage}
+  resizeMode="cover"
+/>
     )}
 
     <Text style={styles.detailTitle}>{item.title}</Text>
@@ -881,13 +885,14 @@ if (selectedProduct) {
   {selectedProduct.imageUri && selectedProduct.imageUri.startsWith("http") ? (
   <View>
     <Image
-      source={{
-        uri:
-          selectedProduct.images?.[selectedImageIndex] ||
-          selectedProduct.imageUri,
-      }}
-      style={styles.detailImageDesktop}
-    />
+  source={{
+    uri:
+      selectedProduct.images?.[selectedImageIndex] ||
+      selectedProduct.imageUri,
+  }}
+  style={styles.detailImageDesktop}
+  resizeMode="contain"
+/>
 
     {selectedProduct.images?.length > 0 && (
   <ScrollView
@@ -980,11 +985,18 @@ if (selectedProduct) {
   </Text>
 
   <TouchableOpacity
-    style={styles.messageButton}
-    onPress={() => contactSeller(selectedProduct)}
-  >
-   <Text style={styles.messageText}>💬 Contact Seller</Text>  
-  </TouchableOpacity>
+  style={styles.messageButton}
+  onPress={() => contactSeller(selectedProduct)}
+>
+  <Text style={styles.messageText}>💬 Contact Seller</Text>
+</TouchableOpacity>
+
+<TouchableOpacity
+  style={styles.messageButton}
+  onPress={pickImage}
+>
+  <Text style={styles.messageText}>📷 Change Image</Text>
+</TouchableOpacity>
 </View>
   <TouchableOpacity
     style={styles.favoriteButton}
@@ -1133,64 +1145,94 @@ return (
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.logoWrap}>
   <Image
-    source={require("./assets/CDW Marketshop.png")}
-    style={styles.logoImage}
-    resizeMode="contain"
-  />
+  source={require("./assets/CDW Marketshop.png")}
+  style={styles.logoImage}
+  resizeMode="contain"
+/>
+
+<View style={styles.welcomeCard}>
+  <Text style={styles.welcomeTitle}>
+    Buy, Sell & Discover Amazing Products
+  </Text>
+
+  <Text style={styles.welcomeText}>
+    A secure cloud-powered marketplace built with React Native and AWS.
+  </Text>
+
+  <View style={styles.welcomeButtons}>
+    <TouchableOpacity style={styles.heroButton}>
+      <Text style={styles.heroButtonText}>Start Shopping</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity style={styles.heroButton}>
+      <Text style={styles.heroButtonText}>Sell an Item</Text>
+    </TouchableOpacity>
+  </View>
+
+  <View style={styles.infoRow}>
+    <View style={styles.infoCard}>
+      <Text style={styles.sectionTitle}>☁️ Powered By AWS</Text>
+      <Text style={styles.detailText}>AWS Cognito Authentication</Text>
+      <Text style={styles.detailText}>AWS Lambda APIs</Text>
+      <Text style={styles.detailText}>AWS DynamoDB Database</Text>
+      <Text style={styles.detailText}>AWS S3 Image Storage</Text>
+      <Text style={styles.detailText}>Vercel Deployment</Text>
+    </View>
+
+    <View style={styles.infoCard}>
+      <Text style={styles.sectionTitle}>✨ Features</Text>
+      <Text style={styles.detailText}>🔐 Secure Authentication</Text>
+      <Text style={styles.detailText}>🖼️ Multi-Image Product Gallery</Text>
+      <Text style={styles.detailText}>💬 Buyer-Seller Messaging</Text>
+      <Text style={styles.detailText}>⭐ Reviews & Ratings</Text>
+      <Text style={styles.detailText}>❤️ Favorites & Shopping Cart</Text>
+      <Text style={styles.detailText}>☁️ AWS Serverless Architecture</Text>
+            </View>
+    </View>
+  </View>
 </View>
-<TouchableOpacity onPress={handleSignOut}>
-  <LinearGradient
-    colors={["#ff6b6b", "#ff4757"]}
-    style={styles.button}
-  >
-    <Text style={styles.buttonText}>Sign Out</Text>
-  </LinearGradient>
-</TouchableOpacity>
-        <View style={styles.card}>
+
+
+
+<View style={styles.card}>
           <TextInput placeholder="Email" style={styles.input} value={email} autoCapitalize="none" keyboardType="email-address" onChangeText={setEmail} />
           <TextInput placeholder="Password" secureTextEntry={!showPassword} style={styles.input} value={password} onChangeText={setPassword} />
-<View style={styles.card}>
-  <Text style={styles.sectionTitle}>📊 Dashboard</Text>
+{currentUserEmail && (
+  <View style={styles.card}>
+    <Text style={styles.sectionTitle}>📊 Dashboard</Text>
 
-  <Text style={styles.detailText}>
-    Listings: {totalListings}
-  </Text>
-
-  <Text style={styles.detailText}>
-    Orders: {totalOrders}
-  </Text>
-
-  <Text style={styles.detailText}>
-    Messages: {totalMessages}
-  </Text>
-
-  <Text style={styles.detailText}>
-    Reviews: {totalReviews}
-  </Text>
-
-  <Text style={styles.detailText}>
-    Average Rating: ⭐ {averageRating}/5
-  </Text>
-</View>
+    <Text style={styles.detailText}>Listings: {totalListings}</Text>
+    <Text style={styles.detailText}>Orders: {totalOrders}</Text>
+    <Text style={styles.detailText}>Messages: {totalMessages}</Text>
+    <Text style={styles.detailText}>Reviews: {totalReviews}</Text>
+    <Text style={styles.detailText}>Average Rating: ⭐ {averageRating}/5</Text>
+  </View>
+)}
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <Text style={styles.linkText}>{showPassword ? "Hide password" : "Show password"}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={handleSignIn}>
-            <LinearGradient colors={["#5f2cff", "#8a4dff"]} style={styles.button}>
-              <Text style={styles.buttonText}>Sign In</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+  <LinearGradient colors={["#5f2cff", "#8a4dff"]} style={styles.button}>
+    <Text style={styles.buttonText}>Sign In</Text>
+  </LinearGradient>
+</TouchableOpacity>
 
-          <TouchableOpacity onPress={handleSignUp}>
-            <LinearGradient colors={["#7b2ff7", "#f107a3"]} style={styles.button}>
-              <Text style={styles.buttonText}>Sign Up</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+<TouchableOpacity onPress={handleSignUp}>
+  <LinearGradient colors={["#7b2ff7", "#f107a3"]} style={styles.button}>
+    <Text style={styles.buttonText}>Sign Up</Text>
+  </LinearGradient>
+</TouchableOpacity>
 
-          <TouchableOpacity onPress={handleForgotPassword}>
-            <Text style={styles.forgotText}>Forgot password?</Text>
-          </TouchableOpacity>
+<TouchableOpacity onPress={handleSignOut}>
+  <LinearGradient colors={["#ff6b6b", "#ff4757"]} style={styles.button}>
+    <Text style={styles.buttonText}>Sign Out</Text>
+  </LinearGradient>
+</TouchableOpacity>
+
+<TouchableOpacity onPress={handleForgotPassword}>
+  <Text style={styles.forgotText}>Forgot password?</Text>
+</TouchableOpacity>
         </View>
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Post Product</Text>
@@ -1286,14 +1328,9 @@ return (
         {cat}
       </Text>
     </TouchableOpacity>
-  ))}
-<View style={styles.footer}>
-  <Text style={styles.footerLink}>About Us</Text>
-  <Text style={styles.footerLink}>Contact Us</Text>
-  <Text style={styles.footerLink}>Privacy Policy</Text>
-  <Text style={styles.footerLink}>Terms of Service</Text>
-</View>
+    ))}
 </ScrollView>
+
 {activeCategory === "Cart" && (
   <View style={styles.card}>
     <Text style={styles.sectionTitle}>Shopping Cart</Text>
@@ -1365,25 +1402,22 @@ return (
   <View style={styles.detailCard}>
     <Text style={styles.sectionTitle}>Messages</Text>
 
-    messages.map((msg, index) => (
-  <View key={index} style={styles.card}>
-    <Text style={styles.detailTitle}>
-      {msg.sender || "Buyer"}
-    </Text>
+    {messages.length === 0 ? (
+      <Text style={styles.detailText}>No messages yet.</Text>
+    ) : (
+      messages.map((msg, index) => (
+        <View key={index} style={styles.card}>
+          <Text style={styles.detailTitle}>
+            {msg.sender || msg.buyer || "Buyer"}
+          </Text>
 
-    <Text style={styles.detailText}>
-      {msg.text}
-    </Text>
+          <Text style={styles.detailText}>
+            {msg.text}
+          </Text>
 
-    <Text style={styles.meta}>
-      Product: {msg.productTitle}
-    </Text>
-  </View>
-))
-        <View key={msg.id} style={styles.card}>
-          <Text style={styles.detailText}>Product: {msg.productTitle}</Text>
-          <Text style={styles.detailText}>From: {msg.buyer || "Guest"}</Text>
-          <Text style={styles.detailText}>{msg.text}</Text>
+          <Text style={styles.meta}>
+            Product: {msg.productTitle}
+          </Text>
         </View>
       ))
     )}
@@ -1485,16 +1519,7 @@ return (
   <TouchableOpacity>
     <Text style={styles.footerLink}>About Us</Text>
   </TouchableOpacity>
-{editingProduct?.imageUri ? (
-  <Image
-    source={{ uri: editingProduct.imageUri }}
-    style={styles.detailImageDesktop}
-  />
-) : (
-  <View style={styles.placeholderDetailImage}>
-    <Text style={styles.placeholderText}>CDW Marketshop</Text>
-  </View>
-)}
+
   <TouchableOpacity>
     <Text style={styles.footerLink}>Contact Us</Text>
   </TouchableOpacity>
@@ -1638,12 +1663,13 @@ placeholderText: {
 },
   gridImage: {
   width: "100%",
-  height: 150,
-  borderRadius: 18,
+  height: 220,
+  borderTopLeftRadius: 18,
+  borderTopRightRadius: 18,
   marginBottom: 10,
-  resizeMode: "contain",
-  backgroundColor: "#1a0033",
+  backgroundColor: "#fff",
 },
+
 productDetailLayout: {
   width: "100%",
   maxWidth: 1100,
@@ -1836,5 +1862,56 @@ sellerCard: {
   padding: 18,
   marginTop: 16,
   marginBottom: 16,
+},
+welcomeCard: {
+  backgroundColor: "rgba(255,255,255,0.95)",
+  borderRadius: 24,
+  padding: 25,
+  marginBottom: 20,
+  alignItems: "center",
+},
+
+welcomeTitle: {
+  fontSize: 28,
+  fontWeight: "bold",
+  color: "#4a148c",
+  textAlign: "center",
+},
+
+welcomeText: {
+  fontSize: 16,
+  color: "#666",
+  textAlign: "center",
+  marginTop: 10,
+},
+
+welcomeButtons: {
+  flexDirection: "row",
+  marginTop: 20,
+},
+
+heroButton: {
+  backgroundColor: "#7b2ff7",
+  paddingVertical: 12,
+  paddingHorizontal: 20,
+  borderRadius: 14,
+  marginHorizontal: 8,
+},
+heroButtonText: {
+  color: "#fff",
+  fontWeight: "bold",
+},
+infoRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  marginTop: 30,
+  width: "100%",
+},
+infoCard: {
+  flex: 1,
+  backgroundColor: "rgba(255,255,255,0.8)",
+  borderRadius: 20,
+  padding: 20,
+  marginHorizontal: 10,
 },
 });
