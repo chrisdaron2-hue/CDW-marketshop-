@@ -15,7 +15,7 @@ This project was built to demonstrate practical skills in **Cloud Engineering**,
 
 ## 🌐 Live Demo
 
-**Application:** https://dist-laiyz6sjg-market-shop-s-projects.vercel.app
+**Application:** https://dist-3e7fe0ewv-market-shop-s-projects.vercel.app
 
 ---
 
