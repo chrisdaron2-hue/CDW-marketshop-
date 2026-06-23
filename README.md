@@ -161,7 +161,8 @@ This project was built to demonstrate practical skills in **Cloud Engineering**,
 🏠 Home page
 ---
 <img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 26 47" src="https://github.com/user-attachments/assets/b9897edc-80d9-4a53-9cfc-a884de27840d" />
-
+📦 Product details page
+---
 <img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 26 58" src="https://github.com/user-attachments/assets/35e5baf6-2050-4248-b0f0-4be2da24c2c5" />
 
 <img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 27 27" src="https://github.com/user-attachments/assets/22a96ff3-7b99-489d-b9e0-f0bb2816751c" />
