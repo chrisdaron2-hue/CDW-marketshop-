@@ -1,3 +1,4 @@
+<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 27 40" src="https://github.com/user-attachments/assets/a883b482-7c11-4d3e-b09b-247dd1e848e8" />
 # CDW Marketshop
 <img width="1693" height="929" alt="CDW Marketshop" src="https://github.com/user-attachments/assets/80ce24d0-e349-45b9-8bf3-8407d12baae8" />
 
@@ -147,7 +148,15 @@ This project was built to demonstrate practical skills in **Cloud Engineering**,
 
 ## 📸 Screenshots
 
+<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 34 41" src="https://github.com/user-attachments/assets/cd17bf81-2fe0-4b73-be07-6759cafc1cac" />
+<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 26 21" src="https://github.com/user-attachments/assets/b6c91806-8e36-4c0b-a05e-cc5bba8b02ae" />
+<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 26 36" src="https://github.com/user-attachments/assets/e754797a-ae90-4bf7-8154-862d34d1708c" />
+<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 02 32" src="https://github.com/user-attachments/assets/0668bdb7-0237-4f17-8385-127e92fd912e" />
+<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 26 47" src="https://github.com/user-attachments/assets/b9897edc-80d9-4a53-9cfc-a884de27840d" />
+<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 26 58" src="https://github.com/user-attachments/assets/35e5baf6-2050-4248-b0f0-4be2da24c2c5" />
+<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 27 27" src="https://github.com/user-attachments/assets/22a96ff3-7b99-489d-b9e0-f0bb2816751c" />
 
+<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 27 40" src="https://github.com/user-attachments/assets/0d184444-7a66-4466-b37d-770e31178379" />
 
 ---
 
