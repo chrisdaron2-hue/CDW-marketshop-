@@ -1,16 +1,4 @@
-<p align="center">
-  <img src="YOUR_BANNER_LINK_HERE" alt="Elizabeth Gyamfi Banner" />
-</p>
 
-# Hi there 👋, I'm Elizabeth Gyamfi
-
-![AWS](https://img.shields.io/badge/AWS-Cloud-orange)
-![React Native](https://img.shields.io/badge/React_Native-Expo-blue)
-![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
-![Cloud Engineer](https://img.shields.io/badge/Role-Cloud_Engineer-blueviolet)
-![Location](https://img.shields.io/badge/Based_in-Germany-red)
-
-<img width="1693" height="929" alt="CDW Marketshop" src="https://github.com/user-attachments/assets/80ce24d0-e349-45b9-8bf3-8407d12baae8" />
 
 
 # CDW MarketShop
