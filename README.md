@@ -1,5 +1,5 @@
+<img width="1693" height="929" alt="image" src="https://github.com/user-attachments/assets/c4ef30a2-99f9-4d9b-8da3-3c4f6777fda6" />
 
-CDW Marketshop
 # CDW MarketShop
 ![Marketplace](https://img.shields.io/badge/Project-CDW_MarketShop-purple)
 ![Cloud Engineer](https://img.shields.io/badge/Role-Cloud_Engineer-blueviolet)
