@@ -1577,23 +1577,7 @@ return (
 
  
     
-<View style={styles.footer}>
-  <TouchableOpacity>
-    <Text style={styles.footerLink}>About Us</Text>
-  </TouchableOpacity>
-
-  <TouchableOpacity>
-    <Text style={styles.footerLink}>Contact Us</Text>
-  </TouchableOpacity>
-
-  <TouchableOpacity>
-    <Text style={styles.footerLink}>Privacy Policy</Text>
-  </TouchableOpacity>
-
-  <TouchableOpacity>
-    <Text style={styles.footerLink}>Terms of Service</Text>
-  </TouchableOpacity>
-</View>
+<Footer styles={styles} />
 
      
       </ScrollView>
