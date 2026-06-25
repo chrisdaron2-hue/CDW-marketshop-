@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Footer from "./src/components/Footer";
 import {
   View,
   Text,
@@ -11,11 +12,10 @@ import {
   Image,
   Linking,
 } from "react-native";
-
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import { Amplify } from "aws-amplify";
-import { signIn, signUp, resetPassword } from "aws-amplify/auth";
+import { signIn, signUp, resetPassword, signOut } from "aws-amplify/auth";
 import awsConfig from "./src/aws-exports";
 
 Amplify.configure(awsConfig);
@@ -475,16 +475,39 @@ function toggleFavorite(productId) {
   }
 }
 function addToCart(product) {
-  
-  if (!cart.find((item) => item.id === product.id)) {
-    setCart([...cart, product]);
+  setCart((prevCart) => {
+    const alreadyInCart = prevCart.some(
+      (item) => String(item.id) === String(product.id)
+    );
+
+    if (alreadyInCart) {
+      notify("Already in cart.");
+      return prevCart;
+    }
+
+    const updatedCart = [...prevCart, product];
+
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+    }
+
     notify("Added to cart.");
-  } else {
-    notify("Already in cart.");
-  }
+    return updatedCart;
+  });
 }
 function removeFromCart(productId) {
-  setCart(cart.filter((item) => item.id !== productId));
+  setCart((prevCart) => {
+    const updatedCart = prevCart.filter(
+      (item) => String(item.id) !== String(productId)
+    );
+
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+    }
+
+    return updatedCart;
+  });
+
   notify("Removed from cart.");
 }
 
@@ -621,9 +644,22 @@ async function saveEditedProduct() {
   }
 }
 async function handleSignOut() {
-  setCurrentUserEmail("");
-  setSelectedProduct(null);
-  notify("Signed out.");
+  try {
+    await signOut();
+
+    setCurrentUserEmail("");
+    setEmail("");
+    setPassword("");
+    setSelectedProduct(null);
+    setSelectedSeller(null);
+    setShowMessages(false);
+    setActiveCategory("All");
+
+    notify("Signed out.");
+  } catch (error) {
+    console.log("SIGN OUT ERROR:", error);
+    notify(error.message || "Sign out failed.");
+  }
 }
   const filteredProducts = products.filter((item) => {
   const text = search.trim().toLowerCase();
@@ -1150,7 +1186,9 @@ return (
   resizeMode="contain"
 />
 
-<View style={styles.welcomeCard}>
+
+
+  <View style={styles.welcomeCard}>
   <Text style={styles.welcomeTitle}>
     Buy, Sell & Discover Amazing Products
   </Text>
@@ -1187,12 +1225,10 @@ return (
       <Text style={styles.detailText}>⭐ Reviews & Ratings</Text>
       <Text style={styles.detailText}>❤️ Favorites & Shopping Cart</Text>
       <Text style={styles.detailText}>☁️ AWS Serverless Architecture</Text>
-            </View>
-    </View>
+        </View>
   </View>
 </View>
-
-
+</View>
 
 <View style={styles.card}>
           <TextInput placeholder="Email" style={styles.input} value={email} autoCapitalize="none" keyboardType="email-address" onChangeText={setEmail} />
@@ -1234,7 +1270,9 @@ return (
   <Text style={styles.forgotText}>Forgot password?</Text>
 </TouchableOpacity>
         </View>
-        <View style={styles.card}>
+
+    
+<View style={styles.card}>
           <Text style={styles.sectionTitle}>Post Product</Text>
           <TextInput placeholder="Product title" style={styles.input} value={title} onChangeText={setTitle} />
           <TextInput placeholder="Price (€)" style={styles.input} value={price} onChangeText={setPrice} />
@@ -1297,8 +1335,9 @@ return (
             </LinearGradient>
           </TouchableOpacity>
         </View>
-       
-       <ScrollView
+
+        
+<ScrollView
   horizontal
   showsHorizontalScrollIndicator={false}
   style={{ marginBottom: 15, maxHeight: 50 }}
@@ -1345,21 +1384,38 @@ return (
     </TouchableOpacity>
   </View>
 )}
-{cart.map((item) => (
-  <View key={item.id} style={styles.card}>
-    <Text>{item.title}</Text>
-    <Text>€{item.price}</Text>
 
-    <TouchableOpacity
-      style={styles.deleteButtonSmall}
-      onPress={() => removeFromCart(item.id)}
-    >
-      <Text style={styles.deleteButtonText}>
-        Remove
-      </Text>
-    </TouchableOpacity>
-  </View>
-))}
+{activeCategory === "Cart" &&
+  cart.map((item) => (
+    <View key={item.id} style={styles.card}>
+      <Text style={styles.detailTitle}>{item.title}</Text>
+      <Text style={styles.detailText}>€{item.price}</Text>
+
+      <TouchableOpacity
+        style={styles.deleteButtonSmall}
+        onPress={() =>
+          Alert.alert(
+            "Remove Item",
+            "Remove this item from your cart?",
+            [
+              {
+                text: "Cancel",
+                style: "cancel",
+              },
+              {
+                text: "Remove",
+                onPress: () => removeFromCart(item.id),
+              },
+            ]
+          )
+        }
+      >
+        <Text style={styles.deleteButtonText}>
+          🗑️ Remove
+        </Text>
+      </TouchableOpacity>
+    </View>
+  ))}
 {activeCategory.startsWith("Reviews") && (
   <View style={styles.card}>
     <Text style={styles.sectionTitle}>Reviews</Text>
@@ -1377,7 +1433,9 @@ return (
       ))
     )}
   </View>
-)}
+)}       
+       
+
 {activeCategory.startsWith("Orders") && (
 
   <View style={styles.card}>
@@ -1493,26 +1551,30 @@ return (
     </TouchableOpacity>
 
     <TouchableOpacity
-      style={styles.cartButton}
-      onPress={() => addToCart(item)}
-    >
-      <Text style={styles.cartText}>🛒 Add to Cart</Text>
-    </TouchableOpacity>
+  style={styles.cartButton}
+  onPress={() => addToCart(item)}
+>
+  <Text style={styles.cartText}>🛒 Add to Cart</Text>
+</TouchableOpacity>
 
-    {item.sold && (
-      <Text style={styles.sold}>SOLD</Text>
-    )}
+{item.sold && (
+  <Text style={styles.sold}>SOLD</Text>
+)}
 
-    <TouchableOpacity
-      style={styles.deleteButtonSmall}
-      onPress={() => deleteProduct(item.id)}
-    >
-      <Text style={styles.deleteButtonText}>Delete 🗑️</Text>
-    </TouchableOpacity>
+{item.ownerEmail === currentUserEmail && (
+  <TouchableOpacity
+    style={styles.deleteButtonSmall}
+    onPress={() => deleteProduct(item.id)}
+  >
+    <Text style={styles.deleteButtonText}>Delete 🗑️</Text>
   </TouchableOpacity>
 )}
-              
- />
+
+  </TouchableOpacity>
+)}
+/>
+
+
  
     
 <View style={styles.footer}>
