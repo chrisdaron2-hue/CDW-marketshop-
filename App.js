@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Footer from "./src/components/Footer";
+import ProductCard from "./src/components/ProductCard";
 import {
   View,
   Text,
@@ -17,7 +18,6 @@ import * as ImagePicker from "expo-image-picker";
 import { Amplify } from "aws-amplify";
 import { signIn, signUp, resetPassword, signOut } from "aws-amplify/auth";
 import awsConfig from "./src/aws-exports";
-
 Amplify.configure(awsConfig);
 const ORDERS_API_URL =
   "https://pnux75snm55hv4nea3tnellfxu0nknwn.lambda-url.us-east-1.on.aws/";
@@ -1488,16 +1488,19 @@ return (
   numColumns={2}
   columnWrapperStyle={{ gap: 12 }}
   renderItem={({ item }) => (
-  <TouchableOpacity
-    style={styles.gridCard}
-    onPress={() => {
-      setSelectedProduct(item);
-
-      if (typeof window !== "undefined") {
-        window.scrollTo(0, 0);
-      }
-    }}
-  >
+    <ProductCard
+      item={item}
+      styles={styles}
+      favorites={favorites}
+      toggleFavorite={toggleFavorite}
+      addToCart={addToCart}
+      deleteProduct={deleteProduct}
+      currentUserEmail={currentUserEmail}
+      setSelectedProduct={setSelectedProduct}
+      VERIFIED_SELLERS={VERIFIED_SELLERS}
+    />
+  )}
+/>
     {item.imageUri && item.imageUri.startsWith("http") ? (
       <Image
         source={{ uri: item.imageUri }}
@@ -1570,8 +1573,7 @@ return (
   </TouchableOpacity>
 )}
 
-  </TouchableOpacity>
-)}
+
 />
 
 
