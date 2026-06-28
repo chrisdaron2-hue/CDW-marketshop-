@@ -92,7 +92,9 @@ const VERIFIED_SELLERS = [
 ];
  const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
-
+const [profileName, setProfileName] = useState("Elizabeth Gyamfi");
+const [profileBio, setProfileBio] = useState("Cloud Engineer | AWS | React Native");
+const [profileLocation, setProfileLocation] = useState("Germany");
   const [reviewText, setReviewText] = useState("");
   const [reviews, setReviews] = useState([]);
 const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -129,11 +131,11 @@ const orderCount = orders.length;
   "Books",
   "Favorites",
   "Cart",
+  "Profile",
   "My Listings",
-  
   `Messages (${messageCount})`,
-`Reviews (${reviewCount})`,
-`Orders (${orderCount})`,
+  `Reviews (${reviewCount})`,
+  `Orders (${orderCount})`,
 ];
 
 useEffect(() => {
@@ -1554,10 +1556,41 @@ return (
     )}
   </>
 )}
+{activeCategory === "Profile" && currentUserEmail && (
+  <View style={styles.card}>
+    <Text style={styles.sectionTitle}>👤 User Profile</Text>
+
+    <Text style={styles.detailTitle}>{profileName}</Text>
+    <Text style={styles.detailText}>{profileBio}</Text>
+    <Text style={styles.detailText}>📍 {profileLocation}</Text>
+    <Text style={styles.detailText}>📧 {currentUserEmail}</Text>
+
+    <View style={styles.dashboardGrid}>
+      <View style={styles.dashboardBox}>
+        <Text style={styles.dashboardNumber}>{sellerProducts.length}</Text>
+        <Text style={styles.dashboardLabel}>📦 Listings</Text>
+      </View>
+
+      <View style={styles.dashboardBox}>
+        <Text style={styles.dashboardNumber}>{orders.length}</Text>
+        <Text style={styles.dashboardLabel}>🛒 Orders</Text>
+      </View>
+
+      <View style={styles.dashboardBox}>
+        <Text style={styles.dashboardNumber}>{favorites.length}</Text>
+        <Text style={styles.dashboardLabel}>❤️ Favorites</Text>
+      </View>
+
+      <View style={styles.dashboardBox}>
+        <Text style={styles.dashboardNumber}>{messages.length}</Text>
+        <Text style={styles.dashboardLabel}>💬 Messages</Text>
+      </View>
+    </View>
+  </View>
+)}
 {activeCategory.startsWith("Reviews") && (
   <View style={styles.card}>
     <Text style={styles.sectionTitle}>Reviews</Text>
-
     {reviews.length === 0 ? (
       <Text style={styles.detailText}>No reviews yet.</Text>
     ) : (
