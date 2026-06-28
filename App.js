@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Footer from "./src/components/Footer";
 import ProductCard from "./src/components/ProductCard";
+import CartScreen from "./src/screens/CartScreen";
 import {
   View,
   Text,
@@ -78,7 +79,6 @@ const sampleProducts = [
   { id: "sample-19", title: "Kindle Paperwhite", price: "70", seller: "Nina", category: "Books", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=500", sold: false },
   { id: "sample-20", title: "Running Shoes", price: "55", seller: "Mike", category: "Sports", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
 ];
-
 export default function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -521,6 +521,55 @@ function removeFromCart(productId) {
   }
 
   notify("Removed from cart.");
+}
+
+
+
+function increaseQuantity(productId) {
+  setCart((prevCart) => {
+    const updatedCart = prevCart.map((item) =>
+      String(item.id) === String(productId)
+        ? {
+            ...item,
+            quantity: Number(item.quantity || 1) + 1,
+          }
+        : item
+    );
+
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(
+        "cart",
+        JSON.stringify(updatedCart)
+      );
+    }
+
+    return updatedCart;
+  });
+}
+
+function decreaseQuantity(productId) {
+  setCart((prevCart) => {
+    const updatedCart = prevCart.map((item) =>
+      String(item.id) === String(productId)
+        ? {
+            ...item,
+            quantity: Math.max(
+              1,
+              Number(item.quantity || 1) - 1
+            ),
+          }
+        : item
+    );
+
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(
+        "cart",
+        JSON.stringify(updatedCart)
+      );
+    }
+
+    return updatedCart;
+  });
 }
 
 function checkout() {
@@ -1420,27 +1469,6 @@ return (
 </ScrollView>
 
 {activeCategory === "Cart" && (
-  <View style={styles.card}>
-    <Text style={styles.sectionTitle}>Shopping Cart</Text>
-    <Text style={styles.cartTotal}>
-      Total: €{cart
-  .reduce(
-    (sum, item) =>
-      sum + Number(item.price || 0) * Number(item.quantity || 1),
-    0
-  )
-  .toFixed(2)}
-    </Text>
-
-    <TouchableOpacity onPress={checkout}>
-      <LinearGradient colors={["#7b2ff7", "#f107a3"]} style={styles.button}>
-        <Text style={styles.buttonText}>Checkout</Text>
-      </LinearGradient>
-    </TouchableOpacity>
-  </View>
-)}
-
-{activeCategory === "Cart" && (
   <>
     {cart.length === 0 ? (
       <View style={styles.card}>
@@ -1448,26 +1476,81 @@ return (
         <Text style={styles.detailText}>Your cart is empty.</Text>
       </View>
     ) : (
-      cart.map((item, index) => (
-        <View key={`${item.id}-${index}`} style={styles.card}>
-          <Text style={styles.detailTitle}>{item.title}</Text>
-          <Text style={styles.detailText}>€{item.price}</Text>
-<Text style={styles.detailText}>
-  Quantity: {item.quantity || 1}
-</Text>
+      <>
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>🛒 Shopping Cart</Text>
+        </View>
 
-<Text style={styles.detailText}>
-  Subtotal: €
-  {(Number(item.price || 0) * Number(item.quantity || 1)).toFixed(2)}
-</Text>
-          <TouchableOpacity
-            style={styles.deleteButtonSmall}
-            onPress={() => removeFromCart(item.id)}
-          >
-            <Text style={styles.deleteButtonText}>🗑️ Remove</Text>
+        {cart.map((item) => (
+          <View key={item.id} style={styles.card}>
+            <Text style={styles.detailTitle}>{item.title}</Text>
+
+            <Text style={styles.detailText}>Price: €{item.price}</Text>
+
+            <Text style={styles.detailText}>
+              Quantity: {item.quantity || 1}
+            </Text>
+
+            <Text style={styles.detailText}>
+              Subtotal: €
+              {(Number(item.price || 0) * Number(item.quantity || 1)).toFixed(2)}
+            </Text>
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 10,
+                marginTop: 12,
+              }}
+            >
+              <TouchableOpacity
+                style={styles.cartButton}
+                onPress={() => decreaseQuantity(item.id)}
+              >
+                <Text style={styles.cartText}>➖</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.cartButton}
+                onPress={() => increaseQuantity(item.id)}
+              >
+                <Text style={styles.cartText}>➕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={styles.deleteButtonSmall}
+              onPress={() => removeFromCart(item.id)}
+            >
+              <Text style={styles.deleteButtonText}>🗑️ Remove</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+
+        <View style={styles.card}>
+          <Text style={styles.cartTotal}>
+            Total: €
+            {cart
+              .reduce(
+                (sum, item) =>
+                  sum +
+                  Number(item.price || 0) * Number(item.quantity || 1),
+                0
+              )
+              .toFixed(2)}
+          </Text>
+
+          <TouchableOpacity onPress={checkout}>
+            <LinearGradient
+              colors={["#7b2ff7", "#f107a3"]}
+              style={styles.button}
+            >
+              <Text style={styles.buttonText}>Checkout</Text>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
-      ))
+      </>
     )}
   </>
 )}
