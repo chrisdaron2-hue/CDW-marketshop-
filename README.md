@@ -21,7 +21,7 @@ This project was built to demonstrate practical skills in **Cloud Engineering**,
 
 ## 🌐 Live Demo
 
-🌐 **Live Demo:** [CDW MarketShop](https://dist-pri8c1517-market-shop-s-projects.vercel.app)
+🌐 **Live Demo:** [CDW MarketShop](https://dist-bqcf9v4hg-market-shop-s-projects.vercel.app)
 
 ---
 
