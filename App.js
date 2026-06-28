@@ -476,37 +476,49 @@ function toggleFavorite(productId) {
 }
 function addToCart(product) {
   setCart((prevCart) => {
-    const alreadyInCart = prevCart.some(
+    const existingItem = prevCart.find(
       (item) => String(item.id) === String(product.id)
     );
 
-    if (alreadyInCart) {
-      notify("Already in cart.");
-      return prevCart;
-    }
+    let updatedCart;
 
-    const updatedCart = [...prevCart, product];
+    if (existingItem) {
+      updatedCart = prevCart.map((item) =>
+        String(item.id) === String(product.id)
+          ? { ...item, quantity: (item.quantity || 1) + 1 }
+          : item
+      );
+
+      notify("Quantity updated.");
+    } else {
+      updatedCart = [
+        ...prevCart,
+        {
+          ...product,
+          quantity: 1,
+        },
+      ];
+
+      notify("Added to cart.");
+    }
 
     if (typeof window !== "undefined") {
       window.localStorage.setItem("cart", JSON.stringify(updatedCart));
     }
 
-    notify("Added to cart.");
     return updatedCart;
   });
 }
 function removeFromCart(productId) {
-  setCart((prevCart) => {
-    const updatedCart = prevCart.filter(
-      (item) => String(item.id) !== String(productId)
-    );
+  const updatedCart = cart.filter(
+    (item) => String(item.id) !== String(productId)
+  );
 
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
-    }
+  setCart(updatedCart);
 
-    return updatedCart;
-  });
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+  }
 
   notify("Removed from cart.");
 }
@@ -996,6 +1008,7 @@ if (selectedProduct) {
   </Text>
 
   <Text style={styles.detailText}>
+  
     <Text style={styles.detailLabel}>Rating: </Text>
     ⭐ {getSellerRating(selectedProduct.seller)}/5
   </Text>
@@ -1157,7 +1170,22 @@ function getSellerRating(sellerName) {
 const totalOrders = orders.length;
 const totalMessages = messages.length;
 const totalReviews = reviews.length;
+const sellerProducts = products.filter(
+  (product) => product.ownerEmail === currentUserEmail
+);
 
+const sellerOrders = orders.filter((order) =>
+  sellerProducts.some((product) => product.id === order.productId)
+);
+
+const sellerMessages = messages.filter((msg) =>
+  sellerProducts.some((product) => product.id === msg.productId)
+);
+
+const sellerRevenue = sellerOrders.reduce(
+  (sum, order) => sum + Number(order.price || 0),
+  0
+);
 const averageRating =
   reviews.length > 0
     ? (
@@ -1235,13 +1263,34 @@ return (
           <TextInput placeholder="Password" secureTextEntry={!showPassword} style={styles.input} value={password} onChangeText={setPassword} />
 {currentUserEmail && (
   <View style={styles.card}>
-    <Text style={styles.sectionTitle}>📊 Dashboard</Text>
+    <Text style={styles.sectionTitle}>📊 Seller Dashboard</Text>
 
-    <Text style={styles.detailText}>Listings: {totalListings}</Text>
-    <Text style={styles.detailText}>Orders: {totalOrders}</Text>
-    <Text style={styles.detailText}>Messages: {totalMessages}</Text>
-    <Text style={styles.detailText}>Reviews: {totalReviews}</Text>
-    <Text style={styles.detailText}>Average Rating: ⭐ {averageRating}/5</Text>
+    <View style={styles.dashboardGrid}>
+      <View style={styles.dashboardBox}>
+        <Text style={styles.dashboardNumber}>{sellerProducts.length}</Text>
+        <Text style={styles.dashboardLabel}>📦 Listings</Text>
+      </View>
+
+      <View style={styles.dashboardBox}>
+        <Text style={styles.dashboardNumber}>{sellerOrders.length}</Text>
+        <Text style={styles.dashboardLabel}>🛒 Orders</Text>
+      </View>
+
+      <View style={styles.dashboardBox}>
+        <Text style={styles.dashboardNumber}>{sellerMessages.length}</Text>
+        <Text style={styles.dashboardLabel}>💬 Messages</Text>
+      </View>
+
+      <View style={styles.dashboardBox}>
+        <Text style={styles.dashboardNumber}>{totalReviews}</Text>
+        <Text style={styles.dashboardLabel}>⭐ Reviews</Text>
+      </View>
+
+      <View style={styles.dashboardBox}>
+        <Text style={styles.dashboardNumber}>€{sellerRevenue.toFixed(2)}</Text>
+        <Text style={styles.dashboardLabel}>💰 Revenue</Text>
+      </View>
+    </View>
   </View>
 )}
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
@@ -1374,7 +1423,13 @@ return (
   <View style={styles.card}>
     <Text style={styles.sectionTitle}>Shopping Cart</Text>
     <Text style={styles.cartTotal}>
-      Total: €{cart.reduce((sum, item) => sum + Number(item.price || 0), 0)}
+      Total: €{cart
+  .reduce(
+    (sum, item) =>
+      sum + Number(item.price || 0) * Number(item.quantity || 1),
+    0
+  )
+  .toFixed(2)}
     </Text>
 
     <TouchableOpacity onPress={checkout}>
@@ -1385,37 +1440,37 @@ return (
   </View>
 )}
 
-{activeCategory === "Cart" &&
-  cart.map((item) => (
-    <View key={item.id} style={styles.card}>
-      <Text style={styles.detailTitle}>{item.title}</Text>
-      <Text style={styles.detailText}>€{item.price}</Text>
+{activeCategory === "Cart" && (
+  <>
+    {cart.length === 0 ? (
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>🛒 Shopping Cart</Text>
+        <Text style={styles.detailText}>Your cart is empty.</Text>
+      </View>
+    ) : (
+      cart.map((item, index) => (
+        <View key={`${item.id}-${index}`} style={styles.card}>
+          <Text style={styles.detailTitle}>{item.title}</Text>
+          <Text style={styles.detailText}>€{item.price}</Text>
+<Text style={styles.detailText}>
+  Quantity: {item.quantity || 1}
+</Text>
 
-      <TouchableOpacity
-        style={styles.deleteButtonSmall}
-        onPress={() =>
-          Alert.alert(
-            "Remove Item",
-            "Remove this item from your cart?",
-            [
-              {
-                text: "Cancel",
-                style: "cancel",
-              },
-              {
-                text: "Remove",
-                onPress: () => removeFromCart(item.id),
-              },
-            ]
-          )
-        }
-      >
-        <Text style={styles.deleteButtonText}>
-          🗑️ Remove
-        </Text>
-      </TouchableOpacity>
-    </View>
-  ))}
+<Text style={styles.detailText}>
+  Subtotal: €
+  {(Number(item.price || 0) * Number(item.quantity || 1)).toFixed(2)}
+</Text>
+          <TouchableOpacity
+            style={styles.deleteButtonSmall}
+            onPress={() => removeFromCart(item.id)}
+          >
+            <Text style={styles.deleteButtonText}>🗑️ Remove</Text>
+          </TouchableOpacity>
+        </View>
+      ))
+    )}
+  </>
+)}
 {activeCategory.startsWith("Reviews") && (
   <View style={styles.card}>
     <Text style={styles.sectionTitle}>Reviews</Text>
@@ -1864,7 +1919,34 @@ welcomeButtons: {
   flexDirection: "row",
   marginTop: 20,
 },
+dashboardGrid: {
+  flexDirection: "row",
+  flexWrap: "wrap",
+  gap: 12,
+  marginTop: 10,
+},
 
+dashboardBox: {
+  flexGrow: 1,
+  flexBasis: "45%",
+  backgroundColor: "#f8f5ff",
+  borderRadius: 18,
+  padding: 18,
+  alignItems: "center",
+},
+
+dashboardNumber: {
+  fontSize: 24,
+  fontWeight: "bold",
+  color: "#4a148c",
+},
+
+dashboardLabel: {
+  marginTop: 6,
+  fontSize: 14,
+  color: "#555",
+  fontWeight: "bold",
+},
 heroButton: {
   backgroundColor: "#7b2ff7",
   paddingVertical: 12,
