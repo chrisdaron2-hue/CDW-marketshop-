@@ -1,11 +1,11 @@
 import React from "react";
+import { VERIFIED_SELLERS } from "../constants/verifiedSellers";
 import {
   View,
   Text,
   TouchableOpacity,
   Image,
 } from "react-native";
-
 
 
 export default function ProductCard({
@@ -17,7 +17,6 @@ export default function ProductCard({
   deleteProduct,
   currentUserEmail,
   setSelectedProduct,
-  VERIFIED_SELLERS,
 }) {
   const openProduct = () => {
   setSelectedProduct(item);

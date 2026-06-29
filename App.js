@@ -77,13 +77,7 @@ export default function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-const VERIFIED_SELLERS = [
-  "David",
-  "Daron",
-  "Lizzy",
-  "Elizabeth",
-  "Admin",
-];
+
  const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
 const [profileName, setProfileName] = useState("Elizabeth Gyamfi");
@@ -1562,7 +1556,8 @@ return (
   columnWrapperStyle={{ gap: 12 }}
   extraData={favorites}
   renderItem={({ item }) => (
-    <ProductCard
+    
+  <ProductCard
       item={item}
       styles={styles}
       favorites={favorites}
@@ -1574,8 +1569,7 @@ return (
       VERIFIED_SELLERS={VERIFIED_SELLERS}
     />
   )}
-/>
-    
+/>  
     
 <Footer styles={styles} />
 
