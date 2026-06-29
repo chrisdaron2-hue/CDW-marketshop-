@@ -24,13 +24,16 @@ import {
   REVIEWS_API_URL,
   MESSAGES_API_URL,
 } from "./src/constants/api";
+import {
+  loadProducts,
+  saveProduct,
+} from "./src/services/productService";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import { Amplify } from "aws-amplify";
 import { signIn, signUp, resetPassword, signOut } from "aws-amplify/auth";
 import awsConfig from "./src/aws-exports";
 Amplify.configure(awsConfig);
-
 const sampleProducts = [
   { id: "sample-1", title: "iPhone 13", price: "450", seller: "Lizzy", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=500", sold: false },
   { id: "sample-2", title: "Nike Sneakers", price: "60", seller: "Ama", category: "Fashion", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
@@ -127,10 +130,19 @@ const orderCount = orders.length;
   `Orders (${orderCount})`,
 ];
 useEffect(() => {
-  loadProducts();
-  loadMessages();
-  loadReviews();
-  loadOrders();
+  async function initializeApp() {
+    const loadedProducts = await loadProducts();
+
+    if (loadedProducts.length > 0) {
+      setProducts([...loadedProducts, ...sampleProducts]);
+    }
+
+    loadMessages();
+    loadReviews();
+    loadOrders();
+  }
+
+  initializeApp();
 }, []);
 
 useEffect(() => {
@@ -180,18 +192,7 @@ useEffect(() => {
   if (typeof window === "undefined") return;
   window.localStorage.setItem("cart", JSON.stringify(cart));
 }, [cart]);
-  async function loadProducts() {
-    try {
-      const response = await fetch(PRODUCTS_API_URL);
-      const data = await response.json();
-      if (Array.isArray(data) && data.length > 0) {
-        setProducts([...data, ...sampleProducts]);
-      }
-    } catch (error) {
-      console.log("LOAD ERROR:", error);
-    }
-  }
-
+  
   async function handleSignIn() {
   if (!email || !password) {
     notify("Enter email and password.");
