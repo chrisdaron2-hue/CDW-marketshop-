@@ -4,6 +4,7 @@ import ProductCard from "./src/components/ProductCard";
 import CartScreen from "./src/screens/CartScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
 import DashboardScreen from "./src/screens/DashboardScreen";
+import ReviewsScreen from "./src/screens/ReviewsScreen";
 import {
   View,
   Text,
@@ -16,29 +17,20 @@ import {
   Image,
   Linking,
 } from "react-native";
+import {
+  ORDERS_API_URL,
+  PRODUCTS_API_URL,
+  IMAGE_UPLOAD_API_URL,
+  REVIEWS_API_URL,
+  MESSAGES_API_URL,
+} from "./src/constants/api";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import { Amplify } from "aws-amplify";
 import { signIn, signUp, resetPassword, signOut } from "aws-amplify/auth";
 import awsConfig from "./src/aws-exports";
 Amplify.configure(awsConfig);
-const ORDERS_API_URL =
-  "https://pnux75snm55hv4nea3tnellfxu0nknwn.lambda-url.us-east-1.on.aws/";
-const PRODUCTS_API_URL =
-  "https://pcoe3iv4uvig2f6q7jpfkhjkom0flvjq.lambda-url.us-east-1.on.aws/";
-const IMAGE_UPLOAD_API_URL =
-  "https://7ekgx567jkyzplwcacw66sioxm0ynpul.lambda-url.us-east-1.on.aws/";
-function notify(message) {
-  if (typeof window !== "undefined") {
-    window.alert(message);
-  } else {
-    Alert.alert(message);
-  }
-}
-const REVIEWS_API_URL =
-  "https://qrd6nvt7ukofww6wijocc5yfzy0yxiis.lambda-url.us-east-1.on.aws/";
-const MESSAGES_API_URL =
-  "https://bw7zxoabdbemo76hzz3x7spfje0tntlb.lambda-url.us-east-1.on.aws/";
+
 const sampleProducts = [
   { id: "sample-1", title: "iPhone 13", price: "450", seller: "Lizzy", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=500", sold: false },
   { id: "sample-2", title: "Nike Sneakers", price: "60", seller: "Ama", category: "Fashion", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
@@ -146,8 +138,6 @@ useEffect(() => {
   loadReviews();
   loadOrders();
 }, []);
-
-
 
 useEffect(() => {
   if (typeof window === "undefined") return;
@@ -1512,21 +1502,10 @@ return (
   />
 )}
 {activeCategory.startsWith("Reviews") && (
-  <View style={styles.card}>
-    <Text style={styles.sectionTitle}>Reviews</Text>
-    {reviews.length === 0 ? (
-      <Text style={styles.detailText}>No reviews yet.</Text>
-    ) : (
-      reviews.map((review) => (
-        <View key={review.id} style={styles.card}>
-          <Text style={styles.detailText}>Product: {review.productTitle}</Text>
-          <Text style={styles.detailText}>⭐ {review.rating}/5</Text>
-          <Text style={styles.detailText}>{review.text}</Text>
-          <Text style={styles.detailText}>By: {review.reviewer || "Guest"}</Text>
-        </View>
-      ))
-    )}
-  </View>
+  <ReviewsScreen
+    reviews={reviews}
+    styles={styles}
+  />
 )}       
        
 
