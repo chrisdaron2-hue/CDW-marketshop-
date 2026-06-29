@@ -3,6 +3,7 @@ import Footer from "./src/components/Footer";
 import ProductCard from "./src/components/ProductCard";
 import CartScreen from "./src/screens/CartScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
+import DashboardScreen from "./src/screens/DashboardScreen";
 import {
   View,
   Text,
@@ -154,7 +155,6 @@ useEffect(() => {
   if (savedFavorites) {
     setFavorites(JSON.parse(savedFavorites));
   }
-
   if (savedCart) {
     setCart(JSON.parse(savedCart));
   }
@@ -1313,38 +1313,15 @@ return (
           <TextInput placeholder="Email" style={styles.input} value={email} autoCapitalize="none" keyboardType="email-address" onChangeText={setEmail} />
           <TextInput placeholder="Password" secureTextEntry={!showPassword} style={styles.input} value={password} onChangeText={setPassword} />
 {currentUserEmail && (
-  <View style={styles.card}>
-    <Text style={styles.sectionTitle}>📊 Seller Dashboard</Text>
-
-    <View style={styles.dashboardGrid}>
-      <View style={styles.dashboardBox}>
-        <Text style={styles.dashboardNumber}>{sellerProducts.length}</Text>
-        <Text style={styles.dashboardLabel}>📦 Listings</Text>
-      </View>
-
-      <View style={styles.dashboardBox}>
-        <Text style={styles.dashboardNumber}>{sellerOrders.length}</Text>
-        <Text style={styles.dashboardLabel}>🛒 Orders</Text>
-      </View>
-
-      <View style={styles.dashboardBox}>
-        <Text style={styles.dashboardNumber}>{sellerMessages.length}</Text>
-        <Text style={styles.dashboardLabel}>💬 Messages</Text>
-      </View>
-
-      <View style={styles.dashboardBox}>
-        <Text style={styles.dashboardNumber}>{totalReviews}</Text>
-        <Text style={styles.dashboardLabel}>⭐ Reviews</Text>
-      </View>
-
-      <View style={styles.dashboardBox}>
-        <Text style={styles.dashboardNumber}>€{sellerRevenue.toFixed(2)}</Text>
-        <Text style={styles.dashboardLabel}>💰 Revenue</Text>
-      </View>
-    </View>
-  </View>
-)}
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+  <DashboardScreen
+    styles={styles}
+    sellerProducts={sellerProducts}
+    sellerOrders={sellerOrders}
+    sellerMessages={sellerMessages}
+    totalReviews={totalReviews}
+    sellerRevenue={sellerRevenue}
+  />
+)}       <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <Text style={styles.linkText}>{showPassword ? "Hide password" : "Show password"}</Text>
           </TouchableOpacity>
 
