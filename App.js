@@ -146,19 +146,46 @@ useEffect(() => {
   loadReviews();
   loadOrders();
 }, []);
+
+
+
 useEffect(() => {
   if (typeof window === "undefined") return;
 
-  const savedFavorites = window.localStorage.getItem("favorites");
-  const savedCart = window.localStorage.getItem("cart");
+  window.localStorage.removeItem("email");
+  window.localStorage.removeItem("password");
 
+  setEmail("");
+  setPassword("");
+
+  const savedFavorites = window.localStorage.getItem("favorites");
   if (savedFavorites) {
     setFavorites(JSON.parse(savedFavorites));
   }
+
+  const savedCart = window.localStorage.getItem("cart");
   if (savedCart) {
     setCart(JSON.parse(savedCart));
   }
 }, []);
+
+useEffect(() => {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(
+    "favorites",
+    JSON.stringify(favorites)
+  );
+}, [favorites]);
+
+useEffect(() => {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(
+    "cart",
+    JSON.stringify(cart)
+  );
+}, [cart]);
+
+
 
 useEffect(() => {
   if (typeof window === "undefined") return;
@@ -470,11 +497,20 @@ async function deleteProduct(productId) {
   }
 }
 function toggleFavorite(productId) {
-  if (favorites.includes(productId)) {
-    setFavorites(favorites.filter((id) => id !== productId));
-  } else {
-    setFavorites([...favorites, productId]);
-  }
+  setFavorites((prevFavorites) => {
+    const updatedFavorites = prevFavorites.includes(productId)
+      ? prevFavorites.filter((id) => id !== productId)
+      : [...prevFavorites, productId];
+
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(
+        "favorites",
+        JSON.stringify(updatedFavorites)
+      );
+    }
+
+    return updatedFavorites;
+  });
 }
 function addToCart(product) {
   setCart((prevCart) => {
@@ -1545,6 +1581,7 @@ return (
   scrollEnabled={false}
   numColumns={2}
   columnWrapperStyle={{ gap: 12 }}
+  extraData={favorites}
   renderItem={({ item }) => (
     <ProductCard
       item={item}

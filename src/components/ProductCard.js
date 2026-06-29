@@ -19,100 +19,93 @@ export default function ProductCard({
   setSelectedProduct,
   VERIFIED_SELLERS,
 }) {
-  return (
-    <TouchableOpacity
-      style={styles.gridCard}
-      onPress={() => {
-        setSelectedProduct(item);
+  const openProduct = () => {
+  setSelectedProduct(item);
 
-        if (typeof window !== "undefined") {
-          window.scrollTo(0, 0);
-        }
-      }}
-    >
-      {item.imageUri && item.imageUri.startsWith("http") ? (
-        <Image
-          source={{ uri: item.imageUri }}
-          style={styles.gridImage}
-        />
-      ) : (
-        <View style={styles.placeholderImage}>
-          <Text style={styles.placeholderText}>
-            CDW Marketshop
-          </Text>
-        </View>
-      )}
+  if (typeof window !== "undefined") {
+    window.scrollTo(0, 0);
+  }
+};
+return (
+    <View style={styles.gridCard}>
 
-      <Text numberOfLines={1} style={styles.productTitle}>
-        {item.title}
-      </Text>
-
-      <Text style={styles.meta}>
-        👤 {item.seller}
-        {VERIFIED_SELLERS.includes(item.seller) ? " ✅" : ""}
-      </Text>
-
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 8,
-          marginTop: 6,
-        }}
-      >
-        <View style={styles.priceBadge}>
-          <Text style={styles.priceBadgeText}>
-            €{item.price}
-          </Text>
-        </View>
-
-        <View style={styles.newBadge}>
-          <Text style={styles.newBadgeText}>
-            🆕 New
-          </Text>
-        </View>
+  {/* Clickable image and title */}
+  <TouchableOpacity onPress={openProduct}>
+    {item.imageUri && item.imageUri.startsWith("http") ? (
+      <Image
+        source={{ uri: item.imageUri }}
+        style={styles.gridImage}
+      />
+    ) : (
+      <View style={styles.placeholderImage}>
+        <Text style={styles.placeholderText}>
+          CDW Marketshop
+        </Text>
       </View>
+    )}
 
-      <Text numberOfLines={1} style={styles.meta}>
-        {item.category}
+    <Text numberOfLines={1} style={styles.productTitle}>
+      {item.title}
+    </Text>
+  </TouchableOpacity>
+
+  <Text style={styles.meta}>
+    👤 {item.seller}
+    {VERIFIED_SELLERS.includes(item.seller) ? " ✅" : ""}
+  </Text>
+
+  <View style={styles.priceBadge}>
+    <Text style={styles.priceBadgeText}>€{item.price}</Text>
+  </View>
+
+  <Text style={styles.meta}>{item.category}</Text>
+
+  {/* 👇 Put the View Details button HERE */}
+  <TouchableOpacity
+    style={styles.messageButton}
+    onPress={openProduct}
+  >
+    <Text style={styles.messageText}>View Details</Text>
+  </TouchableOpacity>
+
+  {/* Favorite button */}
+  <TouchableOpacity
+    style={styles.favoriteButton}
+    onPress={(e) => {
+      e.stopPropagation?.();
+      toggleFavorite(item.id);
+    }}
+  >
+    <Text style={styles.favoriteText}>
+      {favorites.includes(item.id)
+        ? "❤️ Favorited"
+        : "🤍 Favorite"}
+    </Text>
+  </TouchableOpacity>
+
+  {/* Add to Cart */}
+  <TouchableOpacity
+    style={styles.cartButton}
+    onPress={(e) => {
+      e.stopPropagation?.();
+      addToCart(item);
+    }}
+  >
+    <Text style={styles.cartText}>
+      🛒 Add to Cart
+    </Text>
+  </TouchableOpacity>
+
+  {item.ownerEmail === currentUserEmail && (
+    <TouchableOpacity
+      style={styles.deleteButtonSmall}
+      onPress={() => deleteProduct(item.id)}
+    >
+      <Text style={styles.deleteButtonText}>
+        Delete 🗑️
       </Text>
-
-      <TouchableOpacity
-        style={styles.favoriteButton}
-        onPress={() => toggleFavorite(item.id)}
-      >
-        <Text style={styles.favoriteText}>
-          {favorites.includes(item.id)
-            ? "❤️ Favorited"
-            : "🤍 Favorite"}
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.cartButton}
-        onPress={() => addToCart(item)}
-      >
-        <Text style={styles.cartText}>
-          🛒 Add to Cart
-        </Text>
-      </TouchableOpacity>
-
-      {item.sold && (
-        <Text style={styles.sold}>
-          SOLD
-        </Text>
-      )}
-
-      {item.ownerEmail === currentUserEmail && (
-        <TouchableOpacity
-          style={styles.deleteButtonSmall}
-          onPress={() => deleteProduct(item.id)}
-        >
-          <Text style={styles.deleteButtonText}>
-            Delete 🗑️
-          </Text>
-        </TouchableOpacity>
-      )}
     </TouchableOpacity>
+  )}
+</View>
   );
 }
