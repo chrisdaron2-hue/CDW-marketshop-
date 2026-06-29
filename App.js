@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Footer from "./src/components/Footer";
 import ProductCard from "./src/components/ProductCard";
 import CartScreen from "./src/screens/CartScreen";
+import ProfileScreen from "./src/screens/ProfileScreen";
 import {
   View,
   Text,
@@ -201,7 +202,6 @@ useEffect(() => {
     notify(error.message || "Sign in failed.");
   }
 }
-
   async function handleSignUp() {
     if (!email || !password) {
       notify("Enter email and password.");
@@ -1471,171 +1471,32 @@ return (
 </ScrollView>
 
 {activeCategory === "Cart" && (
-  <>
-    {cart.length === 0 ? (
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>🛒 Shopping Cart</Text>
-        <Text style={styles.detailText}>Your cart is empty.</Text>
-      </View>
-    ) : (
-      <>
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>🛒 Shopping Cart</Text>
-        </View>
-
-        {cart.map((item) => (
-          <View key={item.id} style={styles.card}>
-            <Text style={styles.detailTitle}>{item.title}</Text>
-
-            <Text style={styles.detailText}>Price: €{item.price}</Text>
-
-            <Text style={styles.detailText}>
-              Quantity: {item.quantity || 1}
-            </Text>
-
-            <Text style={styles.detailText}>
-              Subtotal: €
-              {(Number(item.price || 0) * Number(item.quantity || 1)).toFixed(2)}
-            </Text>
-
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-                marginTop: 12,
-              }}
-            >
-              <TouchableOpacity
-                style={styles.cartButton}
-                onPress={() => decreaseQuantity(item.id)}
-              >
-                <Text style={styles.cartText}>➖</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.cartButton}
-                onPress={() => increaseQuantity(item.id)}
-              >
-                <Text style={styles.cartText}>➕</Text>
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity
-              style={styles.deleteButtonSmall}
-              onPress={() => removeFromCart(item.id)}
-            >
-              <Text style={styles.deleteButtonText}>🗑️ Remove</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-
-        <View style={styles.card}>
-          <Text style={styles.cartTotal}>
-            Total: €
-            {cart
-              .reduce(
-                (sum, item) =>
-                  sum +
-                  Number(item.price || 0) * Number(item.quantity || 1),
-                0
-              )
-              .toFixed(2)}
-          </Text>
-
-          <TouchableOpacity onPress={checkout}>
-            <LinearGradient
-              colors={["#7b2ff7", "#f107a3"]}
-              style={styles.button}
-            >
-              <Text style={styles.buttonText}>Checkout</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-      </>
-    )}
-  </>
+  <CartScreen
+    cart={cart}
+    styles={styles}
+    increaseQuantity={increaseQuantity}
+    decreaseQuantity={decreaseQuantity}
+    removeFromCart={removeFromCart}
+    checkout={checkout}
+  />
 )}
 {activeCategory === "Profile" && currentUserEmail && (
-  <View style={styles.card}>
-    <Text style={styles.sectionTitle}>👤 User Profile</Text>
-
-    {isEditingProfile ? (
-  <>
-    <TextInput
-      style={styles.input}
-      value={profileName}
-      onChangeText={setProfileName}
-      placeholder="Your name"
-    />
-
-    <TextInput
-      style={styles.input}
-      value={profileBio}
-      onChangeText={setProfileBio}
-      placeholder="Bio"
-    />
-
-    <TextInput
-      style={styles.input}
-      value={profileLocation}
-      onChangeText={setProfileLocation}
-      placeholder="Location"
-    />
-
-    <TouchableOpacity
-      onPress={() => setIsEditingProfile(false)}
-    >
-      <LinearGradient
-        colors={["#7b2ff7", "#f107a3"]}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>Save Profile</Text>
-      </LinearGradient>
-    </TouchableOpacity>
-  </>
-) : (
-  <>
-    <Text style={styles.detailTitle}>{profileName}</Text>
-    <Text style={styles.detailText}>{profileBio}</Text>
-    <Text style={styles.detailText}>📍 {profileLocation}</Text>
-    <Text style={styles.detailText}>📧 {currentUserEmail}</Text>
-
-    <TouchableOpacity
-      onPress={() => setIsEditingProfile(true)}
-    >
-      <LinearGradient
-        colors={["#7b2ff7", "#f107a3"]}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>✏️ Edit Profile</Text>
-      </LinearGradient>
-    </TouchableOpacity>
-  </>
-)}
-
-    <View style={styles.dashboardGrid}>
-      <View style={styles.dashboardBox}>
-        <Text style={styles.dashboardNumber}>{sellerProducts.length}</Text>
-        <Text style={styles.dashboardLabel}>📦 Listings</Text>
-      </View>
-
-      <View style={styles.dashboardBox}>
-        <Text style={styles.dashboardNumber}>{orders.length}</Text>
-        <Text style={styles.dashboardLabel}>🛒 Orders</Text>
-      </View>
-
-      <View style={styles.dashboardBox}>
-        <Text style={styles.dashboardNumber}>{favorites.length}</Text>
-        <Text style={styles.dashboardLabel}>❤️ Favorites</Text>
-      </View>
-
-      <View style={styles.dashboardBox}>
-        <Text style={styles.dashboardNumber}>{messages.length}</Text>
-        <Text style={styles.dashboardLabel}>💬 Messages</Text>
-      </View>
-    </View>
-  </View>
+  <ProfileScreen
+    styles={styles}
+    currentUserEmail={currentUserEmail}
+    profileName={profileName}
+    setProfileName={setProfileName}
+    profileBio={profileBio}
+    setProfileBio={setProfileBio}
+    profileLocation={profileLocation}
+    setProfileLocation={setProfileLocation}
+    isEditingProfile={isEditingProfile}
+    setIsEditingProfile={setIsEditingProfile}
+    sellerProducts={sellerProducts}
+    orders={orders}
+    favorites={favorites}
+    messages={messages}
+  />
 )}
 {activeCategory.startsWith("Reviews") && (
   <View style={styles.card}>
@@ -1722,9 +1583,6 @@ return (
   )}
 />
     
-
-
- 
     
 <Footer styles={styles} />
 
@@ -1734,18 +1592,17 @@ return (
   );
 }
 
-
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 60, paddingHorizontal: 20 },
 
- 
-
-  logoWrap: {
+logoWrap: {
   width: "100%",
   marginHorizontal: -20,
   marginTop: -60,
   marginBottom: 20,
-},
+}, 
+
+  
 
 logoImage: {
   width: "100%",
@@ -1832,7 +1689,11 @@ logoImage: {
   shadowRadius: 10,
   shadowOffset: { width: 0, height: 5 },
   elevation: 4,
-},
+}, 
+
+
+
+
 placeholderImage: {
   width: "100%",
   height: 150,
