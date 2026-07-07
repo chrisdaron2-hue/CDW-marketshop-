@@ -5,6 +5,7 @@ import CartScreen from "./src/screens/CartScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
 import DashboardScreen from "./src/screens/DashboardScreen";
 import ReviewsScreen from "./src/screens/ReviewsScreen";
+import { VERIFIED_SELLERS } from "./src/constants/verifiedSellers";
 import {
   View,
   Text,
@@ -28,6 +29,10 @@ import {
   loadProducts,
   saveProduct,
 } from "./src/services/productService";
+import {
+  fetchReviews,
+  createReview,
+} from "./src/services/reviewService";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import { Amplify } from "aws-amplify";
@@ -76,11 +81,17 @@ const sampleProducts = [
   { id: "sample-19", title: "Kindle Paperwhite", price: "70", seller: "Nina", category: "Books", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=500", sold: false },
   { id: "sample-20", title: "Running Shoes", price: "55", seller: "Mike", category: "Sports", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
 ];
+function notify(message) {
+  if (typeof window !== "undefined") {
+    window.alert(message);
+  } else {
+    Alert.alert(message);
+  }
+}
 export default function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
  const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
 const [profileName, setProfileName] = useState("Elizabeth Gyamfi");
@@ -131,16 +142,18 @@ const orderCount = orders.length;
 ];
 useEffect(() => {
   async function initializeApp() {
-    const loadedProducts = await loadProducts();
+  const loadedProducts = await loadProducts();
 
-    if (loadedProducts.length > 0) {
-      setProducts([...loadedProducts, ...sampleProducts]);
-    }
-
-    loadMessages();
-    loadReviews();
-    loadOrders();
+  if (loadedProducts.length > 0) {
+    setProducts([...loadedProducts, ...sampleProducts]);
   }
+
+  const loadedReviews = await fetchReviews();
+  setReviews(loadedReviews);
+
+  loadMessages();
+  loadOrders();
+}
 
   initializeApp();
 }, []);
@@ -180,7 +193,6 @@ useEffect(() => {
     JSON.stringify(cart)
   );
 }, [cart]);
-
 
 
 useEffect(() => {
@@ -372,8 +384,7 @@ const productImages = [
     uploadedImageUrl2,
     uploadedImageUrl3,
   ].filter(Boolean);
-    
-  
+      
 
   
 console.log("PRODUCT IMAGES:", productImages);
@@ -658,35 +669,19 @@ async function submitReview(product) {
     text: reviewText,
     rating: 5,
   };
-  try {
-    await fetch(REVIEWS_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newReview),
-    });
 
-    setReviews([...reviews, newReview]);
+  const success = await createReview(newReview);
+
+  if (success) {
+    setReviews((prev) => [...prev, newReview]);
     setReviewText("");
     notify("Review added.");
-  } catch (error) {
-    console.log("REVIEW ERROR:", error);
+  } else {
     notify("Failed to save review.");
   }
 }
-async function loadReviews() {
-  try {
-    const response = await fetch(REVIEWS_API_URL);
-    const data = await response.json();
+  
 
-    if (Array.isArray(data)) {
-      setReviews(data);
-    }
-  } catch (error) {
-    console.log("LOAD REVIEWS ERROR:", error);
-  }
-}
 async function loadMessages() {
   try {
     const response = await fetch(MESSAGES_API_URL);
@@ -1567,7 +1562,7 @@ return (
       deleteProduct={deleteProduct}
       currentUserEmail={currentUserEmail}
       setSelectedProduct={setSelectedProduct}
-      VERIFIED_SELLERS={VERIFIED_SELLERS}
+     
     />
   )}
 />  
