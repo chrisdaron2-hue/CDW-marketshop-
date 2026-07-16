@@ -40,3 +40,17 @@ yarn-error.*
 /ios
 /android
 .vercel
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+*.tfvars
+.terraformrc
+terraform.rc
+
+# Local Terraform plan output
+**/tfplan
