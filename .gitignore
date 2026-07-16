@@ -54,3 +54,7 @@ terraform.rc
 
 # Local Terraform plan output
 **/tfplan
+
+# Lambda dependencies and deployment packages
+infrastructure/lambda/**/node_modules/
+infrastructure/terraform/*.zip
