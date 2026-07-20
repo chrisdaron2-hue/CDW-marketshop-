@@ -19,3 +19,13 @@ variable "bucket_name" {
     error_message = "The bucket name must contain between 3 and 63 characters."
   }
 }
+
+variable "budget_email" {
+  description = "Email address that receives AWS budget alerts"
+  type        = string
+
+  validation {
+    condition     = can(regex("^[^@]+@[^@]+\\.[^@]+$", var.budget_email))
+    error_message = "Enter a valid email address."
+  }
+}
