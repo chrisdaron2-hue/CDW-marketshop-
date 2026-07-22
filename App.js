@@ -5,6 +5,7 @@ import CartScreen from "./src/screens/CartScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
 import DashboardScreen from "./src/screens/DashboardScreen";
 import ReviewsScreen from "./src/screens/ReviewsScreen";
+import { VERIFIED_SELLERS } from "./src/constants/verifiedSellers";
 import {
   View,
   Text,
@@ -24,13 +25,21 @@ import {
   REVIEWS_API_URL,
   MESSAGES_API_URL,
 } from "./src/constants/api";
+import {
+  loadProducts,
+  saveProduct,
+  hydrateProductImages,
+} from "./src/services/productService";
+import {
+  fetchReviews,
+  createReview,
+} from "./src/services/reviewService";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import { Amplify } from "aws-amplify";
 import { signIn, signUp, resetPassword, signOut } from "aws-amplify/auth";
 import awsConfig from "./src/aws-exports";
 Amplify.configure(awsConfig);
-
 const sampleProducts = [
   { id: "sample-1", title: "iPhone 13", price: "450", seller: "Lizzy", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=500", sold: false },
   { id: "sample-2", title: "Nike Sneakers", price: "60", seller: "Ama", category: "Fashion", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
@@ -73,11 +82,17 @@ const sampleProducts = [
   { id: "sample-19", title: "Kindle Paperwhite", price: "70", seller: "Nina", category: "Books", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=500", sold: false },
   { id: "sample-20", title: "Running Shoes", price: "55", seller: "Mike", category: "Sports", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
 ];
+function notify(message) {
+  if (typeof window !== "undefined") {
+    window.alert(message);
+  } else {
+    Alert.alert(message);
+  }
+}
 export default function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
  const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
 const [profileName, setProfileName] = useState("Elizabeth Gyamfi");
@@ -127,10 +142,21 @@ const orderCount = orders.length;
   `Orders (${orderCount})`,
 ];
 useEffect(() => {
-  loadProducts();
+  async function initializeApp() {
+  const loadedProducts = await loadProducts();
+
+  if (loadedProducts.length > 0) {
+    setProducts([...loadedProducts, ...sampleProducts]);
+  }
+
+  const loadedReviews = await fetchReviews();
+  setReviews(loadedReviews);
+
   loadMessages();
-  loadReviews();
   loadOrders();
+}
+
+  initializeApp();
 }, []);
 
 useEffect(() => {
@@ -170,7 +196,6 @@ useEffect(() => {
 }, [cart]);
 
 
-
 useEffect(() => {
   if (typeof window === "undefined") return;
   window.localStorage.setItem("favorites", JSON.stringify(favorites));
@@ -180,18 +205,7 @@ useEffect(() => {
   if (typeof window === "undefined") return;
   window.localStorage.setItem("cart", JSON.stringify(cart));
 }, [cart]);
-  async function loadProducts() {
-    try {
-      const response = await fetch(PRODUCTS_API_URL);
-      const data = await response.json();
-      if (Array.isArray(data) && data.length > 0) {
-        setProducts([...data, ...sampleProducts]);
-      }
-    } catch (error) {
-      console.log("LOAD ERROR:", error);
-    }
-  }
-
+  
   async function handleSignIn() {
   if (!email || !password) {
     notify("Enter email and password.");
@@ -292,49 +306,82 @@ async function uploadImageToS3(localImageUri) {
     return null;
   }
 
-  const response = await fetch(localImageUri);
-  const blob = await response.blob();
+  // Convert the selected local image into a Blob.
+  const imageResponse = await fetch(localImageUri);
 
-  const reader = new FileReader();
+  if (!imageResponse.ok) {
+    throw new Error("Could not read the selected image.");
+  }
 
-  const base64Image = await new Promise((resolve, reject) => {
-    reader.onloadend = () => {
-      const result = reader.result;
-      const base64 = result.split(",")[1];
-      resolve(base64);
-    };
+  const imageBlob = await imageResponse.blob();
+  const lowerCaseUri = localImageUri.toLowerCase().split("?")[0];
 
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
+  let contentType = imageBlob.type;
 
-  const uploadResponse = await fetch(IMAGE_UPLOAD_API_URL, {
+  if (!["image/jpeg", "image/png", "image/webp"].includes(contentType)) {
+    if (lowerCaseUri.endsWith(".png")) {
+      contentType = "image/png";
+    } else if (lowerCaseUri.endsWith(".webp")) {
+      contentType = "image/webp";
+    } else {
+      contentType = "image/jpeg";
+    }
+  }
+
+  // Request a temporary upload URL from API Gateway and Lambda.
+  const urlResponse = await fetch(IMAGE_UPLOAD_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      imageBase64: base64Image,
-      fileName: `product-${Date.now()}.jpg`,
-      contentType: "image/jpeg",
+      contentType,
     }),
   });
 
-  const uploadText = await uploadResponse.text();
-console.log("UPLOAD RESPONSE:", uploadText);
+  const responseText = await urlResponse.text();
 
-let uploadData = {};
-try {
-  uploadData = JSON.parse(uploadText);
-} catch (e) {
-  throw new Error(uploadText);
-}
+  let uploadData;
 
-if (!uploadResponse.ok || !uploadData.imageUrl) {
-  throw new Error(uploadData.message || uploadData.error || "Image upload failed");
-}
+  try {
+    uploadData = JSON.parse(responseText);
+  } catch {
+    console.log("UPLOAD URL RESPONSE:", responseText);
+    throw new Error("The upload service returned an invalid response.");
+  }
 
-  return uploadData.imageUrl;
+  if (
+    !urlResponse.ok ||
+    !uploadData.uploadUrl ||
+    !uploadData.objectKey
+  ) {
+    throw new Error(
+      uploadData.message ||
+        uploadData.error ||
+        "Could not create the upload URL."
+    );
+  }
+
+  // Upload the image directly to the private S3 bucket.
+  const s3Response = await fetch(uploadData.uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": contentType,
+    },
+    body: imageBlob,
+  });
+
+  if (!s3Response.ok) {
+    const errorText = await s3Response.text();
+    console.log("S3 UPLOAD ERROR:", errorText);
+
+    throw new Error("The image could not be uploaded to S3.");
+  }
+
+  console.log("IMAGE UPLOADED:", uploadData.objectKey);
+
+  // Store the S3 object key rather than the temporary upload URL.
+  return uploadData.objectKey;
 }
   async function addProduct() {
   if (!title || !price || !seller || !category || !condition) {
@@ -371,43 +418,47 @@ const productImages = [
     uploadedImageUrl2,
     uploadedImageUrl3,
   ].filter(Boolean);
-    
-  
+      
 
   
 console.log("PRODUCT IMAGES:", productImages);
   const newProduct = {
-    id: Date.now().toString(),
-    title,
-    price,
-    seller,
-    category,
-    condition,
-    imageUri: productImages[0] || null,
-    images: productImages,
-    sold: false,
-    rating: 5,
-    ownerEmail: currentUserEmail,
-  };
+  id: Date.now().toString(),
+  title,
+  price,
+  seller,
+  category,
+  condition,
+  imageUri: productImages[0] || null,
+  images: productImages,
+  sold: false,
+  rating: 5,
+  ownerEmail: currentUserEmail,
+};
 
-  try {
-    await fetch(PRODUCTS_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newProduct),
-    });
+try {
+  const productSaved = await saveProduct(newProduct);
 
-    setProducts([newProduct, ...products]);
-    setTitle("");
-    setPrice("");
-    setSeller("");
-    setCategory("");
-    setCondition("");
-    setImageUri(null);
-    setImageUri2(null);
-    setImageUri3(null);
+  if (!productSaved) {
+    throw new Error("The product could not be saved.");
+  }
+
+  const productWithViewUrls =
+    await hydrateProductImages(newProduct);
+
+  setProducts((currentProducts) => [
+    productWithViewUrls,
+    ...currentProducts,
+  ]);
+
+  setTitle("");
+  setPrice("");
+  setSeller("");
+  setCategory("");
+  setCondition("");
+  setImageUri(null);
+  setImageUri2(null);
+  setImageUri3(null);
 
     notify("Product posted.");
   } catch (error) {
@@ -657,35 +708,19 @@ async function submitReview(product) {
     text: reviewText,
     rating: 5,
   };
-  try {
-    await fetch(REVIEWS_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newReview),
-    });
 
-    setReviews([...reviews, newReview]);
+  const success = await createReview(newReview);
+
+  if (success) {
+    setReviews((prev) => [...prev, newReview]);
     setReviewText("");
     notify("Review added.");
-  } catch (error) {
-    console.log("REVIEW ERROR:", error);
+  } else {
     notify("Failed to save review.");
   }
 }
-async function loadReviews() {
-  try {
-    const response = await fetch(REVIEWS_API_URL);
-    const data = await response.json();
+  
 
-    if (Array.isArray(data)) {
-      setReviews(data);
-    }
-  } catch (error) {
-    console.log("LOAD REVIEWS ERROR:", error);
-  }
-}
 async function loadMessages() {
   try {
     const response = await fetch(MESSAGES_API_URL);
@@ -1566,7 +1601,7 @@ return (
       deleteProduct={deleteProduct}
       currentUserEmail={currentUserEmail}
       setSelectedProduct={setSelectedProduct}
-      VERIFIED_SELLERS={VERIFIED_SELLERS}
+     
     />
   )}
 />  
