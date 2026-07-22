@@ -2,7 +2,7 @@ export const ORDERS_API_URL =
   "https://pnux75snm55hv4nea3tnellfxu0nknwn.lambda-url.us-east-1.on.aws/";
 
 export const PRODUCTS_API_URL =
-  "https://pcoe3iv4uvig2f6q7jpfkhjkom0flvjq.lambda-url.us-east-1.on.aws/";
+  "https://5u1qgteqj7.execute-api.eu-central-1.amazonaws.com/products";
 
 export const IMAGE_UPLOAD_API_URL =
   "https://5u1qgteqj7.execute-api.eu-central-1.amazonaws.com/upload-url";
