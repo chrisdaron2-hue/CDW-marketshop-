@@ -28,6 +28,7 @@ import {
 import {
   loadProducts,
   saveProduct,
+  hydrateProductImages,
 } from "./src/services/productService";
 import {
   fetchReviews,
@@ -305,49 +306,82 @@ async function uploadImageToS3(localImageUri) {
     return null;
   }
 
-  const response = await fetch(localImageUri);
-  const blob = await response.blob();
+  // Convert the selected local image into a Blob.
+  const imageResponse = await fetch(localImageUri);
 
-  const reader = new FileReader();
+  if (!imageResponse.ok) {
+    throw new Error("Could not read the selected image.");
+  }
 
-  const base64Image = await new Promise((resolve, reject) => {
-    reader.onloadend = () => {
-      const result = reader.result;
-      const base64 = result.split(",")[1];
-      resolve(base64);
-    };
+  const imageBlob = await imageResponse.blob();
+  const lowerCaseUri = localImageUri.toLowerCase().split("?")[0];
 
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
+  let contentType = imageBlob.type;
 
-  const uploadResponse = await fetch(IMAGE_UPLOAD_API_URL, {
+  if (!["image/jpeg", "image/png", "image/webp"].includes(contentType)) {
+    if (lowerCaseUri.endsWith(".png")) {
+      contentType = "image/png";
+    } else if (lowerCaseUri.endsWith(".webp")) {
+      contentType = "image/webp";
+    } else {
+      contentType = "image/jpeg";
+    }
+  }
+
+  // Request a temporary upload URL from API Gateway and Lambda.
+  const urlResponse = await fetch(IMAGE_UPLOAD_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      imageBase64: base64Image,
-      fileName: `product-${Date.now()}.jpg`,
-      contentType: "image/jpeg",
+      contentType,
     }),
   });
 
-  const uploadText = await uploadResponse.text();
-console.log("UPLOAD RESPONSE:", uploadText);
+  const responseText = await urlResponse.text();
 
-let uploadData = {};
-try {
-  uploadData = JSON.parse(uploadText);
-} catch (e) {
-  throw new Error(uploadText);
-}
+  let uploadData;
 
-if (!uploadResponse.ok || !uploadData.imageUrl) {
-  throw new Error(uploadData.message || uploadData.error || "Image upload failed");
-}
+  try {
+    uploadData = JSON.parse(responseText);
+  } catch {
+    console.log("UPLOAD URL RESPONSE:", responseText);
+    throw new Error("The upload service returned an invalid response.");
+  }
 
-  return uploadData.imageUrl;
+  if (
+    !urlResponse.ok ||
+    !uploadData.uploadUrl ||
+    !uploadData.objectKey
+  ) {
+    throw new Error(
+      uploadData.message ||
+        uploadData.error ||
+        "Could not create the upload URL."
+    );
+  }
+
+  // Upload the image directly to the private S3 bucket.
+  const s3Response = await fetch(uploadData.uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": contentType,
+    },
+    body: imageBlob,
+  });
+
+  if (!s3Response.ok) {
+    const errorText = await s3Response.text();
+    console.log("S3 UPLOAD ERROR:", errorText);
+
+    throw new Error("The image could not be uploaded to S3.");
+  }
+
+  console.log("IMAGE UPLOADED:", uploadData.objectKey);
+
+  // Store the S3 object key rather than the temporary upload URL.
+  return uploadData.objectKey;
 }
   async function addProduct() {
   if (!title || !price || !seller || !category || !condition) {
@@ -389,37 +423,42 @@ const productImages = [
   
 console.log("PRODUCT IMAGES:", productImages);
   const newProduct = {
-    id: Date.now().toString(),
-    title,
-    price,
-    seller,
-    category,
-    condition,
-    imageUri: productImages[0] || null,
-    images: productImages,
-    sold: false,
-    rating: 5,
-    ownerEmail: currentUserEmail,
-  };
+  id: Date.now().toString(),
+  title,
+  price,
+  seller,
+  category,
+  condition,
+  imageUri: productImages[0] || null,
+  images: productImages,
+  sold: false,
+  rating: 5,
+  ownerEmail: currentUserEmail,
+};
 
-  try {
-    await fetch(PRODUCTS_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newProduct),
-    });
+try {
+  const productSaved = await saveProduct(newProduct);
 
-    setProducts([newProduct, ...products]);
-    setTitle("");
-    setPrice("");
-    setSeller("");
-    setCategory("");
-    setCondition("");
-    setImageUri(null);
-    setImageUri2(null);
-    setImageUri3(null);
+  if (!productSaved) {
+    throw new Error("The product could not be saved.");
+  }
+
+  const productWithViewUrls =
+    await hydrateProductImages(newProduct);
+
+  setProducts((currentProducts) => [
+    productWithViewUrls,
+    ...currentProducts,
+  ]);
+
+  setTitle("");
+  setPrice("");
+  setSeller("");
+  setCategory("");
+  setCondition("");
+  setImageUri(null);
+  setImageUri2(null);
+  setImageUri3(null);
 
     notify("Product posted.");
   } catch (error) {

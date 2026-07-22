@@ -32,3 +32,12 @@ output "upload_url_endpoint" {
   description = "Endpoint for requesting an S3 upload URL"
   value       = "${aws_apigatewayv2_api.marketshop.api_endpoint}/upload-url"
 }
+output "s3_view_lambda_name" {
+  description = "Name of the Lambda function that creates image view URLs"
+  value       = aws_lambda_function.create_image_url.function_name
+}
+
+output "image_url_endpoint" {
+  description = "Endpoint for requesting temporary product image URLs"
+  value       = "${aws_apigatewayv2_api.marketshop.api_endpoint}/image-url"
+}
