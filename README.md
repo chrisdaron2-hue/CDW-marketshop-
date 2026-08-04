@@ -1,4 +1,5 @@
-<img width="1536" height="1024" alt="CDW-MarketShop-Pro" src="https://github.com/user-attachments/assets/5a7280c5-0351-42d7-ac75-d448ff1aa976" />
+<img width="1568" height="1003" alt="GitHub  Image Aug 4, 2026, 06_43_28 PM" src="https://github.com/user-attachments/assets/9aacf2a8-12c4-49a3-bbe2-968dccf78414" />
+
 
 
 # CDW MarketShop
