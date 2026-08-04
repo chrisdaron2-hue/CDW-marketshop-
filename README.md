@@ -1,4 +1,5 @@
-<img width="1693" height="929" alt="image" src="https://github.com/user-attachments/assets/c4ef30a2-99f9-4d9b-8da3-3c4f6777fda6" />
+<img width="1536" height="1024" alt="CDW-MarketShop-Pro" src="https://github.com/user-attachments/assets/5a7280c5-0351-42d7-ac75-d448ff1aa976" />
+
 
 # CDW MarketShop
 ![Marketplace](https://img.shields.io/badge/Project-CDW_MarketShop-purple) 
