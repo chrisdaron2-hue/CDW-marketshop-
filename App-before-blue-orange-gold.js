@@ -798,7 +798,7 @@ async function handleSignOut() {
   if (editingProduct) {
   return (
     <LinearGradient
-      colors={["#0A2540", "#0D47A1", "#1565C0", "#FFC107"]}
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
       style={styles.container}
     >
       <ScrollView>
@@ -867,7 +867,7 @@ async function handleSignOut() {
 if (showMessages) {
   return (
     <LinearGradient
-      colors={["#0A2540", "#0D47A1", "#1565C0", "#FFC107"]}
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
       style={styles.container}
     >
       <ScrollView>
@@ -963,7 +963,7 @@ if (selectedSeller) {
   );
   return (
     <LinearGradient
-      colors={["#0A2540", "#0D47A1", "#1565C0", "#FFC107"]}
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
       style={styles.container}
     >
       <ScrollView>
@@ -1024,7 +1024,7 @@ if (selectedSeller) {
 if (selectedProduct) {
   return (
     <LinearGradient
-      colors={["#0A2540", "#0D47A1", "#1565C0", "#FFC107"]}
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
       style={styles.container}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -1219,7 +1219,7 @@ if (selectedProduct) {
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => buyProduct(selectedProduct)}>
-        <LinearGradient colors={["#1565C0", "#F57C00"]} style={styles.button}>
+        <LinearGradient colors={["#7b2ff7", "#f107a3"]} style={styles.button}>
           <Text style={styles.buttonText}>Buy Now</Text>
         </LinearGradient>
       </TouchableOpacity>
@@ -1312,25 +1312,20 @@ return (
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.logoWrap}>
   <Image
-  source={require("./assets/CDW-MarketShop-Pro.png")}
+  source={require("./assets/CDW Marketshop.png")}
   style={styles.logoImage}
   resizeMode="contain"
 />
 
 
 
-  <View
-  style={{
-    alignItems: "center",
-    paddingVertical: 20,
-  }}
->
+  <View style={styles.welcomeCard}>
   <Text style={styles.welcomeTitle}>
-    Buy • Sell • Discover with Confidence
+    Buy, Sell & Discover Amazing Products
   </Text>
 
   <Text style={styles.welcomeText}>
-    Everything You Need in One Marketplace
+    A secure cloud-powered marketplace built with React Native and AWS.
   </Text>
 
   <View style={styles.welcomeButtons}>
@@ -1343,81 +1338,67 @@ return (
     </TouchableOpacity>
   </View>
 
- 
+  <View style={styles.infoRow}>
+    <View style={styles.infoCard}>
+      <Text style={styles.sectionTitle}>☁️ Powered By AWS</Text>
+      <Text style={styles.detailText}>AWS Cognito Authentication</Text>
+      <Text style={styles.detailText}>AWS Lambda APIs</Text>
+      <Text style={styles.detailText}>AWS DynamoDB Database</Text>
+      <Text style={styles.detailText}>AWS S3 Image Storage</Text>
+      <Text style={styles.detailText}>Vercel Deployment</Text>
+    </View>
+
+    <View style={styles.infoCard}>
+      <Text style={styles.sectionTitle}>✨ Features</Text>
+      <Text style={styles.detailText}>🔐 Secure Authentication</Text>
+      <Text style={styles.detailText}>🖼️ Multi-Image Product Gallery</Text>
+      <Text style={styles.detailText}>💬 Buyer-Seller Messaging</Text>
+      <Text style={styles.detailText}>⭐ Reviews & Ratings</Text>
+      <Text style={styles.detailText}>❤️ Favorites & Shopping Cart</Text>
+      <Text style={styles.detailText}>☁️ AWS Serverless Architecture</Text>
+        </View>
+  </View>
 </View>
 </View>
+
 <View style={styles.card}>
-  <Text style={styles.sectionTitle}>Welcome Back</Text>
-
-  <Text style={styles.detailText}>
-    Sign in to continue shopping or start selling.
-  </Text>
-
-  <TextInput
-    placeholder="Email"
-    style={styles.input}
-    value={email}
-    autoCapitalize="none"
-    keyboardType="email-address"
-    onChangeText={setEmail}
+          <TextInput placeholder="Email" style={styles.input} value={email} autoCapitalize="none" keyboardType="email-address" onChangeText={setEmail} />
+          <TextInput placeholder="Password" secureTextEntry={!showPassword} style={styles.input} value={password} onChangeText={setPassword} />
+{currentUserEmail && (
+  <DashboardScreen
+    styles={styles}
+    sellerProducts={sellerProducts}
+    sellerOrders={sellerOrders}
+    sellerMessages={sellerMessages}
+    totalReviews={totalReviews}
+    sellerRevenue={sellerRevenue}
   />
+)}       <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Text style={styles.linkText}>{showPassword ? "Hide password" : "Show password"}</Text>
+          </TouchableOpacity>
 
-  <TextInput
-    placeholder="Password"
-    secureTextEntry={!showPassword}
-    style={styles.input}
-    value={password}
-    onChangeText={setPassword}
-  />
+          <TouchableOpacity onPress={handleSignIn}>
+  <LinearGradient colors={["#1565C0", "#0D47A1"]} style={styles.button}>
+    <Text style={styles.buttonText}>Sign In</Text>
+  </LinearGradient>
+</TouchableOpacity>
 
-  {currentUserEmail && (
-    <DashboardScreen
-      styles={styles}
-      sellerProducts={sellerProducts}
-      sellerOrders={sellerOrders}
-      sellerMessages={sellerMessages}
-      totalReviews={totalReviews}
-      sellerRevenue={sellerRevenue}
-    />
-  )}
+<TouchableOpacity onPress={handleSignUp}>
+  <LinearGradient colors={["#F57C00", "#FFC107"]} style={styles.button}>
+    <Text style={styles.buttonText}>Sign Up</Text>
+  </LinearGradient>
+</TouchableOpacity>
 
-  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-    <Text style={styles.linkText}>
-      {showPassword ? "Hide password" : "Show password"}
-    </Text>
-  </TouchableOpacity>
+<TouchableOpacity onPress={handleSignOut}>
+  <LinearGradient colors={["#ff6b6b", "#ff4757"]} style={styles.button}>
+    <Text style={styles.buttonText}>Sign Out</Text>
+  </LinearGradient>
+</TouchableOpacity>
 
-  <TouchableOpacity onPress={handleSignIn}>
-    <LinearGradient
-      colors={["#1565C0", "#0D47A1"]}
-      style={styles.button}
-    >
-      <Text style={styles.buttonText}>Sign In</Text>
-    </LinearGradient>
-  </TouchableOpacity>
-
-  <TouchableOpacity onPress={handleSignUp}>
-    <LinearGradient
-      colors={["#F57C00", "#FFC107"]}
-      style={styles.button}
-    >
-      <Text style={styles.buttonText}>Sign Up</Text>
-    </LinearGradient>
-  </TouchableOpacity>
-
-  <TouchableOpacity onPress={handleSignOut}>
-    <LinearGradient
-      colors={["#ff6b6b", "#ff4757"]}
-      style={styles.button}
-    >
-      <Text style={styles.buttonText}>Sign Out</Text>
-    </LinearGradient>
-  </TouchableOpacity>
-
-  <TouchableOpacity onPress={handleForgotPassword}>
-    <Text style={styles.forgotText}>Forgot password?</Text>
-  </TouchableOpacity>
-</View>
+<TouchableOpacity onPress={handleForgotPassword}>
+  <Text style={styles.forgotText}>Forgot password?</Text>
+</TouchableOpacity>
+        </View>
 
     
 <View style={styles.card}>
@@ -1429,7 +1410,7 @@ return (
           <TextInput placeholder="Condition e.g. Used - Good" style={styles.input} value={condition} onChangeText={setCondition} />
 
           <TouchableOpacity onPress={pickImage}>
-  <LinearGradient colors={["#F57C00", "#FFC107"]} style={styles.button}>
+  <LinearGradient colors={["#ff8a00", "#ff3d8b"]} style={styles.button}>
     <Text style={styles.buttonText}>Choose Product Photo</Text>
   </LinearGradient>
 </TouchableOpacity>
@@ -1468,7 +1449,7 @@ return (
 
 <TouchableOpacity onPress={addProduct}>
   <LinearGradient
-    colors={["#1565C0", "#F57C00"]}
+    colors={["#7b2ff7", "#f107a3"]}
     style={styles.button}
   >
     <Text style={styles.buttonText}>Publish Product</Text>
@@ -1478,7 +1459,7 @@ return (
         <View style={styles.searchRow}>
           <TextInput placeholder="Search products..." value={search} onChangeText={setSearch} style={styles.searchInput} />
           <TouchableOpacity onPress={() => setSearch(search.trim())}>
-            <LinearGradient colors={["#1565C0", "#F57C00"]} style={styles.searchButton}>
+            <LinearGradient colors={["#7b2ff7", "#f107a3"]} style={styles.searchButton}>
               <Text style={styles.buttonText}>Search</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -1549,7 +1530,7 @@ return (
     styles={styles}
   />
 )}       
-      
+       
 
 {activeCategory.startsWith("Orders") && (
 
@@ -1638,64 +1619,48 @@ const styles = StyleSheet.create({
 
 logoWrap: {
   width: "100%",
-  alignItems: "center",
-  marginTop: -20,
-  marginBottom: 25,
+  marginHorizontal: -20,
+  marginTop: -60,
+  marginBottom: 20,
+}, 
 
-},
+  
 
 logoImage: {
   width: "100%",
-  maxWidth: 1300,
-  height: 560,
-  resizeMode: "contain",
+  height: 500,
+  resizeMode: "cover",
 },
-
-card: {
-  width: "100%",
-  backgroundColor: "#ffffff",
-  borderRadius: 25,
-  padding: 25,
-  marginBottom: 20,
-
-  shadowColor: "#000",
-  shadowOffset: {
-    width: 0,
-    height: 6,
+  card: {
+    backgroundColor: "rgba(255,255,255,0.92)",
+    borderRadius: 22,
+    padding: 20,
+    marginBottom: 20,
   },
-  shadowOpacity: 0.18,
-  shadowRadius: 12,
-  elevation: 10,
-},
+
   sectionTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#0D47A1",
-    marginBottom: 35,
+    color: "#4527a0",
+    marginBottom: 12,
   },
 
   input: {
-  width: "100%",
-  minHeight: 48,
-  backgroundColor: "#FFFFFF",
-  borderRadius: 14,
-  paddingHorizontal: 14,
-  paddingVertical: 12,
-  marginBottom: 12,
-  fontSize: 16,
-  borderWidth: 1,
-  borderColor: "#90CAF9",
-},
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 12,
+  },
 
   linkText: {
-    color: "#0D47A1",
+    color: "#4527a0",
     fontWeight: "bold",
     marginBottom: 10,
     textAlign: "right",
   },
 
   forgotText: {
-    color: "#1565C0",
+    color: "#7b2ff7",
     fontWeight: "bold",
     textAlign: "center",
     marginTop: 14,
@@ -1714,32 +1679,20 @@ card: {
 
   categoryPill: {
   backgroundColor: "#E3F2FD",
-  paddingVertical: 9,
-  paddingHorizontal: 14,
-  borderRadius: 20,
-  marginRight: 8,
-  alignSelf: "flex-start",
-  borderWidth: 1,
-  borderColor: "#90CAF9",
+  paddingHorizontal: 18,
+  paddingVertical: 10,
+  borderRadius: 25,
+  marginRight: 10,
+alignSelf: "flex-start",
 },
+  
 
-categoryActive: { backgroundColor: "#1565C0"},
-  categoryText: { color: "#0D47A1", fontWeight: "bold", fontSize: 12 },
+  categoryActive: { backgroundColor: "#1565C0"},
+  categoryText: { color: "#0D47A1", fontWeight: "600", fontSize: 12 },
   categoryTextActive: { color: "#FFFFFF",
 fontWeight: "bold",
 },
-  
-button: {
-  minHeight: 48,
-  paddingVertical: 12,
-  paddingHorizontal: 16,
-  borderRadius: 16,
-  marginTop: 8,
-  alignItems: "center",
-  justifyContent: "center",
-},
-  
-  
+  button: { padding: 16, borderRadius: 16, marginTop: 8 },
   buttonText: { color: "#fff", textAlign: "center", fontWeight: "bold" },
 
   previewImage: {
@@ -1751,22 +1704,17 @@ button: {
 
   gridCard: {
   flex: 1,
-  minWidth: 0,
-  backgroundColor: "#FFFFFF",
-  borderRadius: 20,
+  backgroundColor: "rgba(255,255,255,0.96)",
+  borderRadius: 22,
   padding: 12,
   marginBottom: 14,
-  borderWidth: 1,
-  borderColor: "#90CAF9",
-  shadowColor: "#0D47A1",
-  shadowOpacity: 0.14,
+  shadowColor: "#000",
+  shadowOpacity: 0.15,
   shadowRadius: 10,
-  shadowOffset: {
-    width: 0,
-    height: 5,
-  },
+  shadowOffset: { width: 0, height: 5 },
   elevation: 4,
-},
+}, 
+
 
 
 
@@ -1775,7 +1723,7 @@ placeholderImage: {
   height: 150,
   borderRadius: 18,
   marginBottom: 10,
-  backgroundColor: "#0A2540",
+  backgroundColor: "#1a0033",
   alignItems: "center",
   justifyContent: "center",
 },
@@ -1784,7 +1732,7 @@ placeholderDetailImage: {
   height: 300,
   borderRadius: 24,
   marginBottom: 20,
-  backgroundColor: "#0A2540",
+  backgroundColor: "#1a0033",
   alignItems: "center",
   justifyContent: "center",
 },
@@ -1814,11 +1762,11 @@ productDetailContent: {
   productTitle: { fontSize: 15, fontWeight: "bold" },
 
   productPrice: {
-  color: "#F57C00",
-  fontSize: 17,
-  marginTop: 4,
-  fontWeight: "bold",
-},
+    color: "#F57C00",,
+    fontSize: 18,
+    marginTop: 4,
+    fontWeight: "bold",
+  },
 
   meta: { color: "#555", marginTop: 4 },
 
@@ -1844,10 +1792,9 @@ productDetailContent: {
   },
 
   detailText: {
-  marginTop: 6,
-  marginBottom: 18,
-  color: "#555",
-},
+    marginTop: 10,
+    color: "#444",
+  },
 
   back: {
   fontSize: 20,
@@ -1896,56 +1843,43 @@ newBadgeText: {
   fontSize: 12,
 },
   favoriteButton: {
-  minHeight: 44,
-  marginTop: 8,
-  backgroundColor: "#FFC107",
-  paddingVertical: 10,
-  paddingHorizontal: 12,
-  borderRadius: 12,
-  alignItems: "center",
-  justifyContent: "center",
-},
+    marginTop: 8,
+    backgroundColor: "#fff0f6",
+    paddingVertical: 8,
+    borderRadius: 12,
+    alignItems: "center",
+  },
 
-favoriteText: {
-  color: "#0D47A1",
-  fontWeight: "bold",
-  textAlign: "center",
-},
+  favoriteText: {
+    color: "#d81b60",
+    fontWeight: "bold",
+  },
 cartButton: {
-  minHeight: 44,
   marginTop: 8,
-  backgroundColor: "#F57C00",
-  paddingVertical: 10,
-  paddingHorizontal: 12,
+  backgroundColor: "#ede7ff",
+  paddingVertical: 8,
   borderRadius: 12,
   alignItems: "center",
-  justifyContent: "center",
 },
 
 cartText: {
-  color: "#FFFFFF",
+  color: "#4527a0",
   fontWeight: "bold",
-  textAlign: "center",
 },
-
-
 
 cartTotal: {
   fontSize: 18,
   fontWeight: "bold",
-  color: "#0D47A1",
+  color: "#4527a0",
   marginBottom: 10,
 },
 
 messageButton: {
-  minHeight: 44,
   marginTop: 10,
-  backgroundColor: "#1565C0",
+  backgroundColor: "#4caf50",
   paddingVertical: 10,
-  paddingHorizontal: 12,
   borderRadius: 12,
   alignItems: "center",
-  justifyContent: "center",
 },
 
 messageText: {
@@ -1973,17 +1907,17 @@ detailCard: {
   width: "100%",
 },
 detailInfoBox: {
-  backgroundColor: "#E3F2FD",
+  backgroundColor: "#f8f5ff",
   borderRadius: 18,
   padding: 16,
   marginTop: 14,
 },
 detailLabel: {
   fontWeight: "bold",
-  color: "#0D47A1",
+  color: "#4527a0",
 },
 priceBadge: {
-  backgroundColor: "#1565C0",
+  backgroundColor: "#7b2ff7",
   paddingVertical: 6,
   paddingHorizontal: 10,
   borderRadius: 12,
@@ -2020,16 +1954,16 @@ welcomeCard: {
 welcomeTitle: {
   fontSize: 28,
   fontWeight: "bold",
-  color: "#0D47A1",
+  color: "#4a148c",
   textAlign: "center",
 },
 
 welcomeText: {
-  color: "#555",
-  fontSize: 18,
+  fontSize: 16,
+  color: "#666",
   textAlign: "center",
-  marginBottom: 20,
-},   
+  marginTop: 10,
+},
 
 welcomeButtons: {
   flexDirection: "row",
@@ -2045,7 +1979,7 @@ dashboardGrid: {
 dashboardBox: {
   flexGrow: 1,
   flexBasis: "45%",
-  backgroundColor: "#E3F2FD",
+  backgroundColor: "#f8f5ff",
   borderRadius: 18,
   padding: 18,
   alignItems: "center",
@@ -2054,7 +1988,7 @@ dashboardBox: {
 dashboardNumber: {
   fontSize: 24,
   fontWeight: "bold",
-  color: "#0D47A1",
+  color: "#4a148c",
 },
 
 dashboardLabel: {
@@ -2064,17 +1998,15 @@ dashboardLabel: {
   fontWeight: "bold",
 },
 heroButton: {
-  backgroundColor: "#1565C0",
-  paddingVertical: 18,
-  paddingHorizontal: 40,
-  borderRadius: 50,
-  marginHorizontal: 10,
-}, 
-
+  backgroundColor: "#7b2ff7",
+  paddingVertical: 12,
+  paddingHorizontal: 20,
+  borderRadius: 14,
+  marginHorizontal: 8,
+},
 heroButtonText: {
-  color: "#FFFFFF",
+  colors={["#1565C0", "#F57C00"]},
   fontWeight: "bold",
-  textAlign: "center",
 },
 infoRow: {
   flexDirection: "row",

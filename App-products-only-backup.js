@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Footer from "./src/components/Footer";
 import ProductCard from "./src/components/ProductCard";
 import CartScreen from "./src/screens/CartScreen";
@@ -17,6 +18,7 @@ import {
   ScrollView,
   Image,
   Linking,
+  useWindowDimensions,
 } from "react-native";
 import {
   ORDERS_API_URL,
@@ -61,6 +63,26 @@ const sampleProducts = [
   { id: "sample-18", title: "Dining Chairs", price: "95", seller: "Grace", category: "Home", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1519947486511-46149fa0a254?w=500", sold: false },
   { id: "sample-19", title: "Kindle Paperwhite", price: "70", seller: "Nina", category: "Books", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=500", sold: false },
   { id: "sample-20", title: "Running Shoes", price: "55", seller: "Mike", category: "Sports", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
+{ id: "sample-1", title: "iPhone 13", price: "450", seller: "Lizzy", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=500", sold: false },
+  { id: "sample-2", title: "Nike Sneakers", price: "60", seller: "Ama", category: "Fashion", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
+  { id: "sample-3", title: "MacBook Air", price: "700", seller: "Chris", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500", sold: false },
+  { id: "sample-4", title: "Samsung TV", price: "250", seller: "David", category: "Electronics", condition: "Used - Fair", imageUri: "https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=500", sold: false },
+  { id: "sample-5", title: "Gaming Chair", price: "90", seller: "Maya", category: "Gaming", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=500", sold: false },
+  { id: "sample-6", title: "Apple Watch", price: "180", seller: "Sarah", category: "Electronics", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=500", sold: false },
+  { id: "sample-7", title: "PS5 Controller", price: "45", seller: "Kwame", category: "Gaming", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=500", sold: false },
+  { id: "sample-8", title: "Canon Camera", price: "320", seller: "Ella", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500", sold: false },
+  { id: "sample-9", title: "Leather Jacket", price: "75", seller: "Nana", category: "Fashion", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1520975954732-35dd22299614?w=500", sold: false },
+  { id: "sample-10", title: "Study Desk", price: "110", seller: "Grace", category: "Home", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=500", sold: false },
+  { id: "sample-11", title: "AirPods Pro", price: "120", seller: "Linda", category: "Electronics", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=500", sold: false },
+  { id: "sample-12", title: "Coffee Table", price: "85", seller: "James", category: "Home", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?w=500", sold: false },
+  { id: "sample-13", title: "Mountain Bike", price: "230", seller: "Kelvin", category: "Sports", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=500", sold: false },
+  { id: "sample-14", title: "PlayStation 5", price: "480", seller: "Ben", category: "Gaming", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500", sold: false },
+  { id: "sample-15", title: "Sofa", price: "300", seller: "Hannah", category: "Home", condition: "Used - Fair", imageUri: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500", sold: false },
+  { id: "sample-16", title: "Dell Monitor", price: "140", seller: "Tom", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1527443154391-507e9dc6c5cc?w=500", sold: false },
+  { id: "sample-17", title: "Backpack", price: "35", seller: "Ella", category: "Fashion", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500", sold: false },
+  { id: "sample-18", title: "Dining Chairs", price: "95", seller: "Grace", category: "Home", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1519947486511-46149fa0a254?w=500", sold: false },
+  { id: "sample-19", title: "Kindle Paperwhite", price: "70", seller: "Nina", category: "Books", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=500", sold: false },
+  { id: "sample-20", title: "Running Shoes", price: "55", seller: "Mike", category: "Sports", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
 ];
 function notify(message) {
   if (typeof window !== "undefined") {
@@ -70,7 +92,11 @@ function notify(message) {
   }
 }
 export default function App() {
-  const [email, setEmail] = useState("");
+  const { width } = useWindowDimensions();
+
+const isPhone = width < 600;
+const productColumns = 2;
+const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
  const [messages, setMessages] = useState([]);
@@ -100,6 +126,7 @@ const [selectedMessage, setSelectedMessage] = useState(null);
   const [activeCategory, setActiveCategory] = useState("All");
 const [orders, setOrders] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [storageReady, setStorageReady] = useState(false);
   const [cart, setCart] = useState([]);
 const [editingProduct, setEditingProduct] = useState(null);
   const [currentUserEmail, setCurrentUserEmail] = useState("");
@@ -111,7 +138,6 @@ const orderCount = orders.length;
   "Electronics",
   "Fashion",
   "Home",
-  "Gaming",
   "Sports",
   "Books",
   "Favorites",
@@ -148,51 +174,60 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-  if (typeof window === "undefined") return;
+  async function loadStoredData() {
+    try {
+      await Promise.all([
+        AsyncStorage.removeItem("email"),
+        AsyncStorage.removeItem("password"),
+      ]);
 
-  window.localStorage.removeItem("email");
-  window.localStorage.removeItem("password");
+      setEmail("");
+      setPassword("");
 
-  setEmail("");
-  setPassword("");
+      const [savedFavorites, savedCart] = await Promise.all([
+        AsyncStorage.getItem("favorites"),
+        AsyncStorage.getItem("cart"),
+      ]);
 
-  const savedFavorites = window.localStorage.getItem("favorites");
-  if (savedFavorites) {
-    setFavorites(JSON.parse(savedFavorites));
+      if (savedFavorites) {
+        setFavorites(JSON.parse(savedFavorites));
+      }
+
+      if (savedCart) {
+        setCart(JSON.parse(savedCart));
+      }
+    } catch (error) {
+      console.error("Failed to load saved app data:", error);
+    } finally {
+      setStorageReady(true);
+    }
   }
 
-  const savedCart = window.localStorage.getItem("cart");
-  if (savedCart) {
-    setCart(JSON.parse(savedCart));
-  }
+  loadStoredData();
 }, []);
 
 useEffect(() => {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(
+  if (!storageReady) return;
+
+  AsyncStorage.setItem(
     "favorites",
     JSON.stringify(favorites)
-  );
-}, [favorites]);
+  ).catch((error) => {
+    console.error("Failed to save favorites:", error);
+  });
+}, [favorites, storageReady]);
 
 useEffect(() => {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(
+  if (!storageReady) return;
+
+  AsyncStorage.setItem(
     "cart",
     JSON.stringify(cart)
-  );
-}, [cart]);
+  ).catch((error) => {
+    console.error("Failed to save cart:", error);
+  });
+}, [cart, storageReady]);
 
-
-useEffect(() => {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem("favorites", JSON.stringify(favorites));
-}, [favorites]);
-
-useEffect(() => {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem("cart", JSON.stringify(cart));
-}, [cart]);
   
   async function handleSignIn() {
   if (!email || !password) {
@@ -525,12 +560,6 @@ function toggleFavorite(productId) {
       ? prevFavorites.filter((id) => id !== productId)
       : [...prevFavorites, productId];
 
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(
-        "favorites",
-        JSON.stringify(updatedFavorites)
-      );
-    }
 
     return updatedFavorites;
   });
@@ -563,9 +592,6 @@ function addToCart(product) {
       notify("Added to cart.");
     }
 
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
-    }
 
     return updatedCart;
   });
@@ -577,9 +603,6 @@ function removeFromCart(productId) {
 
   setCart(updatedCart);
 
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem("cart", JSON.stringify(updatedCart));
-  }
 
   notify("Removed from cart.");
 }
@@ -597,12 +620,6 @@ function increaseQuantity(productId) {
         : item
     );
 
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(
-        "cart",
-        JSON.stringify(updatedCart)
-      );
-    }
 
     return updatedCart;
   });
@@ -622,12 +639,6 @@ function decreaseQuantity(productId) {
         : item
     );
 
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(
-        "cart",
-        JSON.stringify(updatedCart)
-      );
-    }
 
     return updatedCart;
   });
@@ -768,37 +779,29 @@ async function handleSignOut() {
   }
 }
   const filteredProducts = products.filter((item) => {
-    const text = search.trim().toLowerCase();
-    const itemCategory = String(item.category || "").trim().toLowerCase();
-    const selectedCategory = String(activeCategory || "").trim().toLowerCase();
+  const text = search.trim().toLowerCase();
 
-    const matchesSearch =
-      text === "" ||
-      String(item.title || "").toLowerCase().includes(text) ||
-      itemCategory.includes(text) ||
-      String(item.seller || "").toLowerCase().includes(text) ||
-      String(item.condition || "").toLowerCase().includes(text);
+  const matchesSearch =
+    text === "" ||
+    item.title?.toLowerCase().includes(text) ||
+    item.category?.toLowerCase().includes(text) ||
+    item.seller?.toLowerCase().includes(text) ||
+    item.condition?.toLowerCase().includes(text);
 
-    const matchesCategory =
-      activeCategory === "All" ||
-      itemCategory === selectedCategory ||
-      (activeCategory === "Favorites" &&
-        favorites.some((id) => String(id) === String(item.id))) ||
-      (activeCategory === "Cart" &&
-        cart.some(
-          (cartItem) => String(cartItem.id) === String(item.id)
-        )) ||
-      (activeCategory === "My Listings" &&
-        String(item.ownerEmail || "").toLowerCase() ===
-          String(currentUserEmail || "").toLowerCase());
-
-    return matchesSearch && matchesCategory;
-  });
-
+  const matchesCategory =
+    activeCategory === "All" ||
+    item.category === activeCategory ||
+    (activeCategory === "Favorites" && favorites.includes(item.id)) ||
+    (activeCategory === "Cart" &&
+      cart.find((cartItem) => cartItem.id === item.id)) ||
+    (activeCategory === "My Listings" &&
+      item.ownerEmail === currentUserEmail);
+  return matchesSearch && matchesCategory;
+});
   if (editingProduct) {
   return (
     <LinearGradient
-      colors={["#0A2540", "#0D47A1", "#1565C0", "#FFC107"]}
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
       style={styles.container}
     >
       <ScrollView>
@@ -867,7 +870,7 @@ async function handleSignOut() {
 if (showMessages) {
   return (
     <LinearGradient
-      colors={["#0A2540", "#0D47A1", "#1565C0", "#FFC107"]}
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
       style={styles.container}
     >
       <ScrollView>
@@ -910,7 +913,7 @@ if (showMessages) {
   ))
 )}
 
-{selectedMessage && (
+{Boolean(selectedMessage) && (
   <View style={styles.card}>
     <Text style={styles.detailTitle}>
       Reply to {selectedMessage.sender || "Buyer"}
@@ -963,7 +966,7 @@ if (selectedSeller) {
   );
   return (
     <LinearGradient
-      colors={["#0A2540", "#0D47A1", "#1565C0", "#FFC107"]}
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
       style={styles.container}
     >
       <ScrollView>
@@ -1003,7 +1006,7 @@ if (selectedSeller) {
   }}
 >
   <View style={styles.card}>
-    {item.imageUri && (
+    {Boolean(item.imageUri) && (
       <Image
   source={{ uri: item.imageUri }}
   style={styles.gridImage}
@@ -1023,227 +1026,242 @@ if (selectedSeller) {
 }
 if (selectedProduct) {
   return (
-    <LinearGradient
-      colors={["#0A2540", "#0D47A1", "#1565C0", "#FFC107"]}
-      style={styles.container}
-    >
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <TouchableOpacity onPress={() => setSelectedProduct(null)}>
-          <Text style={styles.back}>← Back</Text>
-        </TouchableOpacity>
-          <View style={styles.productDetailLayout}>
-  {selectedProduct.imageUri && selectedProduct.imageUri.startsWith("http") ? (
-  <View>
-    <Image
-  source={{
-    uri:
-      selectedProduct.images?.[selectedImageIndex] ||
-      selectedProduct.imageUri,
-  }}
-  style={styles.detailImageDesktop}
-  resizeMode="contain"
-/>
-
-    {selectedProduct.images?.length > 0 && (
-  <ScrollView
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    style={{ marginTop: 10, marginBottom: 20 }}
+  <LinearGradient
+    colors={["#ffdde1", "#ee9ca7", "#a18cd1", "#fbc2eb"]}
+    style={styles.screen}
   >
-    {selectedProduct.images.map((img, index) => (
-      <TouchableOpacity
-        key={index}
-        activeOpacity={0.7}
-        onPress={() => {
-          console.log("Thumbnail clicked:", index);
-          setSelectedImageIndex(index);
+    <ScrollView
+      style={styles.scrollView}
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={true}
+      keyboardShouldPersistTaps="handled"
+    >
+      
+       
+<TouchableOpacity onPress={() => setSelectedProduct(null)}>
+  <Text style={styles.back}>← Back</Text>
+</TouchableOpacity>
+
+<View style={styles.productDetailLayout}>
+  {selectedProduct.imageUri &&
+  selectedProduct.imageUri.startsWith("http") ? (
+    <View>
+      <Image
+        source={{
+          uri:
+            selectedProduct.images?.[selectedImageIndex] ||
+            selectedProduct.imageUri,
         }}
-      >
-        <Image
-          source={{ uri: img }}
-          style={{
-            width: 70,
-            height: 70,
-            borderRadius: 12,
-            marginRight: 10,
-            borderWidth: 2,
-            borderColor: "#fff",
-          }}
-        />
-      </TouchableOpacity>
-    ))}
-  </ScrollView>
-)}
-  </View>
-) : (
-  <View style={styles.placeholderDetailImage}>
-    <Text style={styles.placeholderText}>CDW Marketshop</Text>
-  </View>
-)}
+        style={styles.detailImageDesktop}
+        resizeMode="contain"
+      />
+
+      {selectedProduct.images?.length > 0 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ marginTop: 10, marginBottom: 20 }}
+        >
+          {selectedProduct.images.map((img, index) => (
+            <TouchableOpacity
+              key={index}
+              activeOpacity={0.7}
+              onPress={() => setSelectedImageIndex(index)}
+            >
+              <Image
+                source={{ uri: img }}
+                style={{
+                  width: 70,
+                  height: 70,
+                  borderRadius: 12,
+                  marginRight: 10,
+                  borderWidth: 2,
+                  borderColor: "#fff",
+                }}
+              />
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
+    </View>
+  ) : (
+    <View style={styles.placeholderDetailImage}>
+      <Text style={styles.placeholderText}>CDW Marketshop</Text>
+    </View>
+  )}
+
   <View style={styles.productDetailContent}>
     <View style={styles.detailCard}>
-  <Text style={styles.detailTitle}>{selectedProduct.title}</Text>
-<Text style={styles.productPrice}>€{selectedProduct.price}</Text>
+      <Text style={styles.detailTitle}>{selectedProduct.title}</Text>
+      <Text style={styles.productPrice}>€{selectedProduct.price}</Text>
 
-<View style={styles.detailInfoBox}>
- <TouchableOpacity onPress={() => setSelectedSeller(selectedProduct.seller)}>
-  <Text style={styles.detailText}>
-    <Text style={styles.detailLabel}>Seller: </Text>
-    👤 {selectedProduct.seller}
-{VERIFIED_SELLERS.includes(selectedProduct.seller) ? " ✅ Verified" : ""}
-  </Text>
-</TouchableOpacity>
+      <View style={styles.detailInfoBox}>
+        <TouchableOpacity
+          onPress={() => setSelectedSeller(selectedProduct.seller)}
+        >
+          <Text style={styles.detailText}>
+            <Text style={styles.detailLabel}>Seller: </Text>
+            👤 {selectedProduct.seller}
+            {VERIFIED_SELLERS.includes(selectedProduct.seller)
+              ? " ✅ Verified"
+              : ""}
+          </Text>
+        </TouchableOpacity>
 
-  <Text style={styles.detailText}>
-    <Text style={styles.detailLabel}>Category: </Text>
-    {selectedProduct.category}
-  </Text>
+        <Text style={styles.detailText}>
+          <Text style={styles.detailLabel}>Category: </Text>
+          {selectedProduct.category}
+        </Text>
 
-  <Text style={styles.detailText}>
-    <Text style={styles.detailLabel}>Condition: </Text>
-    {selectedProduct.condition}
-  </Text>
+        <Text style={styles.detailText}>
+          <Text style={styles.detailLabel}>Condition: </Text>
+          {selectedProduct.condition}
+        </Text>
 
-  <Text style={styles.detailText}>
-    <Text style={styles.detailLabel}>Description: </Text>
-    {selectedProduct.description || "No description provided"}
-  </Text>
+        <Text style={styles.detailText}>
+          <Text style={styles.detailLabel}>Description: </Text>
+          {selectedProduct.description || "No description provided"}
+        </Text>
 
-  <Text style={styles.detailText}>
-  
-    <Text style={styles.detailLabel}>Rating: </Text>
-    ⭐ {getSellerRating(selectedProduct.seller)}/5
-  </Text>
-</View>
+        <Text style={styles.detailText}>
+          <Text style={styles.detailLabel}>Rating: </Text>
+          ⭐ {getSellerRating(selectedProduct.seller)}/5
+        </Text>
+      </View>
 
-<View style={styles.sellerCard}>
-  <Text style={styles.sectionTitle}>Seller Information</Text>
+      <View style={styles.sellerCard}>
+        <Text style={styles.sectionTitle}>Seller Information</Text>
 
-  <Text style={styles.detailText}>
-    👤 {selectedProduct.seller}
-  </Text>
+        <Text style={styles.detailText}>
+          👤 {selectedProduct.seller}
+        </Text>
 
-  <Text style={styles.detailText}>
-    ⭐ Rating: {getSellerRating(selectedProduct.seller)}/5
-  </Text>
+        <Text style={styles.detailText}>
+          ⭐ Rating: {getSellerRating(selectedProduct.seller)}/5
+        </Text>
 
-  <Text style={styles.detailText}>
-    📝 Reviews: {getSellerReviewCount(selectedProduct.seller)}
-  </Text>
+        <Text style={styles.detailText}>
+          📝 Reviews: {getSellerReviewCount(selectedProduct.seller)}
+        </Text>
 
-  <Text style={styles.detailText}>
-    📦 Listings: {getSellerListingsCount(selectedProduct.seller)}
-  </Text>
+        <Text style={styles.detailText}>
+          📦 Listings: {getSellerListingsCount(selectedProduct.seller)}
+        </Text>
 
-  <TouchableOpacity
-  style={styles.messageButton}
-  onPress={() => contactSeller(selectedProduct)}
->
-  <Text style={styles.messageText}>💬 Contact Seller</Text>
-</TouchableOpacity>
+        <TouchableOpacity
+          style={styles.messageButton}
+          onPress={() => contactSeller(selectedProduct)}
+        >
+          <Text style={styles.messageText}>💬 Contact Seller</Text>
+        </TouchableOpacity>
 
-<TouchableOpacity
-  style={styles.messageButton}
-  onPress={pickImage}
->
-  <Text style={styles.messageText}>📷 Change Image</Text>
-</TouchableOpacity>
-</View>
-  <TouchableOpacity
-    style={styles.favoriteButton}
-    onPress={() => toggleFavorite(selectedProduct.id)}
-  >
-    <Text style={styles.favoriteText}>
-      {favorites.includes(selectedProduct.id) ? "❤️ Favorited" : "🤍 Favorite"}
-    </Text>
-  </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.messageButton}
+          onPress={pickImage}
+        >
+          <Text style={styles.messageText}>📷 Change Image</Text>
+        </TouchableOpacity>
+      </View>
 
-  <TextInput
-    style={styles.input}
-    placeholder="Write a review..."
-    value={reviewText}
-    onChangeText={setReviewText}
-  />
-
- <TouchableOpacity
-  style={styles.messageButton}
-  onPress={() => submitReview(selectedProduct)}
->
-  <Text style={styles.messageText}>Submit Review ⭐</Text>
-</TouchableOpacity>
-
-{reviews
-  .filter((review) => review.productId === selectedProduct.id)
-  .map((review) => (
-    <View key={review.id} style={styles.card}>
-      <Text style={styles.detailText}>⭐ {review.rating}/5</Text>
-      <Text style={styles.detailText}>{review.text}</Text>
-      <Text style={styles.detailText}>By: {review.reviewer || "Guest"}</Text>
-    </View>
-  ))}
-
-  <TextInput
-    style={styles.input}
-    placeholder="Send a message to seller..."
-    value={messageText}
-    onChangeText={setMessageText}
-  />
-  <TouchableOpacity
-    style={styles.messageButton}
-    onPress={() => sendMessage(selectedProduct)}
-  >
-    <Text style={styles.messageText}>Send Message</Text>
-  </TouchableOpacity>
-
-  {selectedProduct.sold ? (
-    <Text style={styles.sold}>SOLD</Text>
-  ) : (
-    <>
       <TouchableOpacity
-        style={styles.cartButton}
-        onPress={() => addToCart(selectedProduct)}
+        style={styles.favoriteButton}
+        onPress={() => toggleFavorite(selectedProduct.id)}
       >
-        <Text style={styles.cartText}>🛒 Add to Cart</Text>
+        <Text style={styles.favoriteText}>
+          {favorites.includes(selectedProduct.id)
+            ? "❤️ Favorited"
+            : "🤍 Favorite"}
+        </Text>
       </TouchableOpacity>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Write a review..."
+        value={reviewText}
+        onChangeText={setReviewText}
+      />
 
       <TouchableOpacity
         style={styles.messageButton}
-        onPress={() => contactSeller(selectedProduct)}
+        onPress={() => submitReview(selectedProduct)}
       >
+        <Text style={styles.messageText}>Submit Review ⭐</Text>
+      </TouchableOpacity>
+
+      {reviews
+        .filter(
+          (review) => review.productId === selectedProduct.id
+        )
+        .map((review) => (
+          <View key={review.id} style={styles.card}>
+            <Text style={styles.detailText}>
+              ⭐ {review.rating}/5
+            </Text>
+            <Text style={styles.detailText}>{review.text}</Text>
+            <Text style={styles.detailText}>
+              By: {review.reviewer || "Guest"}
+            </Text>
+          </View>
+        ))}
+
+      <TextInput
+        style={styles.input}
+        placeholder="Send a message to seller..."
+        value={messageText}
+        onChangeText={setMessageText}
+      />
+
       <TouchableOpacity
-  style={styles.messageButton}
-  onPress={pickImage}
->
-  <Text style={styles.messageText}>📷 Change Image</Text>
-</TouchableOpacity> 
+        style={styles.messageButton}
+        onPress={() => sendMessage(selectedProduct)}
+      >
+        <Text style={styles.messageText}>Send Message</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => buyProduct(selectedProduct)}>
-        <LinearGradient colors={["#1565C0", "#F57C00"]} style={styles.button}>
-          <Text style={styles.buttonText}>Buy Now</Text>
-        </LinearGradient>
-      </TouchableOpacity>
-    </>
-  )}
-<TouchableOpacity
-  style={styles.messageButton}
-  onPress={() => setEditingProduct(selectedProduct)}
->
-  <Text style={styles.messageText}>✏️ Edit Product</Text>
-</TouchableOpacity>
+      {selectedProduct.sold ? (
+        <Text style={styles.sold}>SOLD</Text>
+      ) : (
+        <>
+          <TouchableOpacity
+            style={styles.cartButton}
+            onPress={() => addToCart(selectedProduct)}
+          >
+            <Text style={styles.cartText}>🛒 Add to Cart</Text>
+          </TouchableOpacity>
 
-{selectedProduct.ownerEmail === currentUserEmail && (
-  <TouchableOpacity
-    style={styles.deleteButton}
-    onPress={() => deleteProduct(selectedProduct.id)}
-  >
-    <Text style={styles.deleteButtonText}>Delete 🗑️</Text>
-  </TouchableOpacity>
-)}
- 
-</View>   {/* closes detailCard */}
-</View>   {/* closes productDetailContent */}
-</View>   {/* closes productDetailLayout */}
+          <TouchableOpacity
+            onPress={() => buyProduct(selectedProduct)}
+          >
+            <LinearGradient
+              colors={["#7b2ff7", "#f107a3"]}
+              style={styles.button}
+            >
+              <Text style={styles.buttonText}>Buy Now</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </>
+      )}
+
+      <TouchableOpacity
+        style={styles.messageButton}
+        onPress={() => setEditingProduct(selectedProduct)}
+      >
+        <Text style={styles.messageText}>✏️ Edit Product</Text>
+      </TouchableOpacity>
+
+      {selectedProduct.ownerEmail === currentUserEmail && (
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => deleteProduct(selectedProduct.id)}
+        >
+          <Text style={styles.deleteButtonText}>
+            Delete 🗑️
+          </Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  </View>
+</View>
 
 </ScrollView>
 </LinearGradient>
@@ -1251,576 +1269,368 @@ if (selectedProduct) {
 }
 
 
+
+
 function getSellerRating(sellerName) {
-  const sellerReviews = reviews.filter(
-    (review) => review.productTitle && products.find(
-      (p) => p.title === review.productTitle && p.seller === sellerName
-    )
-  );
+const sellerReviews = reviews.filter(
+(review) =>
+review.productTitle &&
+products.find(
+(p) => p.title === review.productTitle && p.seller === sellerName
+)
+);
 
-  if (sellerReviews.length === 0) {
-    return "5.0";
-  }
-  const average =
-    sellerReviews.reduce((sum, review) => sum + (review.rating || 5), 0) /
-    sellerReviews.length;
-
-  return average.toFixed(1);
+if (sellerReviews.length === 0) {
+return "5.0";
 }
 
-  const totalListings = products.length;
+const average =
+sellerReviews.reduce((sum, review) => sum + (review.rating || 5), 0) /
+sellerReviews.length;
+
+return average.toFixed(1);
+}
+
+const totalListings = products.length;
 const totalOrders = orders.length;
 const totalMessages = messages.length;
 const totalReviews = reviews.length;
+
 const sellerProducts = products.filter(
-  (product) => product.ownerEmail === currentUserEmail
+(product) => product.ownerEmail === currentUserEmail
 );
 
 const sellerOrders = orders.filter((order) =>
-  sellerProducts.some((product) => product.id === order.productId)
+sellerProducts.some((product) => product.id === order.productId)
 );
 
 const sellerMessages = messages.filter((msg) =>
-  sellerProducts.some((product) => product.id === msg.productId)
+sellerProducts.some((product) => product.id === msg.productId)
 );
 
 const sellerRevenue = sellerOrders.reduce(
-  (sum, order) => sum + Number(order.price || 0),
-  0
+(sum, order) => sum + Number(order.price || 0),
+0
 );
+
 const averageRating =
-  reviews.length > 0
-    ? (
-        reviews.reduce((sum, review) => sum + (review.rating || 5), 0) /
-        reviews.length
-      ).toFixed(1)
-    : "5.0";
+reviews.length > 0
+? (
+reviews.reduce((sum, review) => sum + (review.rating || 5), 0) /
+reviews.length
+).toFixed(1)
+: "5.0";
+
 function getSellerReviewCount(sellerName) {
-  return reviews.filter((review) =>
-    products.find(
-      (p) => p.title === review.productTitle && p.seller === sellerName
-    )
-  ).length;
+return reviews.filter((review) =>
+products.find(
+(p) => p.title === review.productTitle && p.seller === sellerName
+)
+).length;
 }
 
 function getSellerListingsCount(sellerName) {
-  return products.filter((p) => p.seller === sellerName).length;
+return products.filter((p) => p.seller === sellerName).length;
 }
+
 return (
     <LinearGradient
-  colors={["#1565C0", "#1976D2", "#F57C00", "#FFC107"]} style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.logoWrap}>
-  <Image
-  source={require("./assets/CDW-MarketShop-Pro.png")}
-  style={styles.logoImage}
-  resizeMode="contain"
-/>
-
-
-
-  <View
-  style={{
-    alignItems: "center",
-    paddingVertical: 20,
-  }}
->
-  <Text style={styles.welcomeTitle}>
-    Buy • Sell • Discover with Confidence
-  </Text>
-
-  <Text style={styles.welcomeText}>
-    Everything You Need in One Marketplace
-  </Text>
-
-  <View style={styles.welcomeButtons}>
-    <TouchableOpacity style={styles.heroButton}>
-      <Text style={styles.heroButtonText}>Start Shopping</Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity style={styles.heroButton}>
-      <Text style={styles.heroButtonText}>Sell an Item</Text>
-    </TouchableOpacity>
-  </View>
-
- 
-</View>
-</View>
-<View style={styles.card}>
-  <Text style={styles.sectionTitle}>Welcome Back</Text>
-
-  <Text style={styles.detailText}>
-    Sign in to continue shopping or start selling.
-  </Text>
-
-  <TextInput
-    placeholder="Email"
-    style={styles.input}
-    value={email}
-    autoCapitalize="none"
-    keyboardType="email-address"
-    onChangeText={setEmail}
-  />
-
-  <TextInput
-    placeholder="Password"
-    secureTextEntry={!showPassword}
-    style={styles.input}
-    value={password}
-    onChangeText={setPassword}
-  />
-
-  {currentUserEmail && (
-    <DashboardScreen
-      styles={styles}
-      sellerProducts={sellerProducts}
-      sellerOrders={sellerOrders}
-      sellerMessages={sellerMessages}
-      totalReviews={totalReviews}
-      sellerRevenue={sellerRevenue}
-    />
-  )}
-
-  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-    <Text style={styles.linkText}>
-      {showPassword ? "Hide password" : "Show password"}
-    </Text>
-  </TouchableOpacity>
-
-  <TouchableOpacity onPress={handleSignIn}>
-    <LinearGradient
-      colors={["#1565C0", "#0D47A1"]}
-      style={styles.button}
+      colors={["#ffdde1", "#ee9ca7", "#a18cd1", "#fbc2eb"]}
+      style={styles.screen}
     >
-      <Text style={styles.buttonText}>Sign In</Text>
-    </LinearGradient>
-  </TouchableOpacity>
-
-  <TouchableOpacity onPress={handleSignUp}>
-    <LinearGradient
-      colors={["#F57C00", "#FFC107"]}
-      style={styles.button}
-    >
-      <Text style={styles.buttonText}>Sign Up</Text>
-    </LinearGradient>
-  </TouchableOpacity>
-
-  <TouchableOpacity onPress={handleSignOut}>
-    <LinearGradient
-      colors={["#ff6b6b", "#ff4757"]}
-      style={styles.button}
-    >
-      <Text style={styles.buttonText}>Sign Out</Text>
-    </LinearGradient>
-  </TouchableOpacity>
-
-  <TouchableOpacity onPress={handleForgotPassword}>
-    <Text style={styles.forgotText}>Forgot password?</Text>
-  </TouchableOpacity>
-</View>
-
-    
-<View style={styles.card}>
-          <Text style={styles.sectionTitle}>Post Product</Text>
-          <TextInput placeholder="Product title" style={styles.input} value={title} onChangeText={setTitle} />
-          <TextInput placeholder="Price (€)" style={styles.input} value={price} onChangeText={setPrice} />
-          <TextInput placeholder="Seller name" style={styles.input} value={seller} onChangeText={setSeller} />
-          <TextInput placeholder="Category" style={styles.input} value={category} onChangeText={setCategory} />
-          <TextInput placeholder="Condition e.g. Used - Good" style={styles.input} value={condition} onChangeText={setCondition} />
-
-          <TouchableOpacity onPress={pickImage}>
-  <LinearGradient colors={["#F57C00", "#FFC107"]} style={styles.button}>
-    <Text style={styles.buttonText}>Choose Product Photo</Text>
-  </LinearGradient>
-</TouchableOpacity>
-
-{imageUri && (
-  <Image source={{ uri: imageUri }} style={styles.previewImage} />
-)}
-
-<TouchableOpacity onPress={pickImage2}>
-  <LinearGradient colors={["#1565C0", "#FFC107"]} style={styles.button}>
-    <Text style={styles.buttonText}>📸 Choose Product Photo 2</Text>
-  </LinearGradient>
-</TouchableOpacity>
-
-{imageUri2 && (
-  <Image source={{ uri: imageUri2 }} style={styles.previewImage} />
-)}
-
-<TouchableOpacity onPress={pickImage3}>
-  <LinearGradient
-    colors={["#1565C0", "#0D47A1"]}
-    style={styles.button}
-  >
-    <Text style={styles.buttonText}>
-      📸 Choose Product Photo 3
-    </Text>
-  </LinearGradient>
-</TouchableOpacity>
-
-{imageUri3 && (
-  <Image
-    source={{ uri: imageUri3 }}
-    style={styles.previewImage}
-  />
-)}
-
-<TouchableOpacity onPress={addProduct}>
-  <LinearGradient
-    colors={["#1565C0", "#F57C00"]}
-    style={styles.button}
-  >
-    <Text style={styles.buttonText}>Publish Product</Text>
-  </LinearGradient>
-</TouchableOpacity>
-        </View>
-        <View style={styles.searchRow}>
-          <TextInput placeholder="Search products..." value={search} onChangeText={setSearch} style={styles.searchInput} />
-          <TouchableOpacity onPress={() => setSearch(search.trim())}>
-            <LinearGradient colors={["#1565C0", "#F57C00"]} style={styles.searchButton}>
-              <Text style={styles.buttonText}>Search</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-
-        
-<ScrollView
-  horizontal
-  showsHorizontalScrollIndicator={false}
-  style={{ marginBottom: 15, maxHeight: 50 }}
->
-  {categories.map((cat) => (
-    <TouchableOpacity
-      key={cat}
-    onPress={() => {
-        setSearch("");
-        setActiveCategory(cat);
-        setShowMessages(cat.startsWith("Messages"));
-      }}
-      style={[
-        styles.categoryPill,
-        activeCategory === cat && styles.categoryActive,
-      ]}
-    >
-      <Text
-        style={[
-          styles.categoryText,
-          activeCategory === cat && styles.categoryTextActive,
-        ]}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={true}
+        keyboardShouldPersistTaps="handled"
       >
-        {cat}
-      </Text>
-    </TouchableOpacity>
-    ))}
-</ScrollView>
-
-{activeCategory === "Cart" && (
-  <CartScreen
-    cart={cart}
-    styles={styles}
-    increaseQuantity={increaseQuantity}
-    decreaseQuantity={decreaseQuantity}
-    removeFromCart={removeFromCart}
-    checkout={checkout}
-  />
-)}
-{activeCategory === "Profile" && currentUserEmail && (
-  <ProfileScreen
-    styles={styles}
-    currentUserEmail={currentUserEmail}
-    profileName={profileName}
-    setProfileName={setProfileName}
-    profileBio={profileBio}
-    setProfileBio={setProfileBio}
-    profileLocation={profileLocation}
-    setProfileLocation={setProfileLocation}
-    isEditingProfile={isEditingProfile}
-    setIsEditingProfile={setIsEditingProfile}
-    sellerProducts={sellerProducts}
-    orders={orders}
-    favorites={favorites}
-    messages={messages}
-  />
-)}
-{activeCategory.startsWith("Reviews") && (
-  <ReviewsScreen
-    reviews={reviews}
-    styles={styles}
-  />
-)}       
-      
-
-{activeCategory.startsWith("Orders") && (
-
-  <View style={styles.card}>
-    <Text style={styles.sectionTitle}>Purchase History</Text>
-
-    {orders.length === 0 ? (
-      <Text style={styles.detailText}>No orders yet.</Text>
-    ) : (
-      orders.map((order) => (
-        <View key={order.id} style={styles.card}>
-          <Text style={styles.detailTitle}>{order.title}</Text>
-          
-          <Text style={styles.detailText}>
-            Seller: {order.seller}
-          </Text>
-        </View>
-      ))
+  
+    key={`product-grid-${productColumns}`}
+    data={Array.from(
+      new Map(
+        filteredProducts.map((item) => [String(item.id), item])
+      ).values()
     )}
-  </View>
-)}
-{activeCategory.startsWith("Messages") && (
-  <View style={styles.detailCard}>
-    <Text style={styles.sectionTitle}>Messages</Text>
-
-    {messages.length === 0 ? (
-      <Text style={styles.detailText}>No messages yet.</Text>
-    ) : (
-      messages.map((msg, index) => (
-        <View key={index} style={styles.card}>
-          <Text style={styles.detailTitle}>
-            {msg.sender || msg.buyer || "Buyer"}
-          </Text>
-
-          <Text style={styles.detailText}>
-            {msg.text}
-          </Text>
-
-          <Text style={styles.meta}>
-            Product: {msg.productTitle}
-          </Text>
-        </View>
-      ))
+    keyExtractor={(item) => String(item.id)}
+    scrollEnabled={false}
+    numColumns={productColumns}
+    columnWrapperStyle={
+      productColumns > 1
+        ? { gap: 12 }
+        : undefined
+    }
+    contentContainerStyle={styles.productGrid}
+    extraData={favorites}
+    renderItem={({ item }) => (
+      <ProductCard
+        item={item}
+        styles={styles}
+        favorites={favorites}
+        toggleFavorite={toggleFavorite}
+        addToCart={addToCart}
+        deleteProduct={deleteProduct}
+        currentUserEmail={currentUserEmail}
+        setSelectedProduct={setSelectedProduct}
+      />
     )}
-  </View>
-)}
-<FlatList
-  data={filteredProducts}
-  keyExtractor={(item) => String(item.id)}
-  scrollEnabled={false}
-  numColumns={2}
-  columnWrapperStyle={{ gap: 12 }}
-  extraData={{
-    activeCategory,
-    search,
-    favorites,
-    cart,
-    currentUserEmail,
-  }}
-  renderItem={({ item }) => (
-    
-  <ProductCard
-      item={item}
-      styles={styles}
-      favorites={favorites}
-      toggleFavorite={toggleFavorite}
-      addToCart={addToCart}
-      deleteProduct={deleteProduct}
-      currentUserEmail={currentUserEmail}
-      setSelectedProduct={setSelectedProduct}
-     
-    />
-  )}
-/>  
-    
-<Footer styles={styles} />
+  />
 
-     
-      </ScrollView>
-    </LinearGradient>
+  <Footer styles={styles} />
+
+     </ScrollView>
+        </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 60, paddingHorizontal: 20 },
-
-logoWrap: {
-  width: "100%",
-  alignItems: "center",
-  marginTop: -20,
-  marginBottom: 25,
-
-},
-
-logoImage: {
-  width: "100%",
-  maxWidth: 1300,
-  height: 560,
-  resizeMode: "contain",
-},
-
-card: {
-  width: "100%",
-  backgroundColor: "#ffffff",
-  borderRadius: 25,
-  padding: 25,
-  marginBottom: 20,
-
-  shadowColor: "#000",
-  shadowOffset: {
-    width: 0,
-    height: 6,
+  screen: {
+    flex: 1,
+    width: "100%",
   },
-  shadowOpacity: 0.18,
-  shadowRadius: 12,
-  elevation: 10,
-},
+
+  scrollView: {
+    flex: 1,
+    width: "100%",
+  },
+
+  container: {
+    flexGrow: 1,
+    width: "100%",
+    maxWidth: 1200,
+    alignSelf: "center",
+    paddingTop: 32,
+    paddingHorizontal: 12,
+    paddingBottom: 100,
+  },
+
+  logoWrap: {
+    width: "100%",
+    marginHorizontal: -12,
+    marginTop: -32,
+    marginBottom: 16,
+    alignSelf: "center",
+  },
+
+  logoImage: {
+    width: "100%",
+    height: undefined,
+    aspectRatio: 16 / 7,
+    resizeMode: "cover",
+  },
+
+  card: {
+    width: "100%",
+    backgroundColor: "rgba(255,255,255,0.92)",
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 16,
+  },
+
   sectionTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#0D47A1",
-    marginBottom: 35,
+    color: "#4527a0",
+    marginBottom: 12,
   },
 
   input: {
-  width: "100%",
-  minHeight: 48,
-  backgroundColor: "#FFFFFF",
-  borderRadius: 14,
-  paddingHorizontal: 14,
-  paddingVertical: 12,
-  marginBottom: 12,
-  fontSize: 16,
-  borderWidth: 1,
-  borderColor: "#90CAF9",
-},
+    width: "100%",
+    minHeight: 48,
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 12,
+    fontSize: 16,
+  },
 
   linkText: {
-    color: "#0D47A1",
+    color: "#4527a0",
     fontWeight: "bold",
     marginBottom: 10,
     textAlign: "right",
   },
 
   forgotText: {
-    color: "#1565C0",
+    color: "#7b2ff7",
     fontWeight: "bold",
     textAlign: "center",
     marginTop: 14,
   },
 
-  searchRow: { flexDirection: "row", gap: 10, marginBottom: 12 },
-
-  searchInput: {
-    flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 14,
-    padding: 14,
+  searchRow: {
+    width: "100%",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginBottom: 12,
   },
 
-  searchButton: { padding: 14, borderRadius: 14 },
+  searchInput: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 220,
+    minWidth: 0,
+    minHeight: 48,
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 16,
+  },
+
+  searchButton: {
+    minWidth: 48,
+    minHeight: 48,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
   categoryPill: {
-  backgroundColor: "#E3F2FD",
-  paddingVertical: 9,
-  paddingHorizontal: 14,
-  borderRadius: 20,
-  marginRight: 8,
-  alignSelf: "flex-start",
-  borderWidth: 1,
-  borderColor: "#90CAF9",
-},
+    minHeight: 40,
+    backgroundColor: "#fff",
+    paddingVertical: 9,
+    paddingHorizontal: 13,
+    borderRadius: 14,
+    marginRight: 6,
+    alignSelf: "flex-start",
+    justifyContent: "center",
+  },
 
-categoryActive: { backgroundColor: "#1565C0"},
-  categoryText: { color: "#0D47A1", fontWeight: "bold", fontSize: 12 },
-  categoryTextActive: { color: "#FFFFFF",
-fontWeight: "bold",
-},
-  
-button: {
-  minHeight: 48,
-  paddingVertical: 12,
-  paddingHorizontal: 16,
-  borderRadius: 16,
-  marginTop: 8,
-  alignItems: "center",
-  justifyContent: "center",
-},
-  
-  
-  buttonText: { color: "#fff", textAlign: "center", fontWeight: "bold" },
+  categoryActive: {
+    backgroundColor: "#7b2ff7",
+  },
+
+  categoryText: {
+    color: "#4527a0",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+
+  categoryTextActive: {
+    color: "#fff",
+  },
+
+  button: {
+    minHeight: 48,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 16,
+    marginTop: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  buttonText: {
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "bold",
+  },
 
   previewImage: {
     width: "100%",
-    height: 220,
+    height: undefined,
+    aspectRatio: 4 / 3,
     borderRadius: 18,
     marginTop: 12,
+    resizeMode: "cover",
+    backgroundColor: "#fff",
+  },
+
+  productGrid: {
+    width: "100%",
+    paddingBottom: 8,
   },
 
   gridCard: {
-  flex: 1,
-  minWidth: 0,
-  backgroundColor: "#FFFFFF",
-  borderRadius: 20,
-  padding: 12,
-  marginBottom: 14,
-  borderWidth: 1,
-  borderColor: "#90CAF9",
-  shadowColor: "#0D47A1",
-  shadowOpacity: 0.14,
-  shadowRadius: 10,
-  shadowOffset: {
-    width: 0,
-    height: 5,
+    flex: 1,
+    width: "100%",
+    minWidth: 0,
+    backgroundColor: "rgba(255,255,255,0.96)",
+    borderRadius: 20,
+    padding: 12,
+    marginBottom: 14,
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    elevation: 4,
   },
-  elevation: 4,
-},
 
+  placeholderImage: {
+    width: "100%",
+    height: undefined,
+    aspectRatio: 4 / 3,
+    borderRadius: 18,
+    marginBottom: 10,
+    backgroundColor: "#1a0033",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
+  placeholderDetailImage: {
+    width: "100%",
+    height: undefined,
+    aspectRatio: 4 / 3,
+    maxHeight: 520,
+    borderRadius: 20,
+    marginBottom: 16,
+    backgroundColor: "#1a0033",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
-placeholderImage: {
-  width: "100%",
-  height: 150,
-  borderRadius: 18,
-  marginBottom: 10,
-  backgroundColor: "#0A2540",
-  alignItems: "center",
-  justifyContent: "center",
-},
-placeholderDetailImage: {
-  width: "100%",
-  height: 300,
-  borderRadius: 24,
-  marginBottom: 20,
-  backgroundColor: "#0A2540",
-  alignItems: "center",
-  justifyContent: "center",
-},
-placeholderText: {
-  color: "#fff",
-  fontWeight: "bold",
-  fontSize: 16,
-},
+  placeholderText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+    textAlign: "center",
+    paddingHorizontal: 10,
+  },
+
   gridImage: {
-  width: "100%",
-  height: 220,
-  borderTopLeftRadius: 18,
-  borderTopRightRadius: 18,
-  marginBottom: 10,
-  backgroundColor: "#fff",
-},
+    width: "100%",
+    height: undefined,
+    aspectRatio: 4 / 3,
+    borderRadius: 18,
+    marginBottom: 10,
+    resizeMode: "cover",
+    backgroundColor: "#fff",
+  },
 
-productDetailLayout: {
-  width: "100%",
-  maxWidth: 1100,
-  alignSelf: "center",
-},
+  productDetailLayout: {
+    width: "100%",
+    maxWidth: 1100,
+    alignSelf: "center",
+  },
 
-productDetailContent: {
-  width: "100%",
-},
-  productTitle: { fontSize: 15, fontWeight: "bold" },
+  productDetailContent: {
+    width: "100%",
+  },
+
+  productTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    flexShrink: 1,
+  },
 
   productPrice: {
-  color: "#F57C00",
-  fontSize: 17,
-  marginTop: 4,
-  fontWeight: "bold",
-},
+    color: "#7b2ff7",
+    fontSize: 16,
+    marginTop: 4,
+    fontWeight: "bold",
+  },
 
-  meta: { color: "#555", marginTop: 4 },
+  meta: {
+    color: "#555",
+    marginTop: 4,
+    flexShrink: 1,
+  },
 
   sold: {
     color: "red",
@@ -1830,264 +1640,310 @@ productDetailContent: {
 
   detailImage: {
     width: "100%",
-    height: 420,
-    borderRadius: 24,
-    marginBottom: 20,
+    height: undefined,
+    aspectRatio: 4 / 3,
+    maxHeight: 520,
+    borderRadius: 20,
+    marginBottom: 16,
     resizeMode: "contain",
     backgroundColor: "#fff",
   },
 
   detailTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#0D47A1",
+    color: "#4527a0",
+    flexShrink: 1,
   },
 
   detailText: {
-  marginTop: 6,
-  marginBottom: 18,
-  color: "#555",
-},
+    marginTop: 10,
+    color: "#444",
+    lineHeight: 21,
+  },
 
   back: {
-  fontSize: 20,
-  marginBottom: 20,
-  color: "#ffffff",
-  fontWeight: "bold",
-  backgroundColor: "rgba(255,255,255,0.15)",
-  paddingHorizontal: 12,
-  paddingVertical: 8,
-  borderRadius: 12,
-  alignSelf: "flex-start",
-},
+    minHeight: 44,
+    fontSize: 18,
+    marginBottom: 16,
+    color: "#fff",
+    fontWeight: "bold",
+    backgroundColor: "rgba(255,255,255,0.15)",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+  },
 
   deleteButton: {
+    minHeight: 48,
     marginTop: 14,
     backgroundColor: "#ff5252",
+    paddingHorizontal: 12,
     paddingVertical: 12,
     borderRadius: 14,
     alignItems: "center",
+    justifyContent: "center",
   },
 
   deleteButtonSmall: {
+    minHeight: 44,
     marginTop: 10,
     backgroundColor: "#ff5252",
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     borderRadius: 12,
     alignItems: "center",
+    justifyContent: "center",
   },
 
   deleteButtonText: {
     color: "#fff",
     fontWeight: "bold",
   },
-newBadge: {
-  backgroundColor: "#ff4081",
-  paddingHorizontal: 10,
-  paddingVertical: 5,
-  borderRadius: 12,
-  alignSelf: "flex-start",
-  marginBottom: 8,
-},
 
-newBadgeText: {
-  color: "#fff",
-  fontWeight: "bold",
-  fontSize: 12,
-},
+  newBadge: {
+    backgroundColor: "#ff4081",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+    marginBottom: 8,
+  },
+
+  newBadgeText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+
   favoriteButton: {
-  minHeight: 44,
-  marginTop: 8,
-  backgroundColor: "#FFC107",
-  paddingVertical: 10,
-  paddingHorizontal: 12,
-  borderRadius: 12,
-  alignItems: "center",
-  justifyContent: "center",
-},
+    minHeight: 44,
+    marginTop: 8,
+    backgroundColor: "#fff0f6",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
-favoriteText: {
-  color: "#0D47A1",
-  fontWeight: "bold",
-  textAlign: "center",
-},
-cartButton: {
-  minHeight: 44,
-  marginTop: 8,
-  backgroundColor: "#F57C00",
-  paddingVertical: 10,
-  paddingHorizontal: 12,
-  borderRadius: 12,
-  alignItems: "center",
-  justifyContent: "center",
-},
+  favoriteText: {
+    color: "#d81b60",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 
-cartText: {
-  color: "#FFFFFF",
-  fontWeight: "bold",
-  textAlign: "center",
-},
+  cartButton: {
+    minHeight: 44,
+    marginTop: 8,
+    backgroundColor: "#ede7ff",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
+  cartText: {
+    color: "#4527a0",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 
+  cartTotal: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#4527a0",
+    marginBottom: 10,
+  },
 
-cartTotal: {
-  fontSize: 18,
-  fontWeight: "bold",
-  color: "#0D47A1",
-  marginBottom: 10,
-},
+  messageButton: {
+    minHeight: 44,
+    marginTop: 10,
+    backgroundColor: "#4caf50",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
-messageButton: {
-  minHeight: 44,
-  marginTop: 10,
-  backgroundColor: "#1565C0",
-  paddingVertical: 10,
-  paddingHorizontal: 12,
-  borderRadius: 12,
-  alignItems: "center",
-  justifyContent: "center",
-},
+  messageText: {
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 
-messageText: {
-  color: "#fff",
-  fontWeight: "bold",
-},
-footer: {
-  marginTop: 30,
-  paddingVertical: 20,
-  alignItems: "center",
-},
+  footer: {
+    width: "100%",
+    marginTop: 30,
+    paddingVertical: 20,
+    paddingHorizontal: 12,
+    alignItems: "center",
+  },
 
-footerLink: {
-  fontSize: 14,
-  color: "#666",
-  marginVertical: 4,
-},
-detailCard: {
-  backgroundColor: "rgba(255,255,255,0.95)",
-  borderRadius: 24,
-  padding: 24,
-  marginBottom: 20,
-  maxWidth: 900,
-  alignSelf: "center",
-  width: "100%",
-},
-detailInfoBox: {
-  backgroundColor: "#E3F2FD",
-  borderRadius: 18,
-  padding: 16,
-  marginTop: 14,
-},
-detailLabel: {
-  fontWeight: "bold",
-  color: "#0D47A1",
-},
-priceBadge: {
-  backgroundColor: "#1565C0",
-  paddingVertical: 6,
-  paddingHorizontal: 10,
-  borderRadius: 12,
-  alignSelf: "flex-start",
-  marginTop: 6,
-},
-priceBadgeText: {
-  color: "#fff",
-  fontWeight: "bold",
-},
-detailImageDesktop: {
-  width: "100%",
-  height: 300,
-  borderRadius: 24,
-  marginBottom: 20,
-  resizeMode: "contain",
-  backgroundColor: "#fff",
-},
-sellerCard: {
-  backgroundColor: "#fff",
-  borderRadius: 18,
-  padding: 18,
-  marginTop: 16,
-  marginBottom: 16,
-},
-welcomeCard: {
-  backgroundColor: "rgba(255,255,255,0.95)",
-  borderRadius: 24,
-  padding: 25,
-  marginBottom: 20,
-  alignItems: "center",
-},
+  footerLink: {
+    fontSize: 14,
+    color: "#666",
+    marginVertical: 6,
+    textAlign: "center",
+  },
 
-welcomeTitle: {
-  fontSize: 28,
-  fontWeight: "bold",
-  color: "#0D47A1",
-  textAlign: "center",
-},
+  detailCard: {
+    width: "100%",
+    maxWidth: 900,
+    alignSelf: "center",
+    backgroundColor: "rgba(255,255,255,0.95)",
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 20,
+  },
 
-welcomeText: {
-  color: "#555",
-  fontSize: 18,
-  textAlign: "center",
-  marginBottom: 20,
-},   
+  detailInfoBox: {
+    width: "100%",
+    backgroundColor: "#f8f5ff",
+    borderRadius: 18,
+    padding: 14,
+    marginTop: 14,
+  },
 
-welcomeButtons: {
-  flexDirection: "row",
-  marginTop: 20,
-},
-dashboardGrid: {
-  flexDirection: "row",
-  flexWrap: "wrap",
-  gap: 12,
-  marginTop: 10,
-},
+  detailLabel: {
+    fontWeight: "bold",
+    color: "#4527a0",
+  },
 
-dashboardBox: {
-  flexGrow: 1,
-  flexBasis: "45%",
-  backgroundColor: "#E3F2FD",
-  borderRadius: 18,
-  padding: 18,
-  alignItems: "center",
-},
+  priceBadge: {
+    backgroundColor: "#7b2ff7",
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+    marginTop: 6,
+  },
 
-dashboardNumber: {
-  fontSize: 24,
-  fontWeight: "bold",
-  color: "#0D47A1",
-},
+  priceBadgeText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
 
-dashboardLabel: {
-  marginTop: 6,
-  fontSize: 14,
-  color: "#555",
-  fontWeight: "bold",
-},
-heroButton: {
-  backgroundColor: "#1565C0",
-  paddingVertical: 18,
-  paddingHorizontal: 40,
-  borderRadius: 50,
-  marginHorizontal: 10,
-}, 
+  detailImageDesktop: {
+    width: "100%",
+    height: undefined,
+    aspectRatio: 4 / 3,
+    maxHeight: 500,
+    borderRadius: 20,
+    marginBottom: 16,
+    resizeMode: "contain",
+    backgroundColor: "#fff",
+  },
 
-heroButtonText: {
-  color: "#FFFFFF",
-  fontWeight: "bold",
-  textAlign: "center",
-},
-infoRow: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  marginTop: 30,
-  width: "100%",
-},
-infoCard: {
-  flex: 1,
-  backgroundColor: "rgba(255,255,255,0.8)",
-  borderRadius: 20,
-  padding: 20,
-  marginHorizontal: 10,
-},
+  sellerCard: {
+    width: "100%",
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 16,
+    marginTop: 16,
+    marginBottom: 16,
+  },
+
+  welcomeCard: {
+    width: "100%",
+    backgroundColor: "rgba(255,255,255,0.95)",
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 20,
+    alignItems: "center",
+  },
+
+  welcomeTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#4a148c",
+    textAlign: "center",
+  },
+
+  welcomeText: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 10,
+    lineHeight: 22,
+  },
+
+  welcomeButtons: {
+    width: "100%",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 10,
+    marginTop: 20,
+  },
+
+  dashboardGrid: {
+    width: "100%",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: 10,
+  },
+
+  dashboardBox: {
+    flexGrow: 1,
+    flexBasis: 150,
+    minWidth: 0,
+    backgroundColor: "#f8f5ff",
+    borderRadius: 18,
+    padding: 16,
+    alignItems: "center",
+  },
+
+  dashboardNumber: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#4a148c",
+  },
+
+  dashboardLabel: {
+    marginTop: 6,
+    fontSize: 14,
+    color: "#555",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+
+  heroButton: {
+    flexGrow: 1,
+    flexBasis: 140,
+    minHeight: 48,
+    backgroundColor: "#7b2ff7",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  heroButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+
+  infoRow: {
+    width: "100%",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: 24,
+  },
+
+  infoCard: {
+    flexGrow: 1,
+    flexBasis: 260,
+    minWidth: 0,
+    backgroundColor: "rgba(255,255,255,0.8)",
+    borderRadius: 20,
+    padding: 16,
+  },
 });
-
