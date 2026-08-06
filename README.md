@@ -42,7 +42,7 @@ It was developed as a portfolio project to showcase practical experience in:
 
 ### ▶️ Watch the complete application demo
 
-**Demo Video**
+*Demo Video*
 
 https://github.com/chrisdaron2-hue/CDW-marketshop-/releases/download/v1.0/CDW.MarketShop.Demo.mov
 ---
