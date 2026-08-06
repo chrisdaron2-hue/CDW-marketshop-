@@ -61,7 +61,7 @@ It was developed as a portfolio project to showcase practical experience in:
     </a>
   </strong>
 </p>
----
+
 
 # 🌐 Live Application
 
