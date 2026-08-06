@@ -42,9 +42,25 @@ It was developed as a portfolio project to showcase practical experience in:
 
 ### ▶️ Watch the complete application demo
 
-Demo Video
+## 🎥 Project Demo
 
-https://github.com/chrisdaron2-hue/CDW-marketshop-/releases/download/v1.0/CDW.MarketShop.Demo.mov
+<p align="center">
+  <a href="https://github.com/chrisdaron2-hue/CDW-marketshop-/releases/download/v1.0/CDW.MarketShop.Demo.mov">
+    <img
+      src="https://github.com/user-attachments/assets/9aacf2a8-12c4-49a3-bbe2-968dccf78414"
+      alt="Watch the CDW MarketShop demo"
+      width="900"
+    />
+  </a>
+</p>
+
+<p align="center">
+  <strong>
+    <a href="https://github.com/chrisdaron2-hue/CDW-marketshop-/releases/download/v1.0/CDW.MarketShop.Demo.mov">
+      ▶ Watch the full CDW MarketShop demo
+    </a>
+  </strong>
+</p>
 ---
 
 # 🌐 Live Application
