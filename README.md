@@ -1,6 +1,3 @@
-<img width="1568" height="1003" alt="GitHub  Image Aug 4, 2026, 06_43_28 PM" src="https://github.com/user-attachments/assets/9aacf2a8-12c4-49a3-bbe2-968dccf78414" />
-
-
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/9aacf2a8-12c4-49a3-bbe2-968dccf78414" alt="CDW MarketShop Banner" width="100%">
