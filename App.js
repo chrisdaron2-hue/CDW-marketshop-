@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Footer from "./src/components/Footer";
 import ProductCard from "./src/components/ProductCard";
 import CartScreen from "./src/screens/CartScreen";
@@ -70,58 +70,84 @@ function notify(message) {
   }
 }
 export default function App() {
+  // Authentication
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
- const [messages, setMessages] = useState([]);
-  const [messageText, setMessageText] = useState("");
-const [profileName, setProfileName] = useState("Elizabeth Gyamfi");
-const [profileBio, setProfileBio] = useState("Cloud Engineer | AWS | React Native");
-const [profileLocation, setProfileLocation] = useState("Germany");
+  const [currentUserEmail, setCurrentUserEmail] = useState("");
+
+  // Profile
+  const [profileName, setProfileName] = useState("Elizabeth Gyamfi");
+  const [profileBio, setProfileBio] = useState(
+    "Cloud Engineer | AWS | React Native"
+  );
+  const [profileLocation, setProfileLocation] = useState("Germany");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-const [reviewText, setReviewText] = useState("");
-  const [reviews, setReviews] = useState([]);
-const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+const [showSellForm, setShowSellForm] = useState(false);
+  // Products
+  const [products, setProducts] = useState(sampleProducts);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedSeller, setSelectedSeller] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+const mainScrollRef = useRef(null);
+const [productsY, setProductsY] = useState(0);
+const [sellFormY, setSellFormY] = useState(0);
+  // Product form
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [seller, setSeller] = useState("");
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
   const [imageUri, setImageUri] = useState(null);
-const [imageUri2, setImageUri2] = useState(null);
-const [imageUri3, setImageUri3] = useState(null);
-const [showMessages, setShowMessages] = useState(false);
-  const [products, setProducts] = useState(sampleProducts);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedSeller, setSelectedSeller] = useState(null);
-const [replyText, setReplyText] = useState("");
-const [selectedMessage, setSelectedMessage] = useState(null);
+  const [imageUri2, setImageUri2] = useState(null);
+  const [imageUri3, setImageUri3] = useState(null);
+
+  // Search, categories, filters, and sorting
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-const [orders, setOrders] = useState([]);
+  const [sortOption, setSortOption] = useState("newest");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+
+  // Cart and favorites
   const [favorites, setFavorites] = useState([]);
   const [cart, setCart] = useState([]);
-const [editingProduct, setEditingProduct] = useState(null);
-  const [currentUserEmail, setCurrentUserEmail] = useState("");
-const messageCount = messages.length;
-const reviewCount = reviews.length;
-const orderCount = orders.length; 
+
+  // Orders
+  const [orders, setOrders] = useState([]);
+
+  // Reviews
+  const [reviewText, setReviewText] = useState("");
+  const [reviews, setReviews] = useState([]);
+
+  // Messages
+  const [messages, setMessages] = useState([]);
+  const [messageText, setMessageText] = useState("");
+  const [replyText, setReplyText] = useState("");
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [showMessages, setShowMessages] = useState(false);
+
+  // Counts used in category labels
+  const messageCount = messages.length;
+  const reviewCount = reviews.length;
+  const orderCount = orders.length;
+
   const categories = [
-  "All",
-  "Electronics",
-  "Fashion",
-  "Home",
-  "Gaming",
-  "Sports",
-  "Books",
-  "Favorites",
-  "Cart",
-  "Profile",
-  "My Listings",
-  `Messages (${messageCount})`,
-  `Reviews (${reviewCount})`,
-  `Orders (${orderCount})`,
-];
+    "All",
+    "Electronics",
+    "Fashion",
+    "Home",
+    "Sports",
+    "Books",
+    "Favorites",
+    "Cart",
+    "Profile",
+    "My Listings",
+    `Messages (${messageCount})`,
+    `Reviews (${reviewCount})`,
+    `Orders (${orderCount})`,
+  ];
 useEffect(() => {
   async function initializeApp() {
   const loadedProducts = await loadProducts();
@@ -767,32 +793,88 @@ async function handleSignOut() {
     notify(error.message || "Sign out failed.");
   }
 }
-  const filteredProducts = products.filter((item) => {
+  const filteredProducts = products
+  .filter((item) => {
     const text = search.trim().toLowerCase();
-    const itemCategory = String(item.category || "").trim().toLowerCase();
-    const selectedCategory = String(activeCategory || "").trim().toLowerCase();
+    const productPrice = Number(item.price || 0);
+
+    const minimum =
+      minPrice === "" ? 0 : Number(minPrice);
+
+    const maximum =
+      maxPrice === ""
+        ? Number.POSITIVE_INFINITY
+        : Number(maxPrice);
 
     const matchesSearch =
       text === "" ||
-      String(item.title || "").toLowerCase().includes(text) ||
-      itemCategory.includes(text) ||
-      String(item.seller || "").toLowerCase().includes(text) ||
-      String(item.condition || "").toLowerCase().includes(text);
+      item.title?.toLowerCase().includes(text) ||
+      item.category?.toLowerCase().includes(text) ||
+      item.seller?.toLowerCase().includes(text) ||
+      item.condition?.toLowerCase().includes(text);
+
+    const normalizedCategory = String(item.category || "")
+      .trim()
+      .toLowerCase();
+
+    const normalizedActiveCategory = String(activeCategory || "")
+      .replace(/\s*\(\d+\)\s*$/, "")
+      .trim()
+      .toLowerCase();
 
     const matchesCategory =
-      activeCategory === "All" ||
-      itemCategory === selectedCategory ||
-      (activeCategory === "Favorites" &&
-        favorites.some((id) => String(id) === String(item.id))) ||
-      (activeCategory === "Cart" &&
+      normalizedActiveCategory === "all" ||
+      normalizedCategory === normalizedActiveCategory ||
+      (normalizedActiveCategory === "favorites" &&
+        favorites.includes(item.id)) ||
+      (normalizedActiveCategory === "cart" &&
         cart.some(
-          (cartItem) => String(cartItem.id) === String(item.id)
+          (cartItem) =>
+            String(cartItem.id) === String(item.id)
         )) ||
-      (activeCategory === "My Listings" &&
-        String(item.ownerEmail || "").toLowerCase() ===
-          String(currentUserEmail || "").toLowerCase());
+      (normalizedActiveCategory === "my listings" &&
+        item.ownerEmail === currentUserEmail);
 
-    return matchesSearch && matchesCategory;
+    const matchesPrice =
+      productPrice >= minimum &&
+      productPrice <= maximum;
+
+    return (
+      matchesSearch &&
+      matchesCategory &&
+      matchesPrice
+    );
+  })
+  .sort((a, b) => {
+    if (sortOption === "price-low") {
+      return (
+        Number(a.price || 0) -
+        Number(b.price || 0)
+      );
+    }
+
+    if (sortOption === "price-high") {
+      return (
+        Number(b.price || 0) -
+        Number(a.price || 0)
+      );
+    }
+
+    // Newest first when timestamps exist
+    const dateA = new Date(
+      a.createdAt || a.updatedAt || 0
+    ).getTime();
+
+    const dateB = new Date(
+      b.createdAt || b.updatedAt || 0
+    ).getTime();
+
+    if (dateA !== dateB) {
+      return dateB - dateA;
+    }
+
+    // Fallback for products without timestamps
+    return String(b.id).localeCompare(String(a.id));
   });
 
   if (editingProduct) {
@@ -1309,7 +1391,10 @@ function getSellerListingsCount(sellerName) {
 return (
     <LinearGradient
   colors={["#1565C0", "#1976D2", "#F57C00", "#FFC107"]} style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+  ref={mainScrollRef}
+  showsVerticalScrollIndicator={false}
+>
         <View style={styles.logoWrap}>
   <Image
   source={require("./assets/CDW-MarketShop-Pro.png")}
@@ -1317,9 +1402,7 @@ return (
   resizeMode="contain"
 />
 
-
-
-  <View
+<View
   style={{
     alignItems: "center",
     paddingVertical: 20,
@@ -1332,45 +1415,48 @@ return (
   <Text style={styles.welcomeText}>
     Everything You Need in One Marketplace
   </Text>
-
   <View style={styles.welcomeButtons}>
-    <TouchableOpacity style={styles.heroButton}>
-      <Text style={styles.heroButtonText}>Start Shopping</Text>
-    </TouchableOpacity>
+  <TouchableOpacity
+    style={styles.heroButton}
+    onPress={() => {
+  setShowSellForm(false);
+  setActiveCategory("All");
 
-    <TouchableOpacity style={styles.heroButton}>
-      <Text style={styles.heroButtonText}>Sell an Item</Text>
-    </TouchableOpacity>
-  </View>
+  setTimeout(() => {
+    mainScrollRef.current?.scrollTo({
+      y: productsY,
+      animated: true,
+    });
+  }, 100);
+}}
+  >
+
+  
+    <Text style={styles.heroButtonText}>Start Shopping</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    style={styles.heroButton}
+    onPress={() => {
+  setShowSellForm(true);
+
+  setTimeout(() => {
+    mainScrollRef.current?.scrollTo({
+      y: sellFormY,
+      animated: true,
+    });
+  }, 150);
+}}
+  >
+    <Text style={styles.heroButtonText}>Sell an Item</Text>
+  </TouchableOpacity>
+</View>
 
  
 </View>
 </View>
-<View style={styles.card}>
-  <Text style={styles.sectionTitle}>Welcome Back</Text>
-
-  <Text style={styles.detailText}>
-    Sign in to continue shopping or start selling.
-  </Text>
-
-  <TextInput
-    placeholder="Email"
-    style={styles.input}
-    value={email}
-    autoCapitalize="none"
-    keyboardType="email-address"
-    onChangeText={setEmail}
-  />
-
-  <TextInput
-    placeholder="Password"
-    secureTextEntry={!showPassword}
-    style={styles.input}
-    value={password}
-    onChangeText={setPassword}
-  />
-
-  {currentUserEmail && (
+{currentUserEmail ? (
+  <View style={styles.card}>
     <DashboardScreen
       styles={styles}
       sellerProducts={sellerProducts}
@@ -1379,102 +1465,186 @@ return (
       totalReviews={totalReviews}
       sellerRevenue={sellerRevenue}
     />
-  )}
 
-  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-    <Text style={styles.linkText}>
-      {showPassword ? "Hide password" : "Show password"}
+    <View style={styles.accountBox}>
+      <Text style={styles.accountLabel}>Signed in as</Text>
+      <Text style={styles.accountEmail}>{currentUserEmail}</Text>
+    </View>
+
+    <TouchableOpacity onPress={handleSignOut}>
+      <LinearGradient
+        colors={["#ff6b6b", "#ff4757"]}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>Sign Out</Text>
+      </LinearGradient>
+    </TouchableOpacity>
+  </View>
+) : (
+  <View style={styles.card}>
+    <Text style={styles.sectionTitle}>Welcome Back</Text>
+
+    <Text style={styles.detailText}>
+      Sign in to continue shopping or start selling.
     </Text>
-  </TouchableOpacity>
 
-  <TouchableOpacity onPress={handleSignIn}>
-    <LinearGradient
-      colors={["#1565C0", "#0D47A1"]}
-      style={styles.button}
-    >
-      <Text style={styles.buttonText}>Sign In</Text>
-    </LinearGradient>
-  </TouchableOpacity>
+    <TextInput
+      placeholder="Email"
+      style={styles.input}
+      value={email}
+      autoCapitalize="none"
+      keyboardType="email-address"
+      onChangeText={setEmail}
+    />
 
-  <TouchableOpacity onPress={handleSignUp}>
-    <LinearGradient
-      colors={["#F57C00", "#FFC107"]}
-      style={styles.button}
-    >
-      <Text style={styles.buttonText}>Sign Up</Text>
-    </LinearGradient>
-  </TouchableOpacity>
+    <TextInput
+      placeholder="Password"
+      secureTextEntry={!showPassword}
+      style={styles.input}
+      value={password}
+      onChangeText={setPassword}
+    />
 
-  <TouchableOpacity onPress={handleSignOut}>
-    <LinearGradient
-      colors={["#ff6b6b", "#ff4757"]}
-      style={styles.button}
-    >
-      <Text style={styles.buttonText}>Sign Out</Text>
-    </LinearGradient>
-  </TouchableOpacity>
+    <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+      <Text style={styles.linkText}>
+        {showPassword ? "Hide password" : "Show password"}
+      </Text>
+    </TouchableOpacity>
 
-  <TouchableOpacity onPress={handleForgotPassword}>
-    <Text style={styles.forgotText}>Forgot password?</Text>
-  </TouchableOpacity>
-</View>
+    <TouchableOpacity onPress={handleSignIn}>
+      <LinearGradient
+        colors={["#1565C0", "#0D47A1"]}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>Sign In</Text>
+      </LinearGradient>
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={handleSignUp}>
+      <LinearGradient
+        colors={["#F57C00", "#FFC107"]}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>Sign Up</Text>
+      </LinearGradient>
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={handleForgotPassword}>
+      <Text style={styles.forgotText}>Forgot password?</Text>
+    </TouchableOpacity>
+  </View>
+)}
 
     
-<View style={styles.card}>
-          <Text style={styles.sectionTitle}>Post Product</Text>
-          <TextInput placeholder="Product title" style={styles.input} value={title} onChangeText={setTitle} />
-          <TextInput placeholder="Price (€)" style={styles.input} value={price} onChangeText={setPrice} />
-          <TextInput placeholder="Seller name" style={styles.input} value={seller} onChangeText={setSeller} />
-          <TextInput placeholder="Category" style={styles.input} value={category} onChangeText={setCategory} />
-          <TextInput placeholder="Condition e.g. Used - Good" style={styles.input} value={condition} onChangeText={setCondition} />
-
-          <TouchableOpacity onPress={pickImage}>
-  <LinearGradient colors={["#F57C00", "#FFC107"]} style={styles.button}>
-    <Text style={styles.buttonText}>Choose Product Photo</Text>
-  </LinearGradient>
-</TouchableOpacity>
-
-{imageUri && (
-  <Image source={{ uri: imageUri }} style={styles.previewImage} />
-)}
-
-<TouchableOpacity onPress={pickImage2}>
-  <LinearGradient colors={["#1565C0", "#FFC107"]} style={styles.button}>
-    <Text style={styles.buttonText}>📸 Choose Product Photo 2</Text>
-  </LinearGradient>
-</TouchableOpacity>
-
-{imageUri2 && (
-  <Image source={{ uri: imageUri2 }} style={styles.previewImage} />
-)}
-
-<TouchableOpacity onPress={pickImage3}>
-  <LinearGradient
-    colors={["#1565C0", "#0D47A1"]}
-    style={styles.button}
+{showSellForm && (
+  <View
+    style={styles.card}
+    onLayout={(event) => {
+      setSellFormY(event.nativeEvent.layout.y);
+    }}
   >
-    <Text style={styles.buttonText}>
-      📸 Choose Product Photo 3
-    </Text>
-  </LinearGradient>
-</TouchableOpacity>
+    <Text style={styles.sectionTitle}>Post Product</Text>
 
-{imageUri3 && (
-  <Image
-    source={{ uri: imageUri3 }}
-    style={styles.previewImage}
-  />
+    <TextInput
+      placeholder="Product title"
+      style={styles.input}
+      value={title}
+      onChangeText={setTitle}
+    />
+
+    <TextInput
+      placeholder="Price (€)"
+      style={styles.input}
+      value={price}
+      onChangeText={setPrice}
+    />
+
+    <TextInput
+      placeholder="Seller name"
+      style={styles.input}
+      value={seller}
+      onChangeText={setSeller}
+    />
+
+    <TextInput
+      placeholder="Category"
+      style={styles.input}
+      value={category}
+      onChangeText={setCategory}
+    />
+
+    <TextInput
+      placeholder="Condition e.g. Used - Good"
+      style={styles.input}
+      value={condition}
+      onChangeText={setCondition}
+    />
+
+    <TouchableOpacity onPress={pickImage}>
+      <LinearGradient
+        colors={["#F57C00", "#FFC107"]}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>Choose Product Photo</Text>
+      </LinearGradient>
+    </TouchableOpacity>
+
+    {imageUri && (
+      <Image source={{ uri: imageUri }} style={styles.previewImage} />
+    )}
+
+    <TouchableOpacity onPress={pickImage2}>
+      <LinearGradient
+        colors={["#1565C0", "#FFC107"]}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>
+          📸 Choose Product Photo 2
+        </Text>
+      </LinearGradient>
+    </TouchableOpacity>
+
+    {imageUri2 && (
+      <Image source={{ uri: imageUri2 }} style={styles.previewImage} />
+    )}
+
+    <TouchableOpacity onPress={pickImage3}>
+      <LinearGradient
+        colors={["#1565C0", "#0D47A1"]}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>
+          📸 Choose Product Photo 3
+        </Text>
+      </LinearGradient>
+    </TouchableOpacity>
+
+    {imageUri3 && (
+      <Image source={{ uri: imageUri3 }} style={styles.previewImage} />
+    )}
+
+    <TouchableOpacity
+      onPress={async () => {
+        await addProduct();
+        setShowSellForm(false);
+      }}
+    >
+      <LinearGradient
+        colors={["#1565C0", "#F57C00"]}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>Publish Product</Text>
+      </LinearGradient>
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      style={styles.cancelSellButton}
+      onPress={() => setShowSellForm(false)}
+    >
+      <Text style={styles.cancelSellButtonText}>Cancel</Text>
+    </TouchableOpacity>
+  </View>
 )}
-
-<TouchableOpacity onPress={addProduct}>
-  <LinearGradient
-    colors={["#1565C0", "#F57C00"]}
-    style={styles.button}
-  >
-    <Text style={styles.buttonText}>Publish Product</Text>
-  </LinearGradient>
-</TouchableOpacity>
-        </View>
         <View style={styles.searchRow}>
           <TextInput placeholder="Search products..." value={search} onChangeText={setSearch} style={styles.searchInput} />
           <TouchableOpacity onPress={() => setSearch(search.trim())}>
@@ -1483,7 +1653,6 @@ return (
             </LinearGradient>
           </TouchableOpacity>
         </View>
-
         
 <ScrollView
   horizontal
@@ -1596,7 +1765,29 @@ return (
     )}
   </View>
 )}
-<FlatList
+  <View
+  style={styles.productsHeader}
+  onLayout={(event) => {
+    setProductsY(event.nativeEvent.layout.y);
+  }}
+>
+  <View>
+    <Text style={styles.productsHeaderTitle}>
+      Explore Products
+    </Text>
+
+    <Text style={styles.productsHeaderSubtitle}>
+      {filteredProducts.length}{" "}
+      {filteredProducts.length === 1 ? "item" : "items"} available
+    </Text>
+  </View>
+
+  <Text style={styles.activeCategoryLabel}>
+    {String(activeCategory).replace(/\s*\(\d+\)\s*$/, "")}
+  </Text>
+</View>
+
+   <FlatList
   data={filteredProducts}
   keyExtractor={(item) => String(item.id)}
   scrollEnabled={false}
@@ -1623,11 +1814,9 @@ return (
      
     />
   )}
-/>  
-    
-<Footer styles={styles} />
+/>   
 
-     
+<Footer styles={styles} />  
       </ScrollView>
     </LinearGradient>
   );
@@ -1643,7 +1832,6 @@ logoWrap: {
   marginBottom: 25,
 
 },
-
 logoImage: {
   width: "100%",
   maxWidth: 1300,
@@ -1767,8 +1955,109 @@ button: {
   },
   elevation: 4,
 },
+dashboardHeader: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  marginBottom: 18,
+},
 
+dashboardSubtitle: {
+  color: "#666",
+  fontSize: 14,
+  marginTop: 4,
+},
 
+dashboardStatus: {
+  color: "#2E7D32",
+  fontWeight: "bold",
+  backgroundColor: "#E8F5E9",
+  paddingVertical: 6,
+  paddingHorizontal: 10,
+  borderRadius: 14,
+},
+
+dashboardIcon: {
+  fontSize: 26,
+  marginBottom: 8,
+},
+
+dashboardGrid: {
+  flexDirection: "row",
+  flexWrap: "wrap",
+  gap: 12,
+  marginBottom: 16,
+},
+
+dashboardBox: {
+  flexGrow: 1,
+  flexBasis: "45%",
+  backgroundColor: "#E3F2FD",
+  borderRadius: 18,
+  padding: 18,
+  alignItems: "center",
+  minWidth: 140,
+},
+
+dashboardNumber: {
+  fontSize: 26,
+  fontWeight: "bold",
+  color: "#0D47A1",
+},
+
+dashboardLabel: {
+  marginTop: 4,
+  fontSize: 14,
+  color: "#555",
+  fontWeight: "600",
+},
+
+revenueCard: {
+  width: "100%",
+  backgroundColor: "#FFF8E1",
+  borderRadius: 18,
+  padding: 18,
+  marginTop: 4,
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+},
+
+revenueLabel: {
+  fontSize: 14,
+  color: "#795548",
+  marginBottom: 4,
+},
+
+revenueAmount: {
+  fontSize: 28,
+  fontWeight: "bold",
+  color: "#F57C00",
+},
+
+revenueIcon: {
+  fontSize: 36,
+},
+
+dashboardSummary: {
+  marginTop: 16,
+  backgroundColor: "#F8FAFC",
+  borderRadius: 16,
+  padding: 16,
+},
+
+dashboardSummaryTitle: {
+  fontSize: 16,
+  fontWeight: "bold",
+  color: "#0D47A1",
+  marginBottom: 6,
+},
+
+dashboardSummaryText: {
+  fontSize: 14,
+  lineHeight: 21,
+  color: "#555",
+},
 
 placeholderImage: {
   width: "100%",
@@ -1801,7 +2090,34 @@ placeholderText: {
   marginBottom: 10,
   backgroundColor: "#fff",
 },
+productsHeader: {
+  width: "100%",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginTop: 12,
+  marginBottom: 16,
+},
 
+productsHeaderTitle: {
+  fontSize: 24,
+  fontWeight: "bold",
+  color: "#0D47A1",
+},
+
+productsHeaderSubtitle: {
+  color: "#555",
+  marginTop: 4,
+},
+
+activeCategoryLabel: {
+  backgroundColor: "#FFC107",
+  color: "#0D47A1",
+  fontWeight: "bold",
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  borderRadius: 14,
+},
 productDetailLayout: {
   width: "100%",
   maxWidth: 1100,
@@ -1848,7 +2164,25 @@ productDetailContent: {
   marginBottom: 18,
   color: "#555",
 },
+accountBox: {
+  backgroundColor: "#F8FAFC",
+  borderRadius: 16,
+  padding: 16,
+  marginTop: 16,
+  marginBottom: 12,
+},
 
+accountLabel: {
+  fontSize: 13,
+  color: "#777",
+  marginBottom: 4,
+},
+
+accountEmail: {
+  fontSize: 16,
+  fontWeight: "bold",
+  color: "#0D47A1",
+},
   back: {
   fontSize: 20,
   marginBottom: 20,
@@ -1928,7 +2262,46 @@ cartText: {
   textAlign: "center",
 },
 
+productsHeader: {
+  width: "100%",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginTop: 18,
+  marginBottom: 16,
+  paddingHorizontal: 4,
+},
+cancelSellButton: {
+  marginTop: 10,
+  paddingVertical: 12,
+  alignItems: "center",
+},
 
+cancelSellButtonText: {
+  color: "#0D47A1",
+  fontWeight: "bold",
+},
+productsHeaderTitle: {
+  fontSize: 24,
+  fontWeight: "bold",
+  color: "#0D47A1",
+},
+
+productsHeaderSubtitle: {
+  marginTop: 4,
+  fontSize: 14,
+  color: "#555",
+},
+
+activeCategoryLabel: {
+  backgroundColor: "#FFC107",
+  color: "#0D47A1",
+  fontWeight: "bold",
+  paddingVertical: 8,
+  paddingHorizontal: 14,
+  borderRadius: 18,
+  overflow: "hidden",
+},
 
 cartTotal: {
   fontSize: 18,
@@ -1936,7 +2309,112 @@ cartTotal: {
   color: "#0D47A1",
   marginBottom: 10,
 },
+recentOrdersCard: {
+  width: "100%",
+  backgroundColor: "#FFFFFF",
+  borderRadius: 18,
+  padding: 18,
+  marginTop: 16,
+},
 
+recentOrdersHeader: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: 14,
+},
+
+recentOrdersTitle: {
+  fontSize: 18,
+  fontWeight: "bold",
+  color: "#0D47A1",
+},
+
+recentOrdersCount: {
+  fontSize: 13,
+  color: "#666",
+  backgroundColor: "#E3F2FD",
+  paddingVertical: 5,
+  paddingHorizontal: 10,
+  borderRadius: 12,
+},
+
+recentOrderRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  paddingVertical: 12,
+  borderBottomWidth: 1,
+  borderBottomColor: "#EEEEEE",
+},
+
+recentOrderIcon: {
+  width: 42,
+  height: 42,
+  borderRadius: 14,
+  backgroundColor: "#FFF3E0",
+  alignItems: "center",
+  justifyContent: "center",
+  marginRight: 12,
+},
+
+recentOrderInfo: {
+  flex: 1,
+},
+
+recentOrderTitle: {
+  fontSize: 15,
+  fontWeight: "bold",
+  color: "#0D47A1",
+},
+
+recentOrderMeta: {
+  fontSize: 12,
+  color: "#777",
+  marginTop: 3,
+},
+
+recentOrderRight: {
+  alignItems: "flex-end",
+  marginLeft: 10,
+},
+
+recentOrderPrice: {
+  fontSize: 15,
+  fontWeight: "bold",
+  color: "#F57C00",
+},
+
+recentOrderStatus: {
+  fontSize: 11,
+  color: "#2E7D32",
+  backgroundColor: "#E8F5E9",
+  paddingVertical: 4,
+  paddingHorizontal: 8,
+  borderRadius: 10,
+  marginTop: 4,
+},
+
+noOrdersBox: {
+  alignItems: "center",
+  paddingVertical: 24,
+},
+
+noOrdersIcon: {
+  fontSize: 32,
+  marginBottom: 8,
+},
+
+noOrdersTitle: {
+  fontSize: 16,
+  fontWeight: "bold",
+  color: "#0D47A1",
+},
+
+noOrdersText: {
+  fontSize: 13,
+  color: "#777",
+  marginTop: 4,
+},
 messageButton: {
   minHeight: 44,
   marginTop: 10,
@@ -2070,7 +2548,6 @@ heroButton: {
   borderRadius: 50,
   marginHorizontal: 10,
 }, 
-
 heroButtonText: {
   color: "#FFFFFF",
   fontWeight: "bold",
