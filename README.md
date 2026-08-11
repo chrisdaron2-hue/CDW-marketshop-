@@ -1,27 +1,37 @@
-<img width="1693" height="929" alt="image" src="https://github.com/user-attachments/assets/c4ef30a2-99f9-4d9b-8da3-3c4f6777fda6" />
+<p align="center">
+  <img
+    src="https://github.com/user-attachments/assets/c4ef30a2-99f9-4d9b-8da3-3c4f6777fda6"
+    alt="CDW MarketShop"
+    width="100%"
+  />
+</p>
 
-# CDW MarketShop
+# 🛒 CDW MarketShop
+
 ![Marketplace](https://img.shields.io/badge/Project-CDW_MarketShop-purple)
 ![Cloud Engineer](https://img.shields.io/badge/Role-Cloud_Engineer-blueviolet)
-
 ![React Native](https://img.shields.io/badge/React_Native-Expo-blue)
 ![AWS](https://img.shields.io/badge/AWS-Serverless-orange)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
 ![Vercel](https://img.shields.io/badge/Deploy-Vercel-black)
----
-
 
 A modern cloud-native marketplace application built with **React Native (Expo)** and **AWS Serverless Services**.
 
-CDW MarketShop enables users to buy and sell products through a secure, scalable marketplace featuring authentication, product listings, multi-image galleries, messaging, reviews, shopping carts, and seller profiles.
+CDW MarketShop enables users to buy and sell products through a secure marketplace with authentication, product listings, multi-image galleries, messaging, reviews, shopping carts, seller profiles, and a seller dashboard.
 
-This project was built to demonstrate practical skills in **Cloud Engineering**, **Serverless Architecture**, **Frontend Development**, and **Application Deployment**.
+This project demonstrates practical skills in **Cloud Engineering**, **Serverless Architecture**, **Frontend Development**, and **Application Deployment**.
 
 ---
 
 ## 🌐 Live Demo
 
-🌐 **Live Demo:** [CDW MarketShop](https://dist-iebh2ifzo-market-shop-s-projects.vercel.app)
+🚀 [View CDW MarketShop Live](https://cdw-marketshop.vercel.app)
+
+---
+
+## 🎥 Demo Video
+
+[▶ Watch the CDW MarketShop Demo](https://github.com/chrisdaron2-hue/CDW-marketshop-/releases/download/v1.0/CDW.MarketShop.Demo.mov)
 
 ---
 
@@ -29,48 +39,67 @@ This project was built to demonstrate practical skills in **Cloud Engineering**,
 
 ### 🔐 Authentication
 
-* User registration and login
-* Secure authentication with AWS Cognito
-* Account management
+- User registration and login
+- Secure authentication with AWS Cognito
+- Account management
+- Signed-in and signed-out interface states
 
 ### 🛒 Marketplace
 
-* Product listings
-* Product search
-* Category browsing
-* Shopping cart
-* Favorites/Wishlist
-* Multi-image product gallery
+- Product listings
+- Product search
+- Category browsing
+- Shopping cart
+- Favorites / Wishlist
+- Multi-image product gallery
+- Product detail views
 
 ### 🏪 Seller Features
 
-* Seller profiles
-* Seller ratings
-* Product management
-* Edit and manage listings
+- Seller profiles
+- Seller ratings
+- Product management
+- Edit and manage listings
+- Sell-an-item form
+- Seller dashboard
+- Revenue overview
+- Recent orders
+- Seller activity summary
 
 ### 👤 Buyer Features
 
-* Product reviews
-* Orders and purchase history
-* Messaging system
-* Product gallery navigation
+- Product reviews
+- Orders and purchase history
+- Messaging system
+- Product gallery navigation
+- Favorites and cart management
 
 ### 💬 Messaging
 
-* Buyer and seller conversations
-* Product-based messaging threads
-* Reply functionality
+- Buyer and seller conversations
+- Product-based messaging threads
+- Reply functionality
+
+### 📊 Seller Dashboard
+
+- Active listings count
+- Orders count
+- Messages count
+- Reviews count
+- Revenue overview
+- Recent orders
+- Seller account summary
 
 ---
 
 ## ☁️ Cloud Services
 
-* **AWS Cognito** – Authentication and user management
-* **AWS Lambda** – Serverless backend APIs
-* **AWS DynamoDB** – Data storage
-* **AWS S3** – Product image storage
-* **Vercel** – Frontend deployment and hosting
+- **AWS Cognito** – Authentication and user management
+- **AWS Lambda** – Serverless backend APIs
+- **Amazon API Gateway** – API routing
+- **Amazon DynamoDB** – Marketplace data storage
+- **Amazon S3** – Product image storage
+- **Vercel** – Frontend deployment and hosting
 
 ---
 
@@ -84,47 +113,41 @@ This project was built to demonstrate practical skills in **Cloud Engineering**,
                              ▼
                     ┌─────────────────┐
                     │ React Native    │
-                    │ Expo Frontend   │
+                    │ Expo Web App    │
                     └────────┬────────┘
                              │
-         ┌───────────────────┼───────────────────┐
-         │                   │                   │
-         ▼                   ▼                   ▼
-
- ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
- │ AWS Cognito  │   │ AWS Lambda   │   │   AWS S3    │
- │Authentication│   │ Serverless   │   │ Product     │
- │              │   │ APIs         │   │ Images      │
- └──────────────┘   └──────┬────────┘   └──────────────┘
-                           │
-                           ▼
-                  ┌──────────────────┐
-                  │ AWS DynamoDB     │
-                  │                  │
-                  │ Products         │
-                  │ Orders           │
-                  │ Reviews          │
-                  │ Messages         │
-                  └──────────────────┘
-                           │
-                           ▼
-                    ┌─────────────────┐
-                    │     Vercel      │
-                    │   Deployment    │
-                    └─────────────────┘
+                    Hosted on Vercel
+                             │
+          ┌──────────────────┼──────────────────┐
+          │                  │                  │
+          ▼                  ▼                  ▼
+   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+   │ AWS Cognito  │   │ API Gateway  │   │  Amazon S3   │
+   │Authentication│   │              │   │Product Images│
+   └──────────────┘   └──────┬───────┘   └──────────────┘
+                             │
+                             ▼
+                        AWS Lambda
+                             │
+                             ▼
+                      Amazon DynamoDB
+                   Products / Orders /
+                  Reviews / Messages
 ```
 
 ---
 
 ## 🚀 Key Highlights
 
-* Designed and developed a cloud-native marketplace application from scratch
-* Implemented secure user authentication with Amazon Cognito
-* Built a serverless backend using AWS Lambda and DynamoDB
-* Integrated Amazon S3 for multi-image product uploads and galleries
-* Developed buyer-seller messaging functionality
-* Implemented reviews, favorites, orders, and seller management features
-* Deployed the application to production using Vercel
+- Designed and developed a cloud-native marketplace application
+- Implemented secure authentication using Amazon Cognito
+- Built a serverless backend with AWS Lambda and DynamoDB
+- Integrated Amazon S3 for product image uploads
+- Developed buyer-seller messaging functionality
+- Implemented reviews, favorites, cart, orders, and seller management
+- Built a Seller Dashboard with revenue and Recent Orders
+- Added smooth navigation between shopping and selling sections
+- Deployed the production web application using Vercel
 
 ---
 
@@ -132,63 +155,85 @@ This project was built to demonstrate practical skills in **Cloud Engineering**,
 
 ### Frontend
 
-* React Native
-* Expo
-* JavaScript
-* React Hooks
+- React Native
+- Expo
+- JavaScript
+- React Hooks
 
 ### Cloud & Backend
 
-* AWS Cognito
-* AWS Lambda
-* AWS DynamoDB
-* AWS S3
+- AWS Cognito
+- AWS Lambda
+- Amazon API Gateway
+- Amazon DynamoDB
+- Amazon S3
 
 ### Development & Deployment
 
-* Git
-* GitHub
-* Vercel
+- Git
+- GitHub
+- Vercel
 
 ---
 
 ## 📸 Screenshots
 
-<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 34 41" src="https://github.com/user-attachments/assets/cd17bf81-2fe0-4b73-be07-6759cafc1cac" />
-🛒 Shopping cart
+### 🛒 Shopping Cart
 
-<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 26 21" src="https://github.com/user-attachments/assets/b6c91806-8e36-4c0b-a05e-cc5bba8b02ae" />
-🏠 Home page
+<img
+  src="https://github.com/user-attachments/assets/cd17bf81-2fe0-4b73-be07-6759cafc1cac"
+  alt="Shopping cart"
+  width="900"
+/>
 
-<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 26 36" src="https://github.com/user-attachments/assets/e754797a-ae90-4bf7-8154-862d34d1708c" />
-📦 Product details page
+### 🏠 Marketplace Home
 
-<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 02 32" src="https://github.com/user-attachments/assets/0668bdb7-0237-4f17-8385-127e92fd912e" />
-🏠 Home page
+<img
+  src="https://github.com/user-attachments/assets/b6c91806-8e36-4c0b-a05e-cc5bba8b02ae"
+  alt="Marketplace home"
+  width="900"
+/>
 
-<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 26 47" src="https://github.com/user-attachments/assets/b9897edc-80d9-4a53-9cfc-a884de27840d" />
-📦 Product details page
+### 📦 Product Details
 
-<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 26 58" src="https://github.com/user-attachments/assets/35e5baf6-2050-4248-b0f0-4be2da24c2c5" />
-💬 Messages page
+<img
+  src="https://github.com/user-attachments/assets/e754797a-ae90-4bf7-8154-862d34d1708c"
+  alt="Product details"
+  width="900"
+/>
 
-<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 27 27" src="https://github.com/user-attachments/assets/22a96ff3-7b99-489d-b9e0-f0bb2816751c" />
-🛒 Shopping cart
+### 💬 Messaging
 
-<img width="1470" height="956" alt="Screenshot 2026-06-23 at 18 27 40" src="https://github.com/user-attachments/assets/0d184444-7a66-4466-b37d-770e31178379" />
-🛒 Shopping cart
+<img
+  src="https://github.com/user-attachments/assets/35e5baf6-2050-4248-b0f0-4be2da24c2c5"
+  alt="Messaging"
+  width="900"
+/>
 
 ---
+
 ## 💻 Run Locally
+
+Clone the repository:
 
 ```bash
 git clone https://github.com/chrisdaron2-hue/CDW-marketshop-.git
 cd marketplace-app
+```
+
+Install dependencies:
+
+```bash
 npm install
+```
+
+Start the Expo development server:
+
+```bash
 npx expo start
 ```
 
-For web:
+Build the web application:
 
 ```bash
 npx expo export --platform web
@@ -198,32 +243,33 @@ npx expo export --platform web
 
 ## 📚 Skills Demonstrated
 
-* Cloud Computing
-* AWS Services
-* Serverless Architecture
-* Authentication & Authorization
-* Frontend Development
-* REST APIs
-* State Management
-* Database Design
-* Deployment & Hosting
-* Git & GitHub
-* Problem Solving
-* Full-Stack Development
+- Cloud Computing
+- AWS Services
+- Serverless Architecture
+- Authentication & Authorization
+- Frontend Development
+- REST API Integration
+- State Management
+- Database Design
+- Object Storage
+- Deployment & Hosting
+- Git & GitHub
+- Problem Solving
+- Full-Stack Development
 
 ---
 
 ## 🔮 Future Improvements
 
-* Docker containerization
-* GitHub Actions CI/CD pipeline
-* Real-time chat and notifications
-* Mobile push notifications
-* Stripe payment integration
-* Admin dashboard
-* Analytics dashboard
-* CloudWatch monitoring and logging
-* CDN integration with Amazon CloudFront
+- Docker containerization
+- GitHub Actions CI/CD
+- Real-time messaging and notifications
+- Mobile push notifications
+- Payment integration
+- Admin dashboard
+- Analytics dashboard
+- CloudWatch monitoring and logging
+- Amazon CloudFront CDN integration
 
 ---
 
@@ -233,11 +279,12 @@ npx expo export --platform web
 
 Cloud Engineer | AWS | React Native | Serverless Applications
 
-* GitHub: https://github.com/chrisdaron2-hue
-* Email: [lizbethgyamfi1@gmail.com](mailto:lizbethgyamfi1@gmail.com)
+- GitHub: https://github.com/chrisdaron2-hue
+- LinkedIn: https://www.linkedin.com/in/elizabeth--gyamfi/
+- Email: lizbethgyamfi1@gmail.com
 
 ---
 
 ## 📄 License
 
-This project was built for educational purposes and to demonstrate practical cloud engineering and full-stack development skills.
+This project was built for educational and portfolio purposes to demonstrate practical cloud engineering, serverless architecture, and full-stack development skills.
