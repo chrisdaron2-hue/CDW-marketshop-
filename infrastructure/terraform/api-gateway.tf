@@ -9,6 +9,7 @@ resource "aws_apigatewayv2_api" "marketshop" {
     ]
 
     allow_methods = [
+      "DELETE",
       "GET",
       "OPTIONS",
       "POST"

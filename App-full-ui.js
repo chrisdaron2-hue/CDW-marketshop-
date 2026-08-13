@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Footer from "./src/components/Footer";
 import ProductCard from "./src/components/ProductCard";
 import CartScreen from "./src/screens/CartScreen";
@@ -61,6 +61,26 @@ const sampleProducts = [
   { id: "sample-18", title: "Dining Chairs", price: "95", seller: "Grace", category: "Home", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1519947486511-46149fa0a254?w=500", sold: false },
   { id: "sample-19", title: "Kindle Paperwhite", price: "70", seller: "Nina", category: "Books", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=500", sold: false },
   { id: "sample-20", title: "Running Shoes", price: "55", seller: "Mike", category: "Sports", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
+{ id: "sample-1", title: "iPhone 13", price: "450", seller: "Lizzy", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=500", sold: false },
+  { id: "sample-2", title: "Nike Sneakers", price: "60", seller: "Ama", category: "Fashion", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
+  { id: "sample-3", title: "MacBook Air", price: "700", seller: "Chris", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500", sold: false },
+  { id: "sample-4", title: "Samsung TV", price: "250", seller: "David", category: "Electronics", condition: "Used - Fair", imageUri: "https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=500", sold: false },
+  { id: "sample-5", title: "Gaming Chair", price: "90", seller: "Maya", category: "Gaming", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=500", sold: false },
+  { id: "sample-6", title: "Apple Watch", price: "180", seller: "Sarah", category: "Electronics", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=500", sold: false },
+  { id: "sample-7", title: "PS5 Controller", price: "45", seller: "Kwame", category: "Gaming", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=500", sold: false },
+  { id: "sample-8", title: "Canon Camera", price: "320", seller: "Ella", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500", sold: false },
+  { id: "sample-9", title: "Leather Jacket", price: "75", seller: "Nana", category: "Fashion", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1520975954732-35dd22299614?w=500", sold: false },
+  { id: "sample-10", title: "Study Desk", price: "110", seller: "Grace", category: "Home", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=500", sold: false },
+  { id: "sample-11", title: "AirPods Pro", price: "120", seller: "Linda", category: "Electronics", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=500", sold: false },
+  { id: "sample-12", title: "Coffee Table", price: "85", seller: "James", category: "Home", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?w=500", sold: false },
+  { id: "sample-13", title: "Mountain Bike", price: "230", seller: "Kelvin", category: "Sports", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=500", sold: false },
+  { id: "sample-14", title: "PlayStation 5", price: "480", seller: "Ben", category: "Gaming", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500", sold: false },
+  { id: "sample-15", title: "Sofa", price: "300", seller: "Hannah", category: "Home", condition: "Used - Fair", imageUri: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500", sold: false },
+  { id: "sample-16", title: "Dell Monitor", price: "140", seller: "Tom", category: "Electronics", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1527443154391-507e9dc6c5cc?w=500", sold: false },
+  { id: "sample-17", title: "Backpack", price: "35", seller: "Ella", category: "Fashion", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500", sold: false },
+  { id: "sample-18", title: "Dining Chairs", price: "95", seller: "Grace", category: "Home", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1519947486511-46149fa0a254?w=500", sold: false },
+  { id: "sample-19", title: "Kindle Paperwhite", price: "70", seller: "Nina", category: "Books", condition: "Used - Like New", imageUri: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=500", sold: false },
+  { id: "sample-20", title: "Running Shoes", price: "55", seller: "Mike", category: "Sports", condition: "Used - Good", imageUri: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sold: false },
 ];
 function notify(message) {
   if (typeof window !== "undefined") {
@@ -70,98 +90,64 @@ function notify(message) {
   }
 }
 export default function App() {
-  // Authentication
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [currentUserEmail, setCurrentUserEmail] = useState("");
-
-  // Profile
-  const [profileName, setProfileName] = useState("Elizabeth Gyamfi");
-  const [profileBio, setProfileBio] = useState(
-    "Cloud Engineer | AWS | React Native"
-  );
-  const [profileLocation, setProfileLocation] = useState("Germany");
+ const [messages, setMessages] = useState([]);
+  const [messageText, setMessageText] = useState("");
+const [profileName, setProfileName] = useState("Elizabeth Gyamfi");
+const [profileBio, setProfileBio] = useState("Cloud Engineer | AWS | React Native");
+const [profileLocation, setProfileLocation] = useState("Germany");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-const [showSellForm, setShowSellForm] = useState(false);
-  // Products
-  const [products, setProducts] = useState(sampleProducts);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedSeller, setSelectedSeller] = useState(null);
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-const mainScrollRef = useRef(null);
-const [productsY, setProductsY] = useState(0);
-const [sellFormY, setSellFormY] = useState(0);
-  // Product form
+const [reviewText, setReviewText] = useState("");
+  const [reviews, setReviews] = useState([]);
+const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [seller, setSeller] = useState("");
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
   const [imageUri, setImageUri] = useState(null);
-  const [imageUri2, setImageUri2] = useState(null);
-  const [imageUri3, setImageUri3] = useState(null);
-
-  // Search, categories, filters, and sorting
+const [imageUri2, setImageUri2] = useState(null);
+const [imageUri3, setImageUri3] = useState(null);
+const [showMessages, setShowMessages] = useState(false);
+  const [products, setProducts] = useState(sampleProducts);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedSeller, setSelectedSeller] = useState(null);
+const [replyText, setReplyText] = useState("");
+const [selectedMessage, setSelectedMessage] = useState(null);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-  const [sortOption, setSortOption] = useState("newest");
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-
-  // Cart and favorites
+const [orders, setOrders] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [cart, setCart] = useState([]);
-
-  // Orders
-  const [orders, setOrders] = useState([]);
-
-  // Reviews
-  const [reviewText, setReviewText] = useState("");
-  const [reviews, setReviews] = useState([]);
-
-  // Messages
-  const [messages, setMessages] = useState([]);
-  const [messageText, setMessageText] = useState("");
-  const [replyText, setReplyText] = useState("");
-  const [selectedMessage, setSelectedMessage] = useState(null);
-  const [showMessages, setShowMessages] = useState(false);
-
-  // Counts used in category labels
-  const messageCount = messages.length;
-  const reviewCount = reviews.length;
-  const orderCount = orders.length;
-
+const [editingProduct, setEditingProduct] = useState(null);
+  const [currentUserEmail, setCurrentUserEmail] = useState("");
+const messageCount = messages.length;
+const reviewCount = reviews.length;
+const orderCount = orders.length; 
   const categories = [
-    "All",
-    "Electronics",
-    "Fashion",
-    "Home",
-    "Sports",
-    "Books",
-    "Favorites",
-    "Cart",
-    "Profile",
-    "My Listings",
-    `Messages (${messageCount})`,
-    `Reviews (${reviewCount})`,
-    `Orders (${orderCount})`,
-  ];
+  "All",
+  "Electronics",
+  "Fashion",
+  "Home",
+  "Sports",
+  "Books",
+  "Favorites",
+  "Cart",
+  "Profile",
+  "My Listings",
+  `Messages (${messageCount})`,
+  `Reviews (${reviewCount})`,
+  `Orders (${orderCount})`,
+];
 useEffect(() => {
   async function initializeApp() {
   const loadedProducts = await loadProducts();
 
-  const uniqueProducts = Array.from(
-    new Map(
-      [...sampleProducts, ...loadedProducts].map((product) => [
-        String(product.id),
-        product,
-      ])
-    ).values()
-  );
-
-  setProducts(uniqueProducts);
+  if (loadedProducts.length > 0) {
+    setProducts([...loadedProducts, ...sampleProducts]);
+  }
 
   const loadedReviews = await fetchReviews();
   setReviews(loadedReviews);
@@ -793,94 +779,30 @@ async function handleSignOut() {
     notify(error.message || "Sign out failed.");
   }
 }
-  const filteredProducts = products
-  .filter((item) => {
-    const text = search.trim().toLowerCase();
-    const productPrice = Number(item.price || 0);
+  const filteredProducts = products.filter((item) => {
+  const text = search.trim().toLowerCase();
 
-    const minimum =
-      minPrice === "" ? 0 : Number(minPrice);
+  const matchesSearch =
+    text === "" ||
+    item.title?.toLowerCase().includes(text) ||
+    item.category?.toLowerCase().includes(text) ||
+    item.seller?.toLowerCase().includes(text) ||
+    item.condition?.toLowerCase().includes(text);
 
-    const maximum =
-      maxPrice === ""
-        ? Number.POSITIVE_INFINITY
-        : Number(maxPrice);
-
-    const matchesSearch =
-      text === "" ||
-      item.title?.toLowerCase().includes(text) ||
-      item.category?.toLowerCase().includes(text) ||
-      item.seller?.toLowerCase().includes(text) ||
-      item.condition?.toLowerCase().includes(text);
-
-    const normalizedCategory = String(item.category || "")
-      .trim()
-      .toLowerCase();
-
-    const normalizedActiveCategory = String(activeCategory || "")
-      .replace(/\s*\(\d+\)\s*$/, "")
-      .trim()
-      .toLowerCase();
-
-    const matchesCategory =
-      normalizedActiveCategory === "all" ||
-      normalizedCategory === normalizedActiveCategory ||
-      (normalizedActiveCategory === "favorites" &&
-        favorites.includes(item.id)) ||
-      (normalizedActiveCategory === "cart" &&
-        cart.some(
-          (cartItem) =>
-            String(cartItem.id) === String(item.id)
-        )) ||
-      (normalizedActiveCategory === "my listings" &&
-        item.ownerEmail === currentUserEmail);
-
-    const matchesPrice =
-      productPrice >= minimum &&
-      productPrice <= maximum;
-
-    return (
-      matchesSearch &&
-      matchesCategory &&
-      matchesPrice
-    );
-  })
-  .sort((a, b) => {
-    if (sortOption === "price-low") {
-      return (
-        Number(a.price || 0) -
-        Number(b.price || 0)
-      );
-    }
-
-    if (sortOption === "price-high") {
-      return (
-        Number(b.price || 0) -
-        Number(a.price || 0)
-      );
-    }
-
-    // Newest first when timestamps exist
-    const dateA = new Date(
-      a.createdAt || a.updatedAt || 0
-    ).getTime();
-
-    const dateB = new Date(
-      b.createdAt || b.updatedAt || 0
-    ).getTime();
-
-    if (dateA !== dateB) {
-      return dateB - dateA;
-    }
-
-    // Fallback for products without timestamps
-    return String(b.id).localeCompare(String(a.id));
-  });
-
+  const matchesCategory =
+    activeCategory === "All" ||
+    item.category === activeCategory ||
+    (activeCategory === "Favorites" && favorites.includes(item.id)) ||
+    (activeCategory === "Cart" &&
+      cart.find((cartItem) => cartItem.id === item.id)) ||
+    (activeCategory === "My Listings" &&
+      item.ownerEmail === currentUserEmail);
+  return matchesSearch && matchesCategory;
+});
   if (editingProduct) {
   return (
     <LinearGradient
-      colors={["#0A2540", "#0D47A1", "#1565C0", "#FFC107"]}
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
       style={styles.container}
     >
       <ScrollView>
@@ -949,7 +871,7 @@ async function handleSignOut() {
 if (showMessages) {
   return (
     <LinearGradient
-      colors={["#0A2540", "#0D47A1", "#1565C0", "#FFC107"]}
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
       style={styles.container}
     >
       <ScrollView>
@@ -1045,7 +967,7 @@ if (selectedSeller) {
   );
   return (
     <LinearGradient
-      colors={["#0A2540", "#0D47A1", "#1565C0", "#FFC107"]}
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
       style={styles.container}
     >
       <ScrollView>
@@ -1106,7 +1028,7 @@ if (selectedSeller) {
 if (selectedProduct) {
   return (
     <LinearGradient
-      colors={["#0A2540", "#0D47A1", "#1565C0", "#FFC107"]}
+      colors={["#1a0033", "#4a148c", "#7b2ff7", "#ff4ecd"]}
       style={styles.container}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -1301,7 +1223,7 @@ if (selectedProduct) {
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => buyProduct(selectedProduct)}>
-        <LinearGradient colors={["#1565C0", "#F57C00"]} style={styles.button}>
+        <LinearGradient colors={["#7b2ff7", "#f107a3"]} style={styles.button}>
           <Text style={styles.buttonText}>Buy Now</Text>
         </LinearGradient>
       </TouchableOpacity>
@@ -1389,270 +1311,163 @@ function getSellerListingsCount(sellerName) {
   return products.filter((p) => p.seller === sellerName).length;
 }
 return (
-    <LinearGradient
-  colors={["#1565C0", "#1976D2", "#F57C00", "#FFC107"]} style={styles.container}>
-      <ScrollView
-  ref={mainScrollRef}
-  showsVerticalScrollIndicator={false}
->
+    <LinearGradient colors={["#ffdde1", "#ee9ca7", "#a18cd1", "#fbc2eb"]} style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.logoWrap}>
   <Image
-  source={require("./assets/CDW-MarketShop-Pro.png")}
+  source={require("./assets/CDW Marketshop.png")}
   style={styles.logoImage}
   resizeMode="contain"
 />
 
-<View
-  style={{
-    alignItems: "center",
-    paddingVertical: 20,
-  }}
->
+
+
+  <View style={styles.welcomeCard}>
   <Text style={styles.welcomeTitle}>
-    Buy • Sell • Discover with Confidence
+    Buy, Sell & Discover Amazing Products
   </Text>
 
   <Text style={styles.welcomeText}>
-    Everything You Need in One Marketplace
+    A secure cloud-powered marketplace built with React Native and AWS.
   </Text>
+
   <View style={styles.welcomeButtons}>
-  <TouchableOpacity
-    style={styles.heroButton}
-    onPress={() => {
-  setShowSellForm(false);
-  setActiveCategory("All");
+    <TouchableOpacity style={styles.heroButton}>
+      <Text style={styles.heroButtonText}>Start Shopping</Text>
+    </TouchableOpacity>
 
-  setTimeout(() => {
-    mainScrollRef.current?.scrollTo({
-      y: productsY,
-      animated: true,
-    });
-  }, 100);
-}}
-  >
+    <TouchableOpacity style={styles.heroButton}>
+      <Text style={styles.heroButtonText}>Sell an Item</Text>
+    </TouchableOpacity>
+  </View>
 
-  
-    <Text style={styles.heroButtonText}>Start Shopping</Text>
-  </TouchableOpacity>
-
-  <TouchableOpacity
-    style={styles.heroButton}
-    onPress={() => {
-  setShowSellForm(true);
-
-  setTimeout(() => {
-    mainScrollRef.current?.scrollTo({
-      y: sellFormY,
-      animated: true,
-    });
-  }, 150);
-}}
-  >
-    <Text style={styles.heroButtonText}>Sell an Item</Text>
-  </TouchableOpacity>
-</View>
-
- 
-</View>
-</View>
-{currentUserEmail ? (
-  <View style={styles.card}>
-    <DashboardScreen
-      styles={styles}
-      sellerProducts={sellerProducts}
-      sellerOrders={sellerOrders}
-      sellerMessages={sellerMessages}
-      totalReviews={totalReviews}
-      sellerRevenue={sellerRevenue}
-    />
-
-    <View style={styles.accountBox}>
-      <Text style={styles.accountLabel}>Signed in as</Text>
-      <Text style={styles.accountEmail}>{currentUserEmail}</Text>
+  <View style={styles.infoRow}>
+    <View style={styles.infoCard}>
+      <Text style={styles.sectionTitle}>☁️ Powered By AWS</Text>
+      <Text style={styles.detailText}>AWS Cognito Authentication</Text>
+      <Text style={styles.detailText}>AWS Lambda APIs</Text>
+      <Text style={styles.detailText}>AWS DynamoDB Database</Text>
+      <Text style={styles.detailText}>AWS S3 Image Storage</Text>
+      <Text style={styles.detailText}>Vercel Deployment</Text>
     </View>
 
-    <TouchableOpacity onPress={handleSignOut}>
-      <LinearGradient
-        colors={["#ff6b6b", "#ff4757"]}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>Sign Out</Text>
-      </LinearGradient>
-    </TouchableOpacity>
+    <View style={styles.infoCard}>
+      <Text style={styles.sectionTitle}>✨ Features</Text>
+      <Text style={styles.detailText}>🔐 Secure Authentication</Text>
+      <Text style={styles.detailText}>🖼️ Multi-Image Product Gallery</Text>
+      <Text style={styles.detailText}>💬 Buyer-Seller Messaging</Text>
+      <Text style={styles.detailText}>⭐ Reviews & Ratings</Text>
+      <Text style={styles.detailText}>❤️ Favorites & Shopping Cart</Text>
+      <Text style={styles.detailText}>☁️ AWS Serverless Architecture</Text>
+        </View>
   </View>
-) : (
-  <View style={styles.card}>
-    <Text style={styles.sectionTitle}>Welcome Back</Text>
+</View>
+</View>
 
-    <Text style={styles.detailText}>
-      Sign in to continue shopping or start selling.
-    </Text>
+<View style={styles.card}>
+          <TextInput placeholder="Email" style={styles.input} value={email} autoCapitalize="none" keyboardType="email-address" onChangeText={setEmail} />
+          <TextInput placeholder="Password" secureTextEntry={!showPassword} style={styles.input} value={password} onChangeText={setPassword} />
+{currentUserEmail && (
+  <DashboardScreen
+    styles={styles}
+    sellerProducts={sellerProducts}
+    sellerOrders={sellerOrders}
+    sellerMessages={sellerMessages}
+    totalReviews={totalReviews}
+    sellerRevenue={sellerRevenue}
+  />
+)}       <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Text style={styles.linkText}>{showPassword ? "Hide password" : "Show password"}</Text>
+          </TouchableOpacity>
 
-    <TextInput
-      placeholder="Email"
-      style={styles.input}
-      value={email}
-      autoCapitalize="none"
-      keyboardType="email-address"
-      onChangeText={setEmail}
-    />
+          <TouchableOpacity onPress={handleSignIn}>
+  <LinearGradient colors={["#5f2cff", "#8a4dff"]} style={styles.button}>
+    <Text style={styles.buttonText}>Sign In</Text>
+  </LinearGradient>
+</TouchableOpacity>
 
-    <TextInput
-      placeholder="Password"
-      secureTextEntry={!showPassword}
-      style={styles.input}
-      value={password}
-      onChangeText={setPassword}
-    />
+<TouchableOpacity onPress={handleSignUp}>
+  <LinearGradient colors={["#7b2ff7", "#f107a3"]} style={styles.button}>
+    <Text style={styles.buttonText}>Sign Up</Text>
+  </LinearGradient>
+</TouchableOpacity>
 
-    <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-      <Text style={styles.linkText}>
-        {showPassword ? "Hide password" : "Show password"}
-      </Text>
-    </TouchableOpacity>
+<TouchableOpacity onPress={handleSignOut}>
+  <LinearGradient colors={["#ff6b6b", "#ff4757"]} style={styles.button}>
+    <Text style={styles.buttonText}>Sign Out</Text>
+  </LinearGradient>
+</TouchableOpacity>
 
-    <TouchableOpacity onPress={handleSignIn}>
-      <LinearGradient
-        colors={["#1565C0", "#0D47A1"]}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>Sign In</Text>
-      </LinearGradient>
-    </TouchableOpacity>
-
-    <TouchableOpacity onPress={handleSignUp}>
-      <LinearGradient
-        colors={["#F57C00", "#FFC107"]}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>Sign Up</Text>
-      </LinearGradient>
-    </TouchableOpacity>
-
-    <TouchableOpacity onPress={handleForgotPassword}>
-      <Text style={styles.forgotText}>Forgot password?</Text>
-    </TouchableOpacity>
-  </View>
-)}
+<TouchableOpacity onPress={handleForgotPassword}>
+  <Text style={styles.forgotText}>Forgot password?</Text>
+</TouchableOpacity>
+        </View>
 
     
-{showSellForm && (
-  <View
-    style={styles.card}
-    onLayout={(event) => {
-      setSellFormY(event.nativeEvent.layout.y);
-    }}
-  >
-    <Text style={styles.sectionTitle}>Post Product</Text>
+<View style={styles.card}>
+          <Text style={styles.sectionTitle}>Post Product</Text>
+          <TextInput placeholder="Product title" style={styles.input} value={title} onChangeText={setTitle} />
+          <TextInput placeholder="Price (€)" style={styles.input} value={price} onChangeText={setPrice} />
+          <TextInput placeholder="Seller name" style={styles.input} value={seller} onChangeText={setSeller} />
+          <TextInput placeholder="Category" style={styles.input} value={category} onChangeText={setCategory} />
+          <TextInput placeholder="Condition e.g. Used - Good" style={styles.input} value={condition} onChangeText={setCondition} />
 
-    <TextInput
-      placeholder="Product title"
-      style={styles.input}
-      value={title}
-      onChangeText={setTitle}
-    />
+          <TouchableOpacity onPress={pickImage}>
+  <LinearGradient colors={["#ff8a00", "#ff3d8b"]} style={styles.button}>
+    <Text style={styles.buttonText}>Choose Product Photo</Text>
+  </LinearGradient>
+</TouchableOpacity>
 
-    <TextInput
-      placeholder="Price (€)"
-      style={styles.input}
-      value={price}
-      onChangeText={setPrice}
-    />
-
-    <TextInput
-      placeholder="Seller name"
-      style={styles.input}
-      value={seller}
-      onChangeText={setSeller}
-    />
-
-    <TextInput
-      placeholder="Category"
-      style={styles.input}
-      value={category}
-      onChangeText={setCategory}
-    />
-
-    <TextInput
-      placeholder="Condition e.g. Used - Good"
-      style={styles.input}
-      value={condition}
-      onChangeText={setCondition}
-    />
-
-    <TouchableOpacity onPress={pickImage}>
-      <LinearGradient
-        colors={["#F57C00", "#FFC107"]}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>Choose Product Photo</Text>
-      </LinearGradient>
-    </TouchableOpacity>
-
-    {imageUri && (
-      <Image source={{ uri: imageUri }} style={styles.previewImage} />
-    )}
-
-    <TouchableOpacity onPress={pickImage2}>
-      <LinearGradient
-        colors={["#1565C0", "#FFC107"]}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>
-          📸 Choose Product Photo 2
-        </Text>
-      </LinearGradient>
-    </TouchableOpacity>
-
-    {imageUri2 && (
-      <Image source={{ uri: imageUri2 }} style={styles.previewImage} />
-    )}
-
-    <TouchableOpacity onPress={pickImage3}>
-      <LinearGradient
-        colors={["#1565C0", "#0D47A1"]}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>
-          📸 Choose Product Photo 3
-        </Text>
-      </LinearGradient>
-    </TouchableOpacity>
-
-    {imageUri3 && (
-      <Image source={{ uri: imageUri3 }} style={styles.previewImage} />
-    )}
-
-    <TouchableOpacity
-      onPress={async () => {
-        await addProduct();
-        setShowSellForm(false);
-      }}
-    >
-      <LinearGradient
-        colors={["#1565C0", "#F57C00"]}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>Publish Product</Text>
-      </LinearGradient>
-    </TouchableOpacity>
-
-    <TouchableOpacity
-      style={styles.cancelSellButton}
-      onPress={() => setShowSellForm(false)}
-    >
-      <Text style={styles.cancelSellButtonText}>Cancel</Text>
-    </TouchableOpacity>
-  </View>
+{imageUri && (
+  <Image source={{ uri: imageUri }} style={styles.previewImage} />
 )}
+
+<TouchableOpacity onPress={pickImage2}>
+  <LinearGradient colors={["#7b2ff7", "#f107a3"]} style={styles.button}>
+    <Text style={styles.buttonText}>📸 Choose Product Photo 2</Text>
+  </LinearGradient>
+</TouchableOpacity>
+
+{imageUri2 && (
+  <Image source={{ uri: imageUri2 }} style={styles.previewImage} />
+)}
+
+<TouchableOpacity onPress={pickImage3}>
+  <LinearGradient
+    colors={["#7b2ff7", "#f107a3"]}
+    style={styles.button}
+  >
+    <Text style={styles.buttonText}>
+      📸 Choose Product Photo 3
+    </Text>
+  </LinearGradient>
+</TouchableOpacity>
+
+{imageUri3 && (
+  <Image
+    source={{ uri: imageUri3 }}
+    style={styles.previewImage}
+  />
+)}
+
+<TouchableOpacity onPress={addProduct}>
+  <LinearGradient
+    colors={["#7b2ff7", "#f107a3"]}
+    style={styles.button}
+  >
+    <Text style={styles.buttonText}>Publish Product</Text>
+  </LinearGradient>
+</TouchableOpacity>
+        </View>
         <View style={styles.searchRow}>
           <TextInput placeholder="Search products..." value={search} onChangeText={setSearch} style={styles.searchInput} />
           <TouchableOpacity onPress={() => setSearch(search.trim())}>
-            <LinearGradient colors={["#1565C0", "#F57C00"]} style={styles.searchButton}>
+            <LinearGradient colors={["#7b2ff7", "#f107a3"]} style={styles.searchButton}>
               <Text style={styles.buttonText}>Search</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
+
         
 <ScrollView
   horizontal
@@ -1663,10 +1478,13 @@ return (
     <TouchableOpacity
       key={cat}
     onPress={() => {
-        setSearch("");
-        setActiveCategory(cat);
-        setShowMessages(cat.startsWith("Messages"));
-      }}
+  if (cat.includes("Messages")) {
+    setShowMessages(true);
+  } else {
+    setShowMessages(false);
+    setActiveCategory(cat);
+  }
+}}
       style={[
         styles.categoryPill,
         activeCategory === cat && styles.categoryActive,
@@ -1718,7 +1536,7 @@ return (
     styles={styles}
   />
 )}       
-      
+       
 
 {activeCategory.startsWith("Orders") && (
 
@@ -1765,41 +1583,13 @@ return (
     )}
   </View>
 )}
-  <View
-  style={styles.productsHeader}
-  onLayout={(event) => {
-    setProductsY(event.nativeEvent.layout.y);
-  }}
->
-  <View>
-    <Text style={styles.productsHeaderTitle}>
-      Explore Products
-    </Text>
-
-    <Text style={styles.productsHeaderSubtitle}>
-      {filteredProducts.length}{" "}
-      {filteredProducts.length === 1 ? "item" : "items"} available
-    </Text>
-  </View>
-
-  <Text style={styles.activeCategoryLabel}>
-    {String(activeCategory).replace(/\s*\(\d+\)\s*$/, "")}
-  </Text>
-</View>
-
-   <FlatList
+<FlatList
   data={filteredProducts}
-  keyExtractor={(item) => String(item.id)}
+  keyExtractor={(item) => item.id}
   scrollEnabled={false}
   numColumns={2}
   columnWrapperStyle={{ gap: 12 }}
-  extraData={{
-    activeCategory,
-    search,
-    favorites,
-    cart,
-    currentUserEmail,
-  }}
+  extraData={favorites}
   renderItem={({ item }) => (
     
   <ProductCard
@@ -1814,9 +1604,11 @@ return (
      
     />
   )}
-/>   
+/>  
+    
+<Footer styles={styles} />
 
-<Footer styles={styles} />  
+     
       </ScrollView>
     </LinearGradient>
   );
@@ -1827,63 +1619,48 @@ const styles = StyleSheet.create({
 
 logoWrap: {
   width: "100%",
-  alignItems: "center",
-  marginTop: -20,
-  marginBottom: 25,
+  marginHorizontal: -20,
+  marginTop: -60,
+  marginBottom: 20,
+}, 
 
-},
+  
+
 logoImage: {
   width: "100%",
-  maxWidth: 1300,
-  height: 560,
-  resizeMode: "contain",
+  height: 500,
+  resizeMode: "cover",
 },
-
-card: {
-  width: "100%",
-  backgroundColor: "#ffffff",
-  borderRadius: 25,
-  padding: 25,
-  marginBottom: 20,
-
-  shadowColor: "#000",
-  shadowOffset: {
-    width: 0,
-    height: 6,
+  card: {
+    backgroundColor: "rgba(255,255,255,0.92)",
+    borderRadius: 22,
+    padding: 20,
+    marginBottom: 20,
   },
-  shadowOpacity: 0.18,
-  shadowRadius: 12,
-  elevation: 10,
-},
+
   sectionTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#0D47A1",
-    marginBottom: 35,
+    color: "#4527a0",
+    marginBottom: 12,
   },
 
   input: {
-  width: "100%",
-  minHeight: 48,
-  backgroundColor: "#FFFFFF",
-  borderRadius: 14,
-  paddingHorizontal: 14,
-  paddingVertical: 12,
-  marginBottom: 12,
-  fontSize: 16,
-  borderWidth: 1,
-  borderColor: "#90CAF9",
-},
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 12,
+  },
 
   linkText: {
-    color: "#0D47A1",
+    color: "#4527a0",
     fontWeight: "bold",
     marginBottom: 10,
     textAlign: "right",
   },
 
   forgotText: {
-    color: "#1565C0",
+    color: "#7b2ff7",
     fontWeight: "bold",
     textAlign: "center",
     marginTop: 14,
@@ -1901,33 +1678,19 @@ card: {
   searchButton: { padding: 14, borderRadius: 14 },
 
   categoryPill: {
-  backgroundColor: "#E3F2FD",
-  paddingVertical: 9,
-  paddingHorizontal: 14,
-  borderRadius: 20,
-  marginRight: 8,
+  backgroundColor: "white",
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  borderRadius: 14,
+  marginRight: 6,
   alignSelf: "flex-start",
-  borderWidth: 1,
-  borderColor: "#90CAF9",
 },
 
-categoryActive: { backgroundColor: "#1565C0"},
-  categoryText: { color: "#0D47A1", fontWeight: "bold", fontSize: 12 },
-  categoryTextActive: { color: "#FFFFFF",
-fontWeight: "bold",
-},
-  
-button: {
-  minHeight: 48,
-  paddingVertical: 12,
-  paddingHorizontal: 16,
-  borderRadius: 16,
-  marginTop: 8,
-  alignItems: "center",
-  justifyContent: "center",
-},
-  
-  
+  categoryActive: { backgroundColor: "#7b2ff7" },
+  categoryText: { color: "#4527a0", fontWeight: "bold", fontSize: 12 },
+  categoryTextActive: { color: "#fff" },
+
+  button: { padding: 16, borderRadius: 16, marginTop: 8 },
   buttonText: { color: "#fff", textAlign: "center", fontWeight: "bold" },
 
   previewImage: {
@@ -1939,132 +1702,26 @@ button: {
 
   gridCard: {
   flex: 1,
-  minWidth: 0,
-  backgroundColor: "#FFFFFF",
-  borderRadius: 20,
+  backgroundColor: "rgba(255,255,255,0.96)",
+  borderRadius: 22,
   padding: 12,
   marginBottom: 14,
-  borderWidth: 1,
-  borderColor: "#90CAF9",
-  shadowColor: "#0D47A1",
-  shadowOpacity: 0.14,
+  shadowColor: "#000",
+  shadowOpacity: 0.15,
   shadowRadius: 10,
-  shadowOffset: {
-    width: 0,
-    height: 5,
-  },
+  shadowOffset: { width: 0, height: 5 },
   elevation: 4,
-},
-dashboardHeader: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "flex-start",
-  marginBottom: 18,
-},
+}, 
 
-dashboardSubtitle: {
-  color: "#666",
-  fontSize: 14,
-  marginTop: 4,
-},
 
-dashboardStatus: {
-  color: "#2E7D32",
-  fontWeight: "bold",
-  backgroundColor: "#E8F5E9",
-  paddingVertical: 6,
-  paddingHorizontal: 10,
-  borderRadius: 14,
-},
 
-dashboardIcon: {
-  fontSize: 26,
-  marginBottom: 8,
-},
-
-dashboardGrid: {
-  flexDirection: "row",
-  flexWrap: "wrap",
-  gap: 12,
-  marginBottom: 16,
-},
-
-dashboardBox: {
-  flexGrow: 1,
-  flexBasis: "45%",
-  backgroundColor: "#E3F2FD",
-  borderRadius: 18,
-  padding: 18,
-  alignItems: "center",
-  minWidth: 140,
-},
-
-dashboardNumber: {
-  fontSize: 26,
-  fontWeight: "bold",
-  color: "#0D47A1",
-},
-
-dashboardLabel: {
-  marginTop: 4,
-  fontSize: 14,
-  color: "#555",
-  fontWeight: "600",
-},
-
-revenueCard: {
-  width: "100%",
-  backgroundColor: "#FFF8E1",
-  borderRadius: 18,
-  padding: 18,
-  marginTop: 4,
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-},
-
-revenueLabel: {
-  fontSize: 14,
-  color: "#795548",
-  marginBottom: 4,
-},
-
-revenueAmount: {
-  fontSize: 28,
-  fontWeight: "bold",
-  color: "#F57C00",
-},
-
-revenueIcon: {
-  fontSize: 36,
-},
-
-dashboardSummary: {
-  marginTop: 16,
-  backgroundColor: "#F8FAFC",
-  borderRadius: 16,
-  padding: 16,
-},
-
-dashboardSummaryTitle: {
-  fontSize: 16,
-  fontWeight: "bold",
-  color: "#0D47A1",
-  marginBottom: 6,
-},
-
-dashboardSummaryText: {
-  fontSize: 14,
-  lineHeight: 21,
-  color: "#555",
-},
 
 placeholderImage: {
   width: "100%",
   height: 150,
   borderRadius: 18,
   marginBottom: 10,
-  backgroundColor: "#0A2540",
+  backgroundColor: "#1a0033",
   alignItems: "center",
   justifyContent: "center",
 },
@@ -2073,7 +1730,7 @@ placeholderDetailImage: {
   height: 300,
   borderRadius: 24,
   marginBottom: 20,
-  backgroundColor: "#0A2540",
+  backgroundColor: "#1a0033",
   alignItems: "center",
   justifyContent: "center",
 },
@@ -2090,34 +1747,7 @@ placeholderText: {
   marginBottom: 10,
   backgroundColor: "#fff",
 },
-productsHeader: {
-  width: "100%",
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginTop: 12,
-  marginBottom: 16,
-},
 
-productsHeaderTitle: {
-  fontSize: 24,
-  fontWeight: "bold",
-  color: "#0D47A1",
-},
-
-productsHeaderSubtitle: {
-  color: "#555",
-  marginTop: 4,
-},
-
-activeCategoryLabel: {
-  backgroundColor: "#FFC107",
-  color: "#0D47A1",
-  fontWeight: "bold",
-  paddingVertical: 8,
-  paddingHorizontal: 12,
-  borderRadius: 14,
-},
 productDetailLayout: {
   width: "100%",
   maxWidth: 1100,
@@ -2130,11 +1760,11 @@ productDetailContent: {
   productTitle: { fontSize: 15, fontWeight: "bold" },
 
   productPrice: {
-  color: "#F57C00",
-  fontSize: 17,
-  marginTop: 4,
-  fontWeight: "bold",
-},
+    color: "#7b2ff7",
+    fontSize: 15,
+    marginTop: 4,
+    fontWeight: "bold",
+  },
 
   meta: { color: "#555", marginTop: 4 },
 
@@ -2156,33 +1786,14 @@ productDetailContent: {
   detailTitle: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#0D47A1",
+    color: "#4527a0",
   },
 
   detailText: {
-  marginTop: 6,
-  marginBottom: 18,
-  color: "#555",
-},
-accountBox: {
-  backgroundColor: "#F8FAFC",
-  borderRadius: 16,
-  padding: 16,
-  marginTop: 16,
-  marginBottom: 12,
-},
+    marginTop: 10,
+    color: "#444",
+  },
 
-accountLabel: {
-  fontSize: 13,
-  color: "#777",
-  marginBottom: 4,
-},
-
-accountEmail: {
-  fontSize: 16,
-  fontWeight: "bold",
-  color: "#0D47A1",
-},
   back: {
   fontSize: 20,
   marginBottom: 20,
@@ -2230,200 +1841,43 @@ newBadgeText: {
   fontSize: 12,
 },
   favoriteButton: {
-  minHeight: 44,
-  marginTop: 8,
-  backgroundColor: "#FFC107",
-  paddingVertical: 10,
-  paddingHorizontal: 12,
-  borderRadius: 12,
-  alignItems: "center",
-  justifyContent: "center",
-},
+    marginTop: 8,
+    backgroundColor: "#fff0f6",
+    paddingVertical: 8,
+    borderRadius: 12,
+    alignItems: "center",
+  },
 
-favoriteText: {
-  color: "#0D47A1",
-  fontWeight: "bold",
-  textAlign: "center",
-},
+  favoriteText: {
+    color: "#d81b60",
+    fontWeight: "bold",
+  },
 cartButton: {
-  minHeight: 44,
   marginTop: 8,
-  backgroundColor: "#F57C00",
-  paddingVertical: 10,
-  paddingHorizontal: 12,
+  backgroundColor: "#ede7ff",
+  paddingVertical: 8,
   borderRadius: 12,
   alignItems: "center",
-  justifyContent: "center",
 },
 
 cartText: {
-  color: "#FFFFFF",
+  color: "#4527a0",
   fontWeight: "bold",
-  textAlign: "center",
-},
-
-productsHeader: {
-  width: "100%",
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginTop: 18,
-  marginBottom: 16,
-  paddingHorizontal: 4,
-},
-cancelSellButton: {
-  marginTop: 10,
-  paddingVertical: 12,
-  alignItems: "center",
-},
-
-cancelSellButtonText: {
-  color: "#0D47A1",
-  fontWeight: "bold",
-},
-productsHeaderTitle: {
-  fontSize: 24,
-  fontWeight: "bold",
-  color: "#0D47A1",
-},
-
-productsHeaderSubtitle: {
-  marginTop: 4,
-  fontSize: 14,
-  color: "#555",
-},
-
-activeCategoryLabel: {
-  backgroundColor: "#FFC107",
-  color: "#0D47A1",
-  fontWeight: "bold",
-  paddingVertical: 8,
-  paddingHorizontal: 14,
-  borderRadius: 18,
-  overflow: "hidden",
 },
 
 cartTotal: {
   fontSize: 18,
   fontWeight: "bold",
-  color: "#0D47A1",
+  color: "#4527a0",
   marginBottom: 10,
 },
-recentOrdersCard: {
-  width: "100%",
-  backgroundColor: "#FFFFFF",
-  borderRadius: 18,
-  padding: 18,
-  marginTop: 16,
-},
 
-recentOrdersHeader: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: 14,
-},
-
-recentOrdersTitle: {
-  fontSize: 18,
-  fontWeight: "bold",
-  color: "#0D47A1",
-},
-
-recentOrdersCount: {
-  fontSize: 13,
-  color: "#666",
-  backgroundColor: "#E3F2FD",
-  paddingVertical: 5,
-  paddingHorizontal: 10,
-  borderRadius: 12,
-},
-
-recentOrderRow: {
-  flexDirection: "row",
-  alignItems: "center",
-  paddingVertical: 12,
-  borderBottomWidth: 1,
-  borderBottomColor: "#EEEEEE",
-},
-
-recentOrderIcon: {
-  width: 42,
-  height: 42,
-  borderRadius: 14,
-  backgroundColor: "#FFF3E0",
-  alignItems: "center",
-  justifyContent: "center",
-  marginRight: 12,
-},
-
-recentOrderInfo: {
-  flex: 1,
-},
-
-recentOrderTitle: {
-  fontSize: 15,
-  fontWeight: "bold",
-  color: "#0D47A1",
-},
-
-recentOrderMeta: {
-  fontSize: 12,
-  color: "#777",
-  marginTop: 3,
-},
-
-recentOrderRight: {
-  alignItems: "flex-end",
-  marginLeft: 10,
-},
-
-recentOrderPrice: {
-  fontSize: 15,
-  fontWeight: "bold",
-  color: "#F57C00",
-},
-
-recentOrderStatus: {
-  fontSize: 11,
-  color: "#2E7D32",
-  backgroundColor: "#E8F5E9",
-  paddingVertical: 4,
-  paddingHorizontal: 8,
-  borderRadius: 10,
-  marginTop: 4,
-},
-
-noOrdersBox: {
-  alignItems: "center",
-  paddingVertical: 24,
-},
-
-noOrdersIcon: {
-  fontSize: 32,
-  marginBottom: 8,
-},
-
-noOrdersTitle: {
-  fontSize: 16,
-  fontWeight: "bold",
-  color: "#0D47A1",
-},
-
-noOrdersText: {
-  fontSize: 13,
-  color: "#777",
-  marginTop: 4,
-},
 messageButton: {
-  minHeight: 44,
   marginTop: 10,
-  backgroundColor: "#1565C0",
+  backgroundColor: "#4caf50",
   paddingVertical: 10,
-  paddingHorizontal: 12,
   borderRadius: 12,
   alignItems: "center",
-  justifyContent: "center",
 },
 
 messageText: {
@@ -2451,17 +1905,17 @@ detailCard: {
   width: "100%",
 },
 detailInfoBox: {
-  backgroundColor: "#E3F2FD",
+  backgroundColor: "#f8f5ff",
   borderRadius: 18,
   padding: 16,
   marginTop: 14,
 },
 detailLabel: {
   fontWeight: "bold",
-  color: "#0D47A1",
+  color: "#4527a0",
 },
 priceBadge: {
-  backgroundColor: "#1565C0",
+  backgroundColor: "#7b2ff7",
   paddingVertical: 6,
   paddingHorizontal: 10,
   borderRadius: 12,
@@ -2498,16 +1952,16 @@ welcomeCard: {
 welcomeTitle: {
   fontSize: 28,
   fontWeight: "bold",
-  color: "#0D47A1",
+  color: "#4a148c",
   textAlign: "center",
 },
 
 welcomeText: {
-  color: "#555",
-  fontSize: 18,
+  fontSize: 16,
+  color: "#666",
   textAlign: "center",
-  marginBottom: 20,
-},   
+  marginTop: 10,
+},
 
 welcomeButtons: {
   flexDirection: "row",
@@ -2523,7 +1977,7 @@ dashboardGrid: {
 dashboardBox: {
   flexGrow: 1,
   flexBasis: "45%",
-  backgroundColor: "#E3F2FD",
+  backgroundColor: "#f8f5ff",
   borderRadius: 18,
   padding: 18,
   alignItems: "center",
@@ -2532,7 +1986,7 @@ dashboardBox: {
 dashboardNumber: {
   fontSize: 24,
   fontWeight: "bold",
-  color: "#0D47A1",
+  color: "#4a148c",
 },
 
 dashboardLabel: {
@@ -2542,16 +1996,15 @@ dashboardLabel: {
   fontWeight: "bold",
 },
 heroButton: {
-  backgroundColor: "#1565C0",
-  paddingVertical: 18,
-  paddingHorizontal: 40,
-  borderRadius: 50,
-  marginHorizontal: 10,
-}, 
+  backgroundColor: "#7b2ff7",
+  paddingVertical: 12,
+  paddingHorizontal: 20,
+  borderRadius: 14,
+  marginHorizontal: 8,
+},
 heroButtonText: {
-  color: "#FFFFFF",
+  color: "#fff",
   fontWeight: "bold",
-  textAlign: "center",
 },
 infoRow: {
   flexDirection: "row",
@@ -2567,4 +2020,3 @@ infoCard: {
   marginHorizontal: 10,
 },
 });
-

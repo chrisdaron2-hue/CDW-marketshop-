@@ -7,6 +7,15 @@ import {
   Image,
 } from "react-native";
 
+function safeScrollTo(...args) {
+  if (
+    typeof window !== "undefined" &&
+    typeof window.scrollTo === "function"
+  ) {
+    window.scrollTo(...args);
+  }
+}
+
 export default function ProductCard({
   item,
   styles,
@@ -23,7 +32,7 @@ export default function ProductCard({
     setSelectedProduct(item);
 
     if (typeof window !== "undefined") {
-      window.scrollTo(0, 0);
+      safeScrollTo(0, 0);
     }
   };
 
