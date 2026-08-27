@@ -1,10 +1,5 @@
-<p align="center">
-  <img
-    src="https://github.com/user-attachments/assets/c4ef30a2-99f9-4d9b-8da3-3c4f6777fda6"
-    alt="CDW MarketShop"
-    width="100%"
-  />
-</p>
+<img width="1470" height="956" alt="Screenshot 2026-08-10 at 20 24 42" src="https://github.com/user-attachments/assets/fc653034-f7a0-4f52-92a5-7a4e8c7aa6da" />
+
 
 # 🛒 CDW MarketShop
 
