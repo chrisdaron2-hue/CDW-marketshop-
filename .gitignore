@@ -58,3 +58,4 @@ terraform.rc
 # Lambda dependencies and deployment packages
 infrastructure/lambda/**/node_modules/
 infrastructure/terraform/*.zip
+.env*
