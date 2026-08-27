@@ -174,41 +174,6 @@ This project demonstrates practical skills in **Cloud Engineering**, **Serverles
 
 ---
 
-## 📸 Screenshots
-
-### 🛒 Shopping Cart
-
-<img
-  src="https://github.com/user-attachments/assets/cd17bf81-2fe0-4b73-be07-6759cafc1cac"
-  alt="Shopping cart"
-  width="900"
-/>
-
-### 🏠 Marketplace Home
-
-<img
-  src="https://github.com/user-attachments/assets/b6c91806-8e36-4c0b-a05e-cc5bba8b02ae"
-  alt="Marketplace home"
-  width="900"
-/>
-
-### 📦 Product Details
-
-<img
-  src="https://github.com/user-attachments/assets/e754797a-ae90-4bf7-8154-862d34d1708c"
-  alt="Product details"
-  width="900"
-/>
-
-### 💬 Messaging
-
-<img
-  src="https://github.com/user-attachments/assets/35e5baf6-2050-4248-b0f0-4be2da24c2c5"
-  alt="Messaging"
-  width="900"
-/>
-
----
 
 ## 💻 Run Locally
 
