@@ -1,4 +1,5 @@
-<img width="1470" height="956" alt="Screenshot 2026-08-05 at 12 41 06" src="https://github.com/user-attachments/assets/776a4b0d-23ef-4c0a-9ad1-345a6994a5f9" />
+<img width="1536" height="1024" alt="CDW-MarketShop-Pro" src="https://github.com/user-attachments/assets/78c51174-c23e-49c5-bf6f-d9b0cef2f770" />
+
 
 
 
