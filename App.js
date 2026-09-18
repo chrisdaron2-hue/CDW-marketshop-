@@ -510,41 +510,43 @@ async function deleteProduct(productId) {
 }
 
  async function buyProduct(product) {
-  const newOrder = {
-    id: Date.now().toString(),
-    productId: product.id,
-    title: product.title,
-    price: product.price,
-    seller: product.seller,
-    buyer: currentUserEmail,
-    purchasedAt: new Date().toISOString(),
-  };
-
   try {
-    await fetch(ORDERS_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newOrder),
-    });
-
-    setOrders([...orders, newOrder]);
-
-    setProducts(
-      products.map((p) =>
-        p.id === product.id ? { ...p, sold: true } : p
-      )
+    const response = await fetch(
+      "https://cdw-marketshop.vercel.app/api/create-checkout-session",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: product.id,
+          title: product.title,
+          price: product.price,
+          seller: product.seller,
+          buyer: currentUserEmail || "Guest",
+        }),
+      }
     );
 
-    setSelectedProduct({ ...product, sold: true });
+    const data = await response.json();
 
-    notify("Order placed successfully.");
+    if (!response.ok) {
+      throw new Error(
+        data.error || "Could not create Stripe checkout session."
+      );
+    }
+
+    if (!data.url) {
+      throw new Error("Stripe checkout URL was not returned.");
+    }
+
+    await Linking.openURL(data.url);
   } catch (error) {
-    console.log("ORDER ERROR:", error);
-    notify("Failed to save order.");
+    console.log("CHECKOUT ERROR:", error);
+    notify("Could not open Stripe checkout.");
   }
 }
+
 function toggleFavorite(productId) {
   setFavorites((prevFavorites) => {
     const updatedFavorites = prevFavorites.includes(productId)

@@ -72,6 +72,20 @@ This project demonstrates practical skills in **Cloud Engineering**, **Serverles
 - Product gallery navigation
 - Favorites and cart management
 
+- Stripe Sandbox Checkout for Buy Now purchases
+
+### 💳 Payments
+
+- Stripe Checkout integration in Sandbox/Test mode
+
+- Dynamic product names and prices sent to Stripe Checkout
+
+- Vercel serverless checkout API at `/api/create-checkout-session`
+
+- Stripe secret key stored securely in Vercel environment variables
+
+- Buy Now redirects customers to Stripe-hosted Checkout
+
 ### 💬 Messaging
 
 - Buyer and seller conversations
@@ -220,6 +234,8 @@ npx expo export --platform web
 - Problem Solving
 - Full-Stack Development
 
+- Payment API Integration
+
 ---
 
 ## 🔮 Future Improvements
@@ -228,7 +244,9 @@ npx expo export --platform web
 - GitHub Actions CI/CD
 - Real-time messaging and notifications
 - Mobile push notifications
-- Payment integration
+- Stripe webhook payment confirmation
+
+- Live Stripe payment activation
 - Admin dashboard
 - Analytics dashboard
 - CloudWatch monitoring and logging
