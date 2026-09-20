@@ -21,7 +21,13 @@ resource "aws_apigatewayv2_route" "create_product" {
   route_key = "POST /products"
   target    = "integrations/${aws_apigatewayv2_integration.products.id}"
 }
+resource "aws_apigatewayv2_route" "update_product" {
+  api_id = aws_apigatewayv2_api.marketshop.id
 
+  route_key = "PATCH /products/{id}"
+
+  target = "integrations/${aws_apigatewayv2_integration.products.id}"
+}
 resource "aws_apigatewayv2_route" "delete_product" {
   api_id = aws_apigatewayv2_api.marketshop.id
 
@@ -54,4 +60,12 @@ resource "aws_lambda_permission" "allow_api_gateway_delete_product" {
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_apigatewayv2_api.marketshop.execution_arn}/*/DELETE/products/*"
+}
+resource "aws_lambda_permission" "allow_api_gateway_update_product" {
+  statement_id  = "AllowApiGatewayUpdateProduct"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.products.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_apigatewayv2_api.marketshop.execution_arn}/*/PATCH/products/*"
 }

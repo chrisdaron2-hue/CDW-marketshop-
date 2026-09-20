@@ -48,7 +48,8 @@ resource "aws_s3_bucket_cors_configuration" "product_images" {
     allowed_methods = ["GET", "HEAD", "PUT"]
     allowed_origins = [
       "http://localhost:8081",
-      "http://localhost:19006"
+      "http://localhost:19006",
+      "https://cdw-marketshop.vercel.app"
     ]
     allowed_headers = ["*"]
     expose_headers  = ["ETag"]

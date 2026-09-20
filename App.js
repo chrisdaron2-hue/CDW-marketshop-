@@ -102,7 +102,9 @@ const [sellFormY, setSellFormY] = useState(0);
   const [imageUri, setImageUri] = useState(null);
   const [imageUri2, setImageUri2] = useState(null);
   const [imageUri3, setImageUri3] = useState(null);
-
+const [imageFile, setImageFile] = useState(null);
+const [imageFile2, setImageFile2] = useState(null);
+const [imageFile3, setImageFile3] = useState(null);
   // Search, categories, filters, and sorting
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
@@ -113,7 +115,7 @@ const [sellFormY, setSellFormY] = useState(0);
   // Cart and favorites
   const [favorites, setFavorites] = useState([]);
   const [cart, setCart] = useState([]);
-
+const [paymentStatus, setPaymentStatus] = useState(null);
   // Orders
   const [orders, setOrders] = useState([]);
 
@@ -219,7 +221,18 @@ useEffect(() => {
   if (typeof window === "undefined") return;
   window.localStorage.setItem("cart", JSON.stringify(cart));
 }, [cart]);
-  
+ useEffect(() => {
+  if (typeof window === "undefined") return;
+
+  const params = new URLSearchParams(window.location.search);
+  const payment = params.get("payment");
+
+  if (payment === "success") {
+    setPaymentStatus("success");
+  } else if (payment === "cancelled") {
+    setPaymentStatus("cancelled");
+  }
+}, []);
   async function handleSignIn() {
   if (!email || !password) {
     notify("Enter email and password.");
@@ -289,7 +302,10 @@ useEffect(() => {
   });
 
   if (!result.canceled) {
-    setImageUri(result.assets[0].uri);
+    const asset = result.assets[0];
+
+    setImageUri(asset.uri);
+    setImageFile(asset.file || null);
   }
 }
 
@@ -300,7 +316,10 @@ async function pickImage2() {
   });
 
   if (!result.canceled) {
-    setImageUri2(result.assets[0].uri);
+    const asset = result.assets[0];
+
+    setImageUri2(asset.uri);
+    setImageFile2(asset.file || null);
   }
 }
 
@@ -311,26 +330,39 @@ async function pickImage3() {
   });
 
   if (!result.canceled) {
-    setImageUri3(result.assets[0].uri);
+    const asset = result.assets[0];
+
+    setImageUri3(asset.uri);
+    setImageFile3(asset.file || null);
   }
 }
    
-async function uploadImageToS3(localImageUri) {
-  if (!localImageUri) {
+async function uploadImageToS3(localImageUri, browserFile = null) {
+  if (!localImageUri && !browserFile) {
     return null;
   }
 
-  // Convert the selected local image into a Blob.
-  const imageResponse = await fetch(localImageUri);
+  let imageBlob;
 
-  if (!imageResponse.ok) {
-    throw new Error("Could not read the selected image.");
+  if (browserFile) {
+    imageBlob = browserFile;
+  } else {
+    const imageResponse = await fetch(localImageUri);
+
+    if (!imageResponse.ok) {
+      throw new Error("Could not read the selected image.");
+    }
+
+    imageBlob = await imageResponse.blob();
   }
 
-  const imageBlob = await imageResponse.blob();
-  const lowerCaseUri = localImageUri.toLowerCase().split("?")[0];
+  const lowerCaseUri = String(localImageUri || "")
+    .toLowerCase()
+    .split("?")[0];
 
-  let contentType = imageBlob.type;
+  let contentType =
+    browserFile?.type ||
+    imageBlob.type;
 
   if (!["image/jpeg", "image/png", "image/webp"].includes(contentType)) {
     if (lowerCaseUri.endsWith(".png")) {
@@ -411,22 +443,31 @@ console.log("IMAGE URI 2:", imageUri2);
 console.log("IMAGE URI 3:", imageUri3); 
 try {
   if (imageUri) {
-    uploadedImageUrl = await uploadImageToS3(imageUri);
+    uploadedImageUrl = await uploadImageToS3(
+      imageUri,
+      imageFile
+    );
   }
 
   if (imageUri2) {
-    uploadedImageUrl2 = await uploadImageToS3(imageUri2);
+    uploadedImageUrl2 = await uploadImageToS3(
+      imageUri2,
+      imageFile2
+    );
   }
 
   if (imageUri3) {
-    uploadedImageUrl3 = await uploadImageToS3(imageUri3);
+    uploadedImageUrl3 = await uploadImageToS3(
+      imageUri3,
+      imageFile3
+    );
   }
 } catch (error) {
   console.log("IMAGE UPLOAD ERROR:", error);
   notify("Image upload failed.");
   return;
 }
-  
+
 const productImages = [
     uploadedImageUrl,
     uploadedImageUrl2,

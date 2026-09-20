@@ -5,14 +5,16 @@ resource "aws_apigatewayv2_api" "marketshop" {
   cors_configuration {
     allow_origins = [
       "http://localhost:8081",
-      "http://localhost:19006"
+      "http://localhost:19006",
+      "https://cdw-marketshop.vercel.app"
     ]
 
     allow_methods = [
       "DELETE",
       "GET",
       "OPTIONS",
-      "POST"
+      "POST",
+      "PATCH"
     ]
 
     allow_headers = [

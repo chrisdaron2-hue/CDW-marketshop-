@@ -1,10 +1,13 @@
 import { randomUUID } from "node:crypto";
+
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+
 import {
   DeleteCommand,
   DynamoDBDocumentClient,
   PutCommand,
   ScanCommand,
+  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 
 const dynamoClient = new DynamoDBClient({});
@@ -139,7 +142,62 @@ async function createProduct(event) {
     throw error;
   }
 }
+async function updateProduct(event) {
+  const productId = decodeURIComponent(
+    event?.pathParameters?.id || ""
+  ).trim();
 
+  if (!productId) {
+    return createResponse(400, {
+      message: "A product ID is required.",
+    });
+  }
+
+  let requestBody;
+
+  try {
+    requestBody = parseRequestBody(event);
+  } catch {
+    return createResponse(400, {
+      message: "The request body must contain valid JSON.",
+    });
+  }
+
+  if (typeof requestBody.sold !== "boolean") {
+    return createResponse(400, {
+      message: "The sold value must be true or false.",
+    });
+  }
+
+  try {
+    const result = await documentClient.send(
+      new UpdateCommand({
+        TableName: process.env.TABLE_NAME,
+        Key: {
+          id: productId,
+        },
+        UpdateExpression:
+          "SET sold = :sold, updatedAt = :updatedAt",
+        ExpressionAttributeValues: {
+          ":sold": requestBody.sold,
+          ":updatedAt": new Date().toISOString(),
+        },
+        ConditionExpression: "attribute_exists(id)",
+        ReturnValues: "ALL_NEW",
+      })
+    );
+
+    return createResponse(200, result.Attributes);
+  } catch (error) {
+    if (error?.name === "ConditionalCheckFailedException") {
+      return createResponse(404, {
+        message: "Product not found.",
+      });
+    }
+
+    throw error;
+  }
+}
 async function deleteProduct(event) {
   const productId = decodeURIComponent(
     event?.pathParameters?.id || ""
@@ -197,7 +255,12 @@ export const handler = async (event) => {
     if (method === "POST" && path.endsWith("/products")) {
       return await createProduct(event);
     }
-
+if (
+  method === "PATCH" &&
+  path.includes("/products/")
+) {
+  return await updateProduct(event);
+}
     if (
       method === "DELETE" &&
       path.includes("/products/")

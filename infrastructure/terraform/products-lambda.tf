@@ -36,7 +36,8 @@ data "aws_iam_policy_document" "products_table_permissions" {
     actions = [
       "dynamodb:Scan",
       "dynamodb:PutItem",
-      "dynamodb:DeleteItem"
+      "dynamodb:DeleteItem",
+      "dynamodb:UpdateItem"
     ]
 
     resources = [
