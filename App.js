@@ -37,7 +37,14 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import { Amplify } from "aws-amplify";
-import { signIn, signUp, resetPassword, signOut } from "aws-amplify/auth";
+import {
+  signIn,
+  signUp,
+  resetPassword,
+  confirmResetPassword,
+  signOut,
+  fetchAuthSession,
+} from "aws-amplify/auth";
 import awsConfig from "./src/aws-exports";
 Amplify.configure(awsConfig);
 const sampleProducts = [
@@ -75,6 +82,9 @@ export default function App() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState("");
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
+  const [resetCode, setResetCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
   // Profile
   const [profileName, setProfileName] = useState("Elizabeth Gyamfi");
@@ -234,26 +244,50 @@ useEffect(() => {
   }
 }, []);
   async function handleSignIn() {
-  if (!email || !password) {
-    notify("Enter email and password.");
-    return;
+    if (!email || !password) {
+      notify("Enter email and password.");
+      return;
+    }
+
+    try {
+      const result = await signIn({
+        username: email.trim().toLowerCase(),
+        password,
+      });
+
+      console.log("SIGN IN RESULT:", result);
+
+      if (!result.isSignedIn) {
+        console.log("SIGN IN NEXT STEP:", result.nextStep);
+
+        notify(
+          "Sign in needs another verification step."
+        );
+        return;
+      }
+
+      const session = await fetchAuthSession();
+
+      if (!session.tokens?.accessToken) {
+        throw new Error(
+          "Sign in completed but no authentication token was returned."
+        );
+      }
+
+      setCurrentUserEmail(
+        email.trim().toLowerCase()
+      );
+
+      notify("Signed in.");
+    } catch (error) {
+      console.log("SIGN IN ERROR:", error);
+
+      notify(
+        error.message || "Sign in failed."
+      );
+    }
   }
 
-  try {
-    await signIn({
-      username: email.trim().toLowerCase(),
-      password,
-      options: { authFlowType: "USER_AUTH" },
-    });
-
-    setCurrentUserEmail(email.trim().toLowerCase());
-
-    notify("Signed in.");
-  } catch (error) {
-    console.log("SIGN IN ERROR:", error);
-    notify(error.message || "Sign in failed.");
-  }
-}
   async function handleSignUp() {
     if (!email || !password) {
       notify("Enter email and password.");
@@ -284,6 +318,10 @@ useEffect(() => {
       return;
     }
 
+    // Show the reset form immediately so users who already
+    // have a code can continue without requesting another one.
+    setShowPasswordReset(true);
+
     try {
       await resetPassword({
         username: email.trim().toLowerCase(),
@@ -291,7 +329,48 @@ useEffect(() => {
 
       notify("Password reset code sent.");
     } catch (error) {
-      notify(error.message || "Could not reset password.");
+      console.log("RESET PASSWORD ERROR:", error);
+
+      notify(
+        "If you already have a reset code, enter it below. " +
+        "Otherwise, wait a while before requesting another code."
+      );
+    }
+  }
+
+  async function handleConfirmResetPassword() {
+    if (!email || !resetCode || !newPassword) {
+      notify(
+        "Enter your email, reset code, and new password."
+      );
+      return;
+    }
+
+    try {
+      await confirmResetPassword({
+        username: email.trim().toLowerCase(),
+        confirmationCode: resetCode.trim(),
+        newPassword,
+      });
+
+      setShowPasswordReset(false);
+      setResetCode("");
+      setNewPassword("");
+      setPassword("");
+
+      notify(
+        "Password changed successfully. Sign in with your new password."
+      );
+    } catch (error) {
+      console.log(
+        "CONFIRM RESET PASSWORD ERROR:",
+        error
+      );
+
+      notify(
+        error.message ||
+          "Could not change password."
+      );
     }
   }
 
@@ -552,12 +631,22 @@ async function deleteProduct(productId) {
 
  async function buyProduct(product) {
   try {
+    const session = await fetchAuthSession();
+    const accessToken =
+      session.tokens?.accessToken?.toString();
+
+    if (!accessToken) {
+      notify("Please sign in before buying a product.");
+      return;
+    }
+
     const response = await fetch(
       "https://cdw-marketshop.vercel.app/api/create-checkout-session",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           productId: product.id,
@@ -1571,6 +1660,40 @@ return (
     <TouchableOpacity onPress={handleForgotPassword}>
       <Text style={styles.forgotText}>Forgot password?</Text>
     </TouchableOpacity>
+
+    {showPasswordReset && (
+      <View style={{ marginTop: 16 }}>
+        <TextInput
+          placeholder="Password reset code"
+          style={styles.input}
+          value={resetCode}
+          onChangeText={setResetCode}
+          autoCapitalize="none"
+        />
+
+        <TextInput
+          placeholder="New password"
+          style={styles.input}
+          value={newPassword}
+          onChangeText={setNewPassword}
+          secureTextEntry
+          autoCapitalize="none"
+        />
+
+        <TouchableOpacity
+          onPress={handleConfirmResetPassword}
+        >
+          <LinearGradient
+            colors={["#1565C0", "#1976D2"]}
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}>
+              Change Password
+            </Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
+    )}
   </View>
 )}
 
