@@ -35,6 +35,7 @@ data "aws_iam_policy_document" "products_table_permissions" {
 
     actions = [
       "dynamodb:Scan",
+      "dynamodb:GetItem",
       "dynamodb:PutItem",
       "dynamodb:DeleteItem",
       "dynamodb:UpdateItem"

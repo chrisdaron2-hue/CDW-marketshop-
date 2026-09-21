@@ -5,6 +5,7 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DeleteCommand,
   DynamoDBDocumentClient,
+  GetCommand,
   PutCommand,
   ScanCommand,
   UpdateCommand,
@@ -63,6 +64,35 @@ async function getProducts() {
   );
 
   return createResponse(200, products);
+}
+
+async function getProduct(event) {
+  const productId = decodeURIComponent(
+    event?.pathParameters?.id || ""
+  ).trim();
+
+  if (!productId) {
+    return createResponse(400, {
+      message: "A product ID is required.",
+    });
+  }
+
+  const result = await documentClient.send(
+    new GetCommand({
+      TableName: process.env.TABLE_NAME,
+      Key: {
+        id: productId,
+      },
+    })
+  );
+
+  if (!result.Item) {
+    return createResponse(404, {
+      message: "Product not found.",
+    });
+  }
+
+  return createResponse(200, result.Item);
 }
 
 async function createProduct(event) {
@@ -250,6 +280,13 @@ export const handler = async (event) => {
 
     if (method === "GET" && path.endsWith("/products")) {
       return await getProducts();
+    }
+
+    if (
+      method === "GET" &&
+      path.includes("/products/")
+    ) {
+      return await getProduct(event);
     }
 
     if (method === "POST" && path.endsWith("/products")) {

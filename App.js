@@ -561,10 +561,6 @@ async function deleteProduct(productId) {
         },
         body: JSON.stringify({
           productId: product.id,
-          title: product.title,
-          price: product.price,
-          seller: product.seller,
-          buyer: currentUserEmail || "Guest",
         }),
       }
     );

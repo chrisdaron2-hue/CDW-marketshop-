@@ -69,3 +69,19 @@ resource "aws_lambda_permission" "allow_api_gateway_update_product" {
 
   source_arn = "${aws_apigatewayv2_api.marketshop.execution_arn}/*/PATCH/products/*"
 }
+
+resource "aws_apigatewayv2_route" "get_product" {
+  api_id = aws_apigatewayv2_api.marketshop.id
+
+  route_key = "GET /products/{id}"
+  target    = "integrations/${aws_apigatewayv2_integration.products.id}"
+}
+
+resource "aws_lambda_permission" "allow_api_gateway_get_product" {
+  statement_id  = "AllowApiGatewayGetProduct"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.products.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_apigatewayv2_api.marketshop.execution_arn}/*/GET/products/*"
+}
