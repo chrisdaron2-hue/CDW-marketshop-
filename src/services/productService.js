@@ -95,12 +95,19 @@ export async function loadProducts() {
   }
 }
 
-export async function saveProduct(product) {
+export async function saveProduct(product, accessToken) {
   try {
+
+    if (!accessToken) {
+      throw new Error(
+        "Authentication required to post a product."
+      );
+    }
     const response = await fetch(PRODUCTS_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(product),
     });

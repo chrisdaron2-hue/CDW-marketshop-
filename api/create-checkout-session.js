@@ -171,6 +171,7 @@ module.exports = async function handler(req, res) {
         metadata: {
           productId: String(product.id),
           seller: String(product.seller || ""),
+          sellerId: String(product.sellerId || ""),
 
           // Verified Cognito identity.
           buyerId,

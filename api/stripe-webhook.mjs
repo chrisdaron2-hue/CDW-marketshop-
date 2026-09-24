@@ -114,7 +114,17 @@ export default {
 
       const productId = session.metadata?.productId;
       const seller = session.metadata?.seller || "";
-      const buyer = session.metadata?.buyer || "";
+      const sellerId = session.metadata?.sellerId || "";
+
+      // Verified Cognito identity from checkout metadata.
+      // Fall back to the old "buyer" field for older sessions.
+      const buyerId =
+        session.metadata?.buyerId ||
+        session.metadata?.buyer ||
+        "";
+
+      // Temporary backwards compatibility.
+      const buyer = buyerId;
 
       if (!productId) {
         console.error(
@@ -190,6 +200,8 @@ export default {
             price:
               Number(session.amount_total || 0) / 100,
             seller,
+            sellerId,
+            buyerId,
             buyer,
             purchasedAt: new Date().toISOString(),
             paymentStatus: session.payment_status,

@@ -44,6 +44,7 @@ import {
   confirmResetPassword,
   signOut,
   fetchAuthSession,
+  fetchUserAttributes,
 } from "aws-amplify/auth";
 import awsConfig from "./src/aws-exports";
 Amplify.configure(awsConfig);
@@ -243,6 +244,49 @@ useEffect(() => {
     setPaymentStatus("cancelled");
   }
 }, []);
+  useEffect(() => {
+    async function restoreSignedInUser() {
+      try {
+        const session = await fetchAuthSession();
+
+        if (!session.tokens?.accessToken) {
+          return;
+        }
+
+        const attributes = await fetchUserAttributes();
+        const restoredEmail =
+          attributes.email?.trim().toLowerCase() || "";
+
+        if (restoredEmail) {
+          setCurrentUserEmail(restoredEmail);
+          setEmail(restoredEmail);
+        }
+      } catch (error) {
+        console.log("RESTORE AUTH SESSION:", error);
+        setCurrentUserEmail("");
+      }
+    }
+
+    restoreSignedInUser();
+  }, []);
+
+  async function handleSignOut() {
+    try {
+      await signOut();
+
+      setCurrentUserEmail("");
+      setPassword("");
+      setShowPasswordReset(false);
+      setResetCode("");
+      setNewPassword("");
+
+      notify("Signed out.");
+    } catch (error) {
+      console.log("SIGN OUT ERROR:", error);
+      notify(error.message || "Could not sign out.");
+    }
+  }
+
   async function handleSignIn() {
     if (!email || !password) {
       notify("Enter email and password.");
@@ -571,7 +615,19 @@ console.log("PRODUCT IMAGES:", productImages);
 };
 
 try {
-  const productSaved = await saveProduct(newProduct);
+  const session = await fetchAuthSession();
+  const accessToken =
+    session.tokens?.accessToken?.toString();
+
+  if (!accessToken) {
+    notify("Please sign in before posting a product.");
+    return;
+  }
+
+  const productSaved = await saveProduct(
+    newProduct,
+    accessToken
+  );
 
   if (!productSaved) {
     throw new Error("The product could not be saved.");
@@ -669,7 +725,9 @@ async function deleteProduct(productId) {
     await Linking.openURL(data.url);
   } catch (error) {
     console.log("CHECKOUT ERROR:", error);
-    notify("Could not open Stripe checkout.");
+    notify(
+      error.message || "Could not open Stripe checkout."
+    );
   }
 }
 

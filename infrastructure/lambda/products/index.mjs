@@ -96,6 +96,15 @@ async function getProduct(event) {
 }
 
 async function createProduct(event) {
+  const sellerId =
+    event?.requestContext?.authorizer?.jwt?.claims?.sub || "";
+
+  if (!sellerId) {
+    return createResponse(401, {
+      message: "Authentication required.",
+    });
+  }
+
   let requestBody;
 
   try {
@@ -137,6 +146,7 @@ async function createProduct(event) {
     title,
     price,
     seller,
+    sellerId,
     category,
     condition,
     description: cleanText(requestBody.description, 2000),
