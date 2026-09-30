@@ -116,6 +116,15 @@ module.exports = async function handler(req, res) {
     const product =
       await productResponse.json();
 
+    if (
+      product.sellerId &&
+      String(product.sellerId) === String(buyerId)
+    ) {
+      return res.status(409).json({
+        error: "You cannot buy your own listing.",
+      });
+    }
+
     if (product.sold === true) {
       return res.status(409).json({
         error: "This product has already been sold.",

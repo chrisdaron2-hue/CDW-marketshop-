@@ -37,7 +37,12 @@ resource "aws_apigatewayv2_route" "delete_product" {
 
   route_key = "DELETE /products/{id}"
   target    = "integrations/${aws_apigatewayv2_integration.products.id}"
+
+  authorization_type   = "JWT"
+  authorizer_id        = aws_apigatewayv2_authorizer.cognito_products.id
+  authorization_scopes = ["aws.cognito.signin.user.admin"]
 }
+
 
 resource "aws_lambda_permission" "allow_api_gateway_get_products" {
   statement_id  = "AllowApiGatewayGetProducts"
@@ -104,4 +109,24 @@ resource "aws_apigatewayv2_authorizer" "cognito_products" {
 
     issuer = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_vk65AJSaU"
   }
+}
+
+resource "aws_apigatewayv2_route" "edit_product" {
+  api_id = aws_apigatewayv2_api.marketshop.id
+
+  route_key = "PUT /products/{id}"
+  target    = "integrations/${aws_apigatewayv2_integration.products.id}"
+
+  authorization_type   = "JWT"
+  authorizer_id        = aws_apigatewayv2_authorizer.cognito_products.id
+  authorization_scopes = ["aws.cognito.signin.user.admin"]
+}
+
+resource "aws_lambda_permission" "allow_api_gateway_edit_product" {
+  statement_id  = "AllowApiGatewayEditProduct"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.products.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_apigatewayv2_api.marketshop.execution_arn}/*/PUT/products/*"
 }

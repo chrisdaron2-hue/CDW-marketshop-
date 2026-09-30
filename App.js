@@ -660,28 +660,59 @@ try {
   }
 
 async function deleteProduct(productId) {
-  setProducts((prev) => prev.filter((p) => p.id !== productId));
-
-  if (selectedProduct?.id === productId) {
-    setSelectedProduct(null);
-  }
-
-  notify("Item removed.");
-
   if (productId.startsWith("sample-")) {
+    setProducts((prev) =>
+      prev.filter((p) => p.id !== productId)
+    );
+
+    if (selectedProduct?.id === productId) {
+      setSelectedProduct(null);
+    }
+
+    notify("Item removed.");
     return;
   }
 
   try {
-    await fetch(PRODUCTS_API_URL, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: productId }),
-    });
+    const session = await fetchAuthSession();
+    const accessToken =
+      session.tokens?.accessToken?.toString();
+
+    if (!accessToken) {
+      notify("Please sign in before deleting a product.");
+      return;
+    }
+
+    const response = await fetch(
+      `${PRODUCTS_API_URL}/${encodeURIComponent(productId)}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Could not delete product."
+      );
+    }
+
+    setProducts((prev) =>
+      prev.filter((p) => p.id !== productId)
+    );
+
+    if (selectedProduct?.id === productId) {
+      setSelectedProduct(null);
+    }
+
+    notify("Item removed.");
   } catch (error) {
     console.log("DELETE ERROR:", error);
+    notify(error.message || "Could not delete product.");
   }
 }
 
@@ -947,20 +978,82 @@ async function loadOrders() {
 }
 async function saveEditedProduct() {
   try {
-    const updatedProducts = products.map((product) =>
-      product.id === editingProduct.id ? editingProduct : product
+    if (!editingProduct?.id) {
+      notify("No product selected.");
+      return;
+    }
+
+    if (editingProduct.id.startsWith("sample-")) {
+      const updatedProducts = products.map((product) =>
+        product.id === editingProduct.id
+          ? editingProduct
+          : product
+      );
+
+      setProducts(updatedProducts);
+      setSelectedProduct(editingProduct);
+      setEditingProduct(null);
+
+      notify("Product updated successfully.");
+      return;
+    }
+
+    const session = await fetchAuthSession();
+    const accessToken =
+      session.tokens?.accessToken?.toString();
+
+    if (!accessToken) {
+      notify("Please sign in before editing a product.");
+      return;
+    }
+
+    const response = await fetch(
+      `${PRODUCTS_API_URL}/${encodeURIComponent(
+        editingProduct.id
+      )}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          title: editingProduct.title,
+          price: editingProduct.price,
+          seller: editingProduct.seller,
+          category: editingProduct.category,
+          condition: editingProduct.condition,
+          description: editingProduct.description || "",
+        }),
+      }
     );
 
-    setProducts(updatedProducts);
-    setSelectedProduct(editingProduct);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Failed to update product."
+      );
+    }
+
+    setProducts((prev) =>
+      prev.map((product) =>
+        product.id === data.id ? data : product
+      )
+    );
+
+    setSelectedProduct(data);
     setEditingProduct(null);
 
     notify("Product updated successfully.");
   } catch (error) {
     console.log("EDIT ERROR:", error);
-    notify("Failed to update product.");
+    notify(
+      error.message || "Failed to update product."
+    );
   }
 }
+
 async function handleSignOut() {
   try {
     await signOut();

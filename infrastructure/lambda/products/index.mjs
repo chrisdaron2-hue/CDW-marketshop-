@@ -238,6 +238,120 @@ async function updateProduct(event) {
     throw error;
   }
 }
+async function editProduct(event) {
+  const productId = decodeURIComponent(
+    event?.pathParameters?.id || ""
+  ).trim();
+
+  if (!productId) {
+    return createResponse(400, {
+      message: "A product ID is required.",
+    });
+  }
+
+  const sellerId =
+    event?.requestContext?.authorizer?.jwt?.claims?.sub || "";
+
+  if (!sellerId) {
+    return createResponse(401, {
+      message: "Authentication required.",
+    });
+  }
+
+  let requestBody;
+
+  try {
+    requestBody = parseRequestBody(event);
+  } catch {
+    return createResponse(400, {
+      message: "The request body must contain valid JSON.",
+    });
+  }
+
+  const existing = await documentClient.send(
+    new GetCommand({
+      TableName: process.env.TABLE_NAME,
+      Key: {
+        id: productId,
+      },
+    })
+  );
+
+  if (!existing.Item) {
+    return createResponse(404, {
+      message: "Product not found.",
+    });
+  }
+
+  if (!existing.Item.sellerId) {
+    return createResponse(403, {
+      message:
+        "This legacy listing does not have verified ownership.",
+    });
+  }
+
+  if (String(existing.Item.sellerId) !== String(sellerId)) {
+    return createResponse(403, {
+      message: "You can only edit your own listings.",
+    });
+  }
+
+  const title = cleanText(requestBody.title);
+  const seller = cleanText(requestBody.seller);
+  const category = cleanText(requestBody.category);
+  const condition = cleanText(requestBody.condition);
+  const price = cleanText(String(requestBody.price ?? ""), 50);
+
+  if (!title || !seller || !category || !condition || !price) {
+    return createResponse(400, {
+      message:
+        "Title, price, seller, category, and condition are required.",
+    });
+  }
+
+  try {
+    const result = await documentClient.send(
+      new UpdateCommand({
+        TableName: process.env.TABLE_NAME,
+        Key: {
+          id: productId,
+        },
+        UpdateExpression:
+          "SET title = :title, price = :price, seller = :seller, category = :category, #condition = :condition, description = :description, updatedAt = :updatedAt",
+        ExpressionAttributeNames: {
+          "#condition": "condition",
+        },
+        ExpressionAttributeValues: {
+          ":title": title,
+          ":price": price,
+          ":seller": seller,
+          ":category": category,
+          ":condition": condition,
+          ":description": cleanText(
+            requestBody.description,
+            2000
+          ),
+          ":updatedAt": new Date().toISOString(),
+          ":sellerId": sellerId,
+        },
+        ConditionExpression:
+          "attribute_exists(id) AND sellerId = :sellerId",
+        ReturnValues: "ALL_NEW",
+      })
+    );
+
+    return createResponse(200, result.Attributes);
+  } catch (error) {
+    if (error?.name === "ConditionalCheckFailedException") {
+      return createResponse(403, {
+        message: "You can only edit your own listings.",
+      });
+    }
+
+    throw error;
+  }
+}
+
 async function deleteProduct(event) {
   const productId = decodeURIComponent(
     event?.pathParameters?.id || ""
@@ -249,20 +363,64 @@ async function deleteProduct(event) {
     });
   }
 
-  const result = await documentClient.send(
-    new DeleteCommand({
+  const sellerId =
+    event?.requestContext?.authorizer?.jwt?.claims?.sub || "";
+
+  if (!sellerId) {
+    return createResponse(401, {
+      message: "Authentication required.",
+    });
+  }
+
+  const existing = await documentClient.send(
+    new GetCommand({
       TableName: process.env.TABLE_NAME,
       Key: {
         id: productId,
       },
-      ReturnValues: "ALL_OLD",
     })
   );
 
-  if (!result.Attributes) {
+  if (!existing.Item) {
     return createResponse(404, {
       message: "Product not found.",
     });
+  }
+
+  if (!existing.Item.sellerId) {
+    return createResponse(403, {
+      message:
+        "This legacy listing does not have verified ownership.",
+    });
+  }
+
+  if (String(existing.Item.sellerId) !== String(sellerId)) {
+    return createResponse(403, {
+      message: "You can only delete your own listings.",
+    });
+  }
+
+  try {
+    await documentClient.send(
+      new DeleteCommand({
+        TableName: process.env.TABLE_NAME,
+        Key: {
+          id: productId,
+        },
+        ConditionExpression: "sellerId = :sellerId",
+        ExpressionAttributeValues: {
+          ":sellerId": sellerId,
+        },
+      })
+    );
+  } catch (error) {
+    if (error?.name === "ConditionalCheckFailedException") {
+      return createResponse(403, {
+        message: "You can only delete your own listings.",
+      });
+    }
+
+    throw error;
   }
 
   return createResponse(200, {
@@ -302,6 +460,13 @@ export const handler = async (event) => {
     if (method === "POST" && path.endsWith("/products")) {
       return await createProduct(event);
     }
+if (
+  method === "PUT" &&
+  path.includes("/products/")
+) {
+  return await editProduct(event);
+}
+
 if (
   method === "PATCH" &&
   path.includes("/products/")

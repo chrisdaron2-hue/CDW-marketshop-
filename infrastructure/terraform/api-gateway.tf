@@ -14,7 +14,8 @@ resource "aws_apigatewayv2_api" "marketshop" {
       "GET",
       "OPTIONS",
       "POST",
-      "PATCH"
+      "PATCH",
+      "PUT"
     ]
 
     allow_headers = [
